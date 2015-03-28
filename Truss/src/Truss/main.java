@@ -83,8 +83,6 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 	static JLabel bank_page_lbl, no_assign_lbl, cur_sel_id, cur_sel_name, cur_sel_type, lbl_nothingselected, error_disp, number_of_cues_lbl, fade_val, active_preset_lbl, intensity_fader_lbl, current_cue_lbl;
 	JSpinner cue_counter, master_spinner, intensity_spinner;
 	static Fader single, bank_1, bank_2, bank_3, bank_4, bank_5, pan, tilt;
-//	static JSpinner fw_page_spinner;
-//	JRadioButton radio_group, radio_fixture;
 	static ArtNetNode artnet_node;
 	static ArtNet artnet = new ArtNet();
 	static ArtDmxPacket dmx = new ArtDmxPacket();
@@ -121,13 +119,6 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 	Color cell_bg = Color.black;
 	int cell_row = 2, cell_col = 3;
 	
-	// XML Parser variables
-//	String profile_name, profile_mode;
-//	Vector<Vector<Object>> profile_channels = new Vector<Vector<Object>>();
-//	boolean profile_built_in_dimmer;
-//	int[] profile_channel_function = new int[51];
-//	Vector<Object> profile_channel;
-	
 	SAXParserFactory factory = SAXParserFactory.newInstance();
 	DefaultHandler handler;
 
@@ -136,9 +127,6 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		for(int a=0;a<999;a++){
 			cue[a+1] = new Cue(null, "");
 		}
-//		for(int b=0;b<512;b++){
-//			dimmer_data[b][0] = b+1;
-//		}
 		new Thread(){
 			public void run(){
 				while(true){
@@ -175,25 +163,8 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 			};
 		};
 		artnet_discovery.start();  
-		
-//		Loader.loading_text.setText("Initialising");
+
 		boolean b = true;
-/*		int objects_amt = 0;
-		try {
-			ObjectInputStream counter_stream = new ObjectInputStream(new FileInputStream("test.txt"));
-			while(b == true){
-				try{
-					counter_stream.readObject();
-					objects_amt++;
-				} catch(Exception e){
-			//		e.printStackTrace();
-					b = false;
-				}
-			}
-			counter_stream.close();
-		} catch(Exception e){
-			e.printStackTrace();
-		}    */
 		
 		final String[] channels = {"Dimmer", "Shutter", "Iris", "Focus", "Zoom", "Pan", "Tilt", "Colour Wheel", 
 								   "Colour Wheel (Fine)", "Red", "Red (Fine)", "Green", "Green (Fine)", "Blue", "Blue (Fine)",
@@ -216,8 +187,6 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 						profileID++;
 						profile_name = attributes.getValue(0);
 						profile_mode = attributes.getValue(1);
-				//		profile_channels = new Vector<Vector<Object>>();
-				//		profile_channel_function = new int[51];
 					} else {
 						
 						if(name == "channel"){
@@ -225,7 +194,6 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 							profile_channel = new Vector<Object>();
 							profile_channel.addElement(attributes.getValue(0));
 							profile_channel.addElement(attributes.getValue(1));
-				//			profile_channel.addElement(Boolean.parseBoolean(attributes.getValue(2)));
 							
 							channel_amt++;
 							if(Arrays.asList(channels).indexOf(attributes.getValue(1)) != -1){
@@ -245,84 +213,20 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 						profile[profileID] = new Profile(profile_name, profile_mode, profile_channels, profile_built_in_dimmer, profile_channel_function);
 					} else if(name == "channel"){
 						profile_channels.add(profile_channel);
-				//		System.out.println(profile_channel);
 					}
 					
 				}
 			};
 			loadProfile("test.xml");
-		//	loadProfile("dimmer.xml");
 			
 		} catch(Exception e){
 			e.printStackTrace();
 		}
-		
-//		Vector<Object>[] vector = new Vector[100];
-//		b = true;
-//		int c = -1, d = -1;
-//		String profile_name="";
-//		try {
-//			boolean built_in_dimmer = false;
-//	//		ObjectInputStream obj_in = new ObjectInputStream(getClass().getResourceAsStream("profiles.txt"));
-//			ObjectInputStream obj_in = new ObjectInputStream(new FileInputStream("profiles.txt"));
-//				while(b == true){
-//					try{
-//						Object obj = obj_in.readObject();
-//						if(obj instanceof String){
-//							if(((String) obj).charAt(0) == '*'){
-//								if(d != -1 || obj == "*"){
-//						//		profile[d] = new Profile(profile_name, vector[d], built_in_dimmer);
-//							//		System.out.println(Boolean.parseBoolean(((String)obj).split("_")[0].substring(1)));
-//							//		System.out.println(profile_name);
-//									c = -1;
-//								}
-//								d++;
-//								vector[d] = new Vector();
-//								profile_name = ((String) obj).split("_")[1];
-//								built_in_dimmer = Boolean.parseBoolean(((String)obj).split("_")[0].substring(1));
-//							} else {
-//								c++;
-//								vector[d].add(new Vector());
-//								((Vector<Object>) vector[d].get(c)).add(obj);
-//							}
-//						} else {
-//							((Vector<Object>) vector[d].get(c)).add(obj);
-//						}
-//				//		Loader.loader.setValue(Loader.loader.getValue() + 100/objects_amt);
-//					} catch(Exception e){
-//				//		e.printStackTrace();
-//						b = false;
-//					}
-//				}
-//				obj_in.close();
-//		//		Loader.loaded = true;
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		} 
-		
+
 		load_show_filter = new FileNameExtensionFilter("Truss Show File", "truss");
 	}  
 
 	public main() {
-		
-//		try {
-//			SynthLookAndFeel laf = new SynthLookAndFeel();
-//		//	laf.load(getClass().getResourceAsStream("/src/look_and_feel.xml"), getClass());
-//			laf.load(new FileInputStream("src/look_and_feel.xml"), main.class);
-//			UIManager.setLookAndFeel(laf);
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}  
-		
-//		try 
-//	    {
-//	      UIManager.setLookAndFeel(new SyntheticaBlackEyeLookAndFeel());
-//	    } 
-//	    catch (Exception e) 
-//	    {
-//	      e.printStackTrace();
-//	    }
-
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(0, 0, 1290, 680);
@@ -330,8 +234,6 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		patch_and_control = new JPanel();
 		patch_and_control.setBounds(6, 0, 974, 660);
 		patch_and_control.setLayout(null);
-//		patch_and_control.setBackground(new Color(238, 238, 238));
-	//	patch_and_control.setBackground(new Color(130, 130, 130));
 		
 		JMenuBar menuBar = new JMenuBar();
 		
@@ -345,18 +247,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 			loadItem = new JMenuItem("Load");
 			loadItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK));
 			fileMenu.add(loadItem);
-		
-//		JMenu patchMenu = new JMenu("Patch");
-//		menuBar.add(patchMenu);
-//			
-//			fixtureItem = new JMenuItem("New Fixture");
-//			fixtureItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, ActionEvent.CTRL_MASK));
-//			patchMenu.add(fixtureItem);
-//				
-//			dimmerItem = new JMenuItem("New Dimmer");
-//			dimmerItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, ActionEvent.CTRL_MASK));
-//			patchMenu.add(dimmerItem);
-			
+
 		JMenu aboutMenu = new JMenu("About");
 		menuBar.add(aboutMenu);
 		
@@ -364,58 +255,31 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 			aboutMenu.add(aboutItem);
 			
 		setJMenuBar(menuBar);
-		
-//		cue = new JPanel();
-//		cue.setLayout(null);
-//		cue.setBackground(new Color(230, 230, 230));
-		
+
 		fw = new JPanel();
-//		fw.setBackground(new Color(230, 230, 230));
-		
+
 		presets = new JPanel();
-	//	presets.setBackground(new Color(230, 230, 230));
-		
+
 		contentPane = new JPanel();
-	//	contentPane.setBackground(new Color(130, 130, 130));
 		contentPane.setLayout(null);
 		contentPane.add(patch_and_control);
-	//	contentPane.setBackground(new Color(0,0,0));
-		
+
 		setContentPane(contentPane);
-//		contentPane.setBackground(new Color(238, 238, 238));
 		setTitle("Truss, Alpha 1.0");
 		setResizable(false);
-		
-//		for(int a=0;a<512;a++){
-//			patch_data[a][0] = a+1;
-//		}
 		
 		try {
 			UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
 		} catch (Exception e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		};  
 		
-		// Main Screen Selector
-//		screens = new JTabbedPane(JTabbedPane.TOP);
-//		screens.setBounds(6, 13, 977, 675);
-//		contentPane.add(screens);
-//		screens.addTab("Patch and Control", patch_and_control);
-//	//	screens.addTab("Cue", cue);
-//		screens.addTab("Fader Wing", fw);
-//		screens.addTab("Presets", presets);
-//		presets.setLayout(null);
-		
 		JPanel menu_panel = new JPanel();
-//		menu_panel.setBackground(new Color(100, 100, 100));
 		menu_panel.setBounds(0, 0, 1284, 45);
 		menu_panel.setLayout(null);
-	//	contentPane.add(menu_panel);
 		
 		JPanel main_controls_panel = new JPanel();
 		main_controls_panel.setBounds(980, 0, 294, 660);
-	//	main_controls_panel.setBackground(new Color(120, 120, 120));
 		menu_panel.setLayout(null);
 		contentPane.add(main_controls_panel);
 		
@@ -483,42 +347,11 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		sequence_table.setTableHeader(null);
 		sequence_table.setSelectionBackground(Color.LIGHT_GRAY);
 		
-//		group_table = new JTable(group_data, new Object[] {"Name", "Fixture Type", "Size"}){
-//			public boolean isCellEditable(int row, int column) {                
-//                return false;               
-//			};
-//		};
-//		group_table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-//		group_table.setBounds(2, 18, 450, 8208);
-//		group_table.getColumnModel().getColumn(2).setMaxWidth(80);
-		
 		patch_table_pane = new JScrollPane(fixture_table);
 		patch_table_pane.setColumnHeaderView(null);
 		patch_table_pane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 		patch_table_pane.setBounds(0, 0, 975, 300);
 		patch_and_control.add(patch_table_pane);
-		
-//		group_table_pane = new JScrollPane(group_table);
-//		group_table_pane.setBounds(433, 13, 408, 286);
-//		group_table_pane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-//		patch_and_control.add(group_table_pane);
-		
-//		new_fixture = new JButton();
-//		new_fixture.setBounds(10, 10, 25, 25);
-//		new_fixture.setIcon(new ImageIcon("src/img/fixture.png"));
-//		new_fixture.setToolTipText("Fixture Schedule");
-//		new_fixture.setBorder(new EmptyBorder(0,0,0,0));
-//		new_fixture.setContentAreaFilled(false);
-//		new_fixture.setFocusPainted(false);
-//		menu_panel.add(new_fixture);
-//		
-//		new_dimmer = new JButton();
-//		new_dimmer.setBounds(45, 10, 25, 25);
-//		new_dimmer.setIcon(new ImageIcon("src/img/dimmer.png"));
-//		new_dimmer.setBorder(new EmptyBorder(0,0,0,0));
-//		new_dimmer.setContentAreaFilled(false);
-//		new_dimmer.setFocusPainted(false);
-//		menu_panel.add(new_dimmer);
 		
 		JButton open_console = new JButton();
 		open_console.setBounds(80, 10, 25, 25);
@@ -527,100 +360,6 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		open_console.setContentAreaFilled(false);
 		open_console.setFocusPainted(false);
 		menu_panel.add(open_console);
-		
-//		edit_fixture = new JButton("Edit");
-//		edit_fixture.setEnabled(false);
-//		edit_fixture.setBounds(875, 102, 75, 29);
-//		patch_and_control.add(edit_fixture);
-		
-//		group_btn = new JButton("Group");
-//		group_btn.setEnabled(false);
-//		group_btn.setBounds(875, 129, 75, 29);
-//		patch_and_control.add(group_btn);
-		
-//		radio_fixture = new JRadioButton("Fixture");
-//		radio_fixture.setBounds(869, 243, 81, 23);
-//		radio_fixture.setSelected(true);
-//		patch_and_control.add(radio_fixture);
-//		
-//		radio_group = new JRadioButton("Group");
-//		radio_group.setBounds(869, 267, 81, 23);
-//		patch_and_control.add(radio_group);
-//		
-//		ButtonGroup sel_radios = new ButtonGroup();
-//		sel_radios.add(radio_fixture);
-//		sel_radios.add(radio_group);
-		
-/*			// Fixture Select and Control
-			
-			fixture_sel_and_ctrl = new JTabbedPane();
-			fixture_sel_and_ctrl.setBounds(0, 243, 950, 370);
-			patch_and_control.add(fixture_sel_and_ctrl);
-		
-			fixture_select = new JPanel();
-			fixture_select.setBackground(new Color(222, 222, 222));
-			fixture_sel_and_ctrl.addTab("Select", fixture_select);
-			fixture_select.setLayout(null);
-		
-			lbl_nothingpatched = new JLabel("No fixtures patched.", SwingConstants.CENTER);
-			lbl_nothingpatched.setBounds(6, 50, 917, 16);
-			fixture_select.add(lbl_nothingpatched);     
-			
-			fixture_sel_panel = new JPanel();
-			fixture_sel_panel.setLayout(new GridLayout(0,5));
-			fixture_sel_panel.setBackground(new Color(222, 222, 222));
-			
-			for(int b=0;b<512;b++){
-				fixture_select_btn[b] = new JToggleButton();
-				fixture_select_btn[b].addMouseListener(this);
-				fixture_select_btn[b].setVisible(false);
-				fixture_sel_panel.add(fixture_select_btn[b]);
-			}
-			
-			group_sel_panel = new JPanel(new GridLayout(0,5));
-			group_sel_panel.setBackground(new Color(222, 222, 222));
-			
-			for(int b=0;b<512;b++){
-				group_select_btn[b] = new JToggleButton();
-				group_select_btn[b].addMouseListener(this);
-				group_select_btn[b].setVisible(false);
-				group_sel_panel.add(group_select_btn[b]);
-			}
-			
-			JScrollPane fixture_sp = new JScrollPane(fixture_sel_panel);
-			fixture_sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-			fixture_sp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-			fixture_sp.setBorder(null);
-			fixture_sp.setBounds(0, 0, 929, 158);
-			fixture_select.add(fixture_sp);
-			
-			JScrollPane group_sp = new JScrollPane(group_sel_panel);
-			group_sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-			group_sp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-			group_sp.setBorder(null);
-			group_sp.setBounds(0, 160, 929, 164);
-			fixture_select.add(group_sp);    */
-
-			
-//			control = new JPanel();
-//			control.setBackground(new Color(238, 238, 238));
-//			
-//			int x=0;
-//			for(int a=0;a<50;a++){
-//				ctrl_fader[a] = new Fader();
-//				ctrl_fader[a].create(ctrl_fader_counter, control, new Color(238, 238, 238));
-//				ctrl_fader[a].setChannel("1/"+(a+1));
-//				ctrl_fader[a].setFaderVisible(false);
-//				ctrl_fader_counter++;
-//			}
-			
-//			JScrollPane sp = new JScrollPane(control);
-//			sp.setBounds(7, 300, 960, 323);
-//			sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
-//			sp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-//			sp.setBorder(null);
-//			patch_and_control.add(sp);
-			
 		
 			// Fixture Control
 		
@@ -632,14 +371,6 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 	//		fixture_control.setBackground(new Color(130, 130, 130));
 			fixture_control.setBounds(10, 345, 964, 315);
 			patch_and_control.add(fixture_control);
-			
-//			ctrl_fader[b].slider.setBackground(dimmer[b+1].c);
-//			ctrl_fader[b].setChannel("1/" + (b+1));
-//			ctrl_fader[b].assignFixture(dimmer[b+1]);
-//			ctrl_fader[b].slider.setValue(channel_data[dimmer[b+1].getStartChannel()]);
-//			ctrl_fader[b].setName(dimmer[b+1].name);
-//			ctrl_fader[b].assignChannel(new int[]{dimmer[b+1].startChannel});
-//			ctrl_fader[b].prev_val = 0;
 			
 			single = new Fader();
 			single.create(0, fixture_control, bg, 0, 0);
@@ -726,80 +457,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 			btnOther = new JButton("Other");
 			btnOther.setBounds(895, 150, 67, 39);
 			fixture_control.add(btnOther);	
-			
-		// Cue Screen
-			
-//		next_cue = new JButton("Next");
-//		next_cue.setBounds(875, 557, 75, 50);
-//		cue.add(next_cue);
-//			
-//		prev_cue = new JButton("Prev");
-//		prev_cue.setBounds(788, 557, 75, 50);
-//		cue.add(prev_cue);
-//			
-//		cue_counter = new JSpinner();
-//		cue_counter.setFont(new Font("Lucida Grande", Font.PLAIN, 20));
-//		cue_counter.setBounds(686, 560, 90, 38);
-//		cue.add(cue_counter);
-//			
-//		cue_slider = new JSlider(0, 0, 0);
-//		cue_slider.setSnapToTicks(true);
-//		cue_slider.setPaintLabels(true);
-//		cue_slider.setMajorTickSpacing(10);
-//		cue_slider.setBounds(6, 508, 944, 37);
-//		cue.add(cue_slider);
-//			
-//		cue_stack_selector = new JComboBox(cueStackNames);
-//		cue_stack_selector.setEditable(false);
-//		cue_stack_selector.setBounds(6, 18, 130, 27);
-//		cue.add(cue_stack_selector);
-//			
-//		new_cue_stack = new JButton("+ Cue Stack");
-//		new_cue_stack.setBounds(788, 85, 162, 29);
-//		cue.add(new_cue_stack);
-//		
-//		JSeparator separator = new JSeparator();
-//		separator.setOrientation(SwingConstants.VERTICAL);
-//		separator.setBounds(775, 18, 12, 478);
-//		cue.add(separator);
-//		
-//		new_cue_stack_tf = new JTextField();
-//		new_cue_stack_tf.setBounds(788, 50, 162, 28);
-//		cue.add(new_cue_stack_tf);
-//		
-//		JLabel lblNewCueName = new JLabel("Name");
-//		lblNewCueName.setBounds(788, 22, 36, 16);
-//		cue.add(lblNewCueName);
-//		
-//		JSeparator separator_1 = new JSeparator();
-//		separator_1.setBounds(788, 126, 162, 12);
-//		cue.add(separator_1);
-//		
-//		JLabel lblCurrentCueStack = new JLabel("Current Cue Stack");
-//		lblCurrentCueStack.setFont(new Font("Lucida Grande", Font.BOLD, 13));
-//		lblCurrentCueStack.setBounds(829, 144, 121, 16);
-//		cue.add(lblCurrentCueStack);
-//		
-//		add_cue = new JButton("+ Cue");
-//		add_cue.setBounds(875, 200, 75, 29);
-//		cue.add(add_cue);
-//		
-//		number_of_cues_lbl = new JLabel("No. of Cues:");
-//		number_of_cues_lbl.setBounds(788, 172, 162, 16);
-//		cue.add(number_of_cues_lbl);
-//		
-//		store_cue_btn = new JButton("Store");
-//		store_cue_btn.setBounds(875, 230, 75, 29);
-//		cue.add(store_cue_btn);
 
-		// Fader Wing
-//		for(int z=0;z<18;z++){
-//			fw_fader[z] = new Fader();
-//			fw_fader[z].create(z, fw, new Color(230, 230, 230));
-//			fw_fader[z].setChannel("-");
-//			fw_fader[z].setName("-");
-//		}
-		
 		// Presets Screen
 		presets_grid = new JTable(new Object[35][10], new Object[]{"","","","","","","","","",""});
 		presets_grid.setRowSelectionAllowed(false);
@@ -1795,496 +1453,17 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 				
 				dimmer_table.setColumnSelectionInterval(e.getX()/137, e.getX()/137);
 				dimmer_table.setRowSelectionInterval(e.getY()/50, e.getY()/50);
-		//		dimmer_table.setColumnSelectionInterval(e.getX()/137, e.getX()/137);
 				
 				try {
-					
-			//		selectedFixture = dimmer[dimmer_table.getSelectedRow()+1];
 					String[] s = (dimmer_table.getValueAt(dimmer_table.getSelectedRow(), dimmer_table.getSelectedColumn())).toString().split(" ");
 					FixtureSelectionEngine.selectDimmers(dimmer[Integer.parseInt(s[s.length-1].split("<")[0])]);
-
-//					cur_sel_id.setText("ID" + (dimmer_table.getSelectedRow()+1));
-//					cur_sel_name.setText(dimmer[dimmer_table.getSelectedRow()+1].getName());
-//					cur_sel_type.setText(dimmer[dimmer_table.getSelectedRow()+1].getFixtureType().name);
-					
-			//		selectedFixtures[0] = dimmer[dimmer_table.getSelectedRow()+1];
 					
 				} catch(NullPointerException npe){
 					return;
 				}
 			}
-//			else if(e.getSource() == presets_grid){
-//
-//				if(preset_name.getText().equals("")){
-//					assign_current_output.setEnabled(false);
-//				} else {
-//					assign_current_output.setEnabled(true);
-//				}
-//				
-//				if(preset[presets_grid.getSelectedColumn()][presets_grid.getSelectedRow()] != null){
-//					
-//					assign_current_output.setText("Edit");
-//					preset_name.setText(preset[presets_grid.getSelectedColumn()][presets_grid.getSelectedRow()].name);
-//					assign_current_output.setEnabled(true);
-//					
-//					if(execute_on_select.isSelected()){
-//						preset[presets_grid.getSelectedColumn()][presets_grid.getSelectedRow()].execute();
-//					}
-//					
-//				} else {
-//					assign_current_output.setText("Assign Current Output");
-//				}
-//				return;
-//				
-//			}
-			
-	/*		for(int a=0;a<512;a++){
-				if(e.getSource() == fixture_select_btn[a]){
-
-					selectedFixture = fixture[a+1];
-					if(selectedFixture_btn != null){
-						unselectFixture(selectedFixture_btn);
-					}  
-						
-					selectFixtures(new Fixture[]{fixture[a+1]}, true);
-
-					cur_sel_id.setText("ID"+fixture[a+1].id);
-					cur_sel_name.setText(fixture[a+1].getName());
-					cur_sel_type.setText(fixture[a+1].getFixtureType());
-					selectedFixture_btn = fixture_select_btn[a];  
-					return;
-				}
-			}  
-			for(int a=0;a<512;a++){
-				if(e.getSource() == group_select_btn[a]) {
-					
-					selectedFixture = group[a+1];
-					if(selectedFixture_btn != null){
-						unselectFixture(selectedFixture_btn);
-					}  
-
-					selectFixtures(group[a+1].getMembers(), false);
-
-					cur_sel_id.setText("GRP");
-					cur_sel_name.setText(group[a+1].getName());
-					cur_sel_type.setText(group[a+1].getFixtureType());
-					selectedFixture_btn = group_select_btn[a]; 
-					return;
-					
-				}
-			}  */
 		}
-		
-//		public void selectFixtures(Fixture[] f){
-//
-//			Profile prof = f[0].getFixtureType();
-//			selectedFixtures_amt = f.length;
-//			
-//			btnDimmer.setEnabled(false);
-//			btnShutter.setEnabled(false);
-//			btnIris.setEnabled(false);
-//			btnFocus.setEnabled(false);
-//			btnZoom.setEnabled(false);
-//			btnColourWheel.setEnabled(false);
-//			btnRgbMixing.setEnabled(false);
-//			btnCto.setEnabled(false);
-//			btnGobo_1.setEnabled(false);
-//			btnGobo_2.setEnabled(false);
-//			btnGobo_3.setEnabled(false);
-//			btnPrism.setEnabled(false);
-//			btnFrost.setEnabled(false);
-//			btnControl.setEnabled(false);
-//			btnOther.setEnabled(false);
-//			
-//		//	System.out.println(selectedFixtures[0].getFixtureType().channel_function[1]);
-//			
-//			// Check if the selected fixture/s have a the following functions, enable accordingly
-//			for(int a=0;a<512;a++){
-//				if(selectedFixtures[a] != null){
-//					if(selectedFixtures[a].getFixtureType().channel_function[0] != 0){
-//						setSingleFader(btnDimmer);
-//						btnDimmer.setEnabled(true);
-//					}
-//					if(selectedFixtures[a].getFixtureType().channel_function[1] != 0){
-//						btnShutter.setEnabled(true);
-//					}
-//					if(selectedFixtures[a].getFixtureType().channel_function[2] != 0){
-//						btnIris.setEnabled(true);
-//					}
-//					if(selectedFixtures[a].getFixtureType().channel_function[3] != 0){
-//						btnFocus.setEnabled(true);
-//					}
-//					if(selectedFixtures[a].getFixtureType().channel_function[4] != 0){
-//						btnZoom.setEnabled(true);
-//					}
-//					if(selectedFixtures[a].getFixtureType().channel_function[7] != 0){
-//						btnColourWheel.setEnabled(true);
-//					}
-//					if(selectedFixtures[a].getFixtureType().channel_function[9] != 0 || selectedFixtures[a].getFixtureType().channel_function[11] != 0 || selectedFixtures[a].getFixtureType().channel_function[13] != 0){
-//						setFaderBank(btnRgbMixing);
-//						btnRgbMixing.setEnabled(true);
-//					}
-//					if(selectedFixtures[a].getFixtureType().channel_function[21] != 0){
-//						btnCto.setEnabled(true);
-//					}
-//					if(selectedFixtures[a].getFixtureType().channel_function[23] != 0){
-//						btnGobo_1.setEnabled(true);
-//					}
-//					if(selectedFixtures[a].getFixtureType().channel_function[25] != 0){
-//						btnGobo_2.setEnabled(true);
-//					}
-//					if(selectedFixtures[a].getFixtureType().channel_function[27] != 0){
-//						btnGobo_3.setEnabled(true);
-//					}
-//					if(selectedFixtures[a].getFixtureType().channel_function[29] != 0){
-//						btnPrism.setEnabled(true);
-//					}
-//					if(selectedFixtures[a].getFixtureType().channel_function[31] != 0){
-//						btnFrost.setEnabled(true);
-//					}
-//					if(selectedFixtures[a].getFixtureType().channel_function[34] != 0){
-//						btnControl.setEnabled(true);
-//					}
-//					if(selectedFixtures[a].getFixtureType().channel_function[39] != 0){
-//						btnOther.setEnabled(true);
-//					}
-//				}
-//			}
-//			
-//			Fader[] faders = {single, bank_1, bank_2, bank_3, bank_4, bank_5, pan, tilt};
-//			
-//			for(Fader fader : faders){
-//				if(selectedFixtures_amt == 1){
-//					fader.assignFixture(f[0]);
-//					fader.slider.setMinimum(0);
-//					fader.slider.setMaximum(255);
-//				} else {
-//					fader.assignFixture(null);
-//					fader.slider.setMinimum(-255);
-//					fader.slider.setMaximum(255);
-//					fader.slider.setValue(0);
-//				}
-//			}
-//			
-//			// Check if the selected fixture/s have pan and/or tilt functions, enable accordingly
-//			for(int a=0;a<512;a++){
-//				if(selectedFixtures[a] != null){
-//					if(selectedFixtures[a].getFixtureType().channel_function[5] != 0){
-//						if(selectedFixtures_amt == 1){
-//							pan.slider.setValue(channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[5])-1]);
-//							pan.assignChannel(new int[]{(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[5])-1});
-//							pan.prev_val = channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[5])-1];
-//						}
-//					}
-//					if(selectedFixtures[a].getFixtureType().channel_function[6] != 0){
-//						if(selectedFixtures_amt == 1){
-//							pan.slider.setValue(channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[6])-1]);
-//							pan.assignChannel(new int[]{(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[6])-1});
-//							pan.prev_val = channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[6])-1];
-//						}
-//					}
-//				}
-//			}
-			
-			
-//			if(selectedFixtures_amt == 1){
-//				single.assignFixture(selectedFixtures[0]);
-//				bank_1.assignFixture(selectedFixtures[0]);
-//				bank_2.assignFixture(selectedFixtures[0]);
-//				bank_3.assignFixture(selectedFixtures[0]);
-//				bank_4.assignFixture(selectedFixtures[0]);
-//				bank_5.assignFixture(selectedFixtures[0]);
-//				pan.assignFixture(selectedFixtures[0]);
-//				tilt.assignFixture(selectedFixtures[0]);
-//			} else {
-//				single.assignFixture(null);
-//				bank_1.assignFixture(null);
-//				bank_2.assignFixture(null);
-//				bank_3.assignFixture(null);
-//				bank_4.assignFixture(null);
-//				bank_5.assignFixture(null);
-//				pan.assignFixture(null);
-//				tilt.assignFixture(null);
-//			}
 
-//				if(f.length > 1){
-//					ctrl_fader[b].slider.setMinimum(-255);
-//					ctrl_fader[b].slider.setMaximum(255);
-//					ctrl_fader[b].slider.setValue(0);
-//				} else {
-//					ctrl_fader[b].slider.setMinimum(0);
-//					ctrl_fader[b].slider.setMaximum(255);
-//					ctrl_fader[b].slider.setValue(channel_data[f[0].getStartChannel()+b]);
-//				}
-//				ctrl_fader[b].setFaderVisible(true);
-//				if(usingOverallChannels){
-//					ctrl_fader[b].setChannel(b+1 + "/" + (f[0].getStartChannel()+b));
-//				} else {
-//					ctrl_fader[b].setChannel(b+1 + "/-");
-//				}
-//				
-//				int[] channels = new int[f.length];
-//				for(int a=0;a<channels.length;a++){
-//					if(f[a] != null){
-//						channels[a] = f[a].getStartChannel()+b;
-//					}
-//			}	
-//		}
-
-		// Set the function of the "Single" Control Fader, based off the button clicked -which is passed to this method
-//		public void setSingleFader(JButton btn){
-//			int index = 0;
-//
-//			if(btn == btnDimmer){
-//				index = 0;
-//			} else if(btn == btnShutter){
-//				index = 1;
-//			} else if(btn == btnIris){
-//				index = 2;
-//			} else if(btn == btnFocus){
-//				index = 3;
-//			} else if(btn == btnZoom){
-//				index = 4;
-//			}
-//			single.setName((String)((Vector)selectedFixtures[0].getFixtureType().function.get(selectedFixtures[0].getFixtureType().channel_function[index]-1)).get(0));
-//
-//				if(selectedFixtures_amt == 1){
-//					single.slider.setValue(channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[index])-1]);
-//					single.assignChannel(new int[]{(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[index])-1});
-//					single.prev_val = channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[index])-1];
-//					
-//					if( ((Vector)selectedFixtures[0].getFixtureType().function.get(selectedFixtures[0].getFixtureType().channel_function[index]-1)).size() >= 3 ){
-//						selectedFixtures[0].getFixtureType().setStringValue(single);
-//					} else {
-//						single.setStrValue("-");
-//					}
-//				} else {
-//					single.prev_val = 0;
-//				}	
-//		}
-		
-		// Set the function of "Bank" Fader 1-5, based off the button clicked -which is passed to this method
-//		public void setFaderBank(JButton btn){
-//			
-//			Fader[] bank_faders = {bank_1, bank_2, bank_3, bank_4, bank_5};
-//			
-//			for(Fader f : bank_faders){
-//				f.f = null;
-//				f.unassign();
-//				f.setName("-");
-//				f.slider.setValue(0);
-//				f.setStrValue("-");
-//			}
-//
-//			if(btn == btnColourWheel){
-//				
-//				bank_1.slider.setValue(channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[7])-1]);
-//				bank_1.assignChannel(new int[]{(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[7])-1});
-//				bank_1.prev_val = channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[7])-1];
-//				bank_1.setName("Colour Wheel");
-//				
-//				setStringValueForFaders(bank_1, 7);
-//				
-//			} else if(btn == btnRgbMixing){
-//				
-//				bank_1.slider.setValue(channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[9])-1]);
-//				bank_1.assignChannel(new int[]{(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[9])-1});
-//				bank_1.prev_val = channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[9])-1];
-//				bank_1.setName("Red");
-//				setStringValueForFaders(bank_1, 9);
-//				
-//				bank_2.slider.setValue(channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[11])-1]);
-//				bank_2.assignChannel(new int[]{(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[11])-1});
-//				bank_2.prev_val = channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[11])-1];
-//				bank_2.setName("Green");
-//				setStringValueForFaders(bank_2, 11);
-//				
-//				bank_3.slider.setValue(channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[13])-1]);
-//				bank_3.assignChannel(new int[]{(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[13])-1});
-//				bank_3.prev_val = channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[13])-1];
-//				bank_3.setName("Blue");
-//				setStringValueForFaders(bank_3, 13);
-//				
-//				if(selectedFixtures[0].getFixtureType().channel_function[50] != 0){
-//					bank_4.slider.setValue(channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[50])-1]);
-//					bank_4.assignChannel(new int[]{(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[50])-1});
-//					bank_4.prev_val = channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[50])-1];
-//					bank_4.setName("White");
-//					setStringValueForFaders(bank_4, 50);
-//				}
-//				
-//			} else if(btn == btnCto){
-//				
-//				bank_1.slider.setValue(channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[21])-1]);
-//				bank_1.assignChannel(new int[]{(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[21])-1});
-//				bank_1.prev_val = channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[21])-1];
-//				bank_1.setName("CTO");
-//				setStringValueForFaders(bank_1, 21);
-//				
-//			} else if(btn == btnGobo_1){
-//				
-//				bank_1.slider.setValue(channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[23])-1]);
-//				bank_1.assignChannel(new int[]{(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[23])-1});
-//				bank_1.prev_val = channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[23])-1];
-//				bank_1.setName("Gobo 1");
-//				setStringValueForFaders(bank_1, 23);
-//				
-//				if(selectedFixtures[0].getFixtureType().channel_function[24] != 0){
-//					bank_2.slider.setValue(channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[24])-1]);
-//					bank_2.assignChannel(new int[]{(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[24])-1});
-//					bank_2.prev_val = channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[24])-1];
-//					bank_2.setName("Gobo 1 Rot");
-//					setStringValueForFaders(bank_2, 24);
-//				}
-//				
-//			} else if(btn == btnGobo_2){
-//				
-//				bank_1.slider.setValue(channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[25])-1]);
-//				bank_1.assignChannel(new int[]{(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[25])-1});
-//				bank_1.prev_val = channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[25])-1];
-//				bank_1.setName("Gobo 2");
-//				setStringValueForFaders(bank_1, 25);
-//				
-//				if(selectedFixtures[0].getFixtureType().channel_function[26] != 0){
-//					bank_2.slider.setValue(channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[26])-1]);
-//					bank_2.assignChannel(new int[]{(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[26])-1});
-//					bank_2.prev_val = channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[26])-1];
-//					bank_2.setName("Gobo 2 Rot");
-//					setStringValueForFaders(bank_2, 26);
-//				}
-//				
-//			} else if(btn == btnGobo_3){
-//				
-//				bank_1.slider.setValue(channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[27])-1]);
-//				bank_1.assignChannel(new int[]{(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[27])-1});
-//				bank_1.prev_val = channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[27])-1];
-//				bank_1.setName("Gobo 3");
-//				setStringValueForFaders(bank_1, 27);
-//				
-//				if(selectedFixtures[0].getFixtureType().channel_function[28] != 0){
-//					bank_2.slider.setValue(channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[28])-1]);
-//					bank_2.assignChannel(new int[]{(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[28])-1});
-//					bank_2.prev_val = channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[28])-1];
-//					bank_2.setName("Gobo 3 Rot");
-//					setStringValueForFaders(bank_2, 28);
-//				}
-//				
-//			} else if(btn == btnPrism){
-//				
-//				bank_1.slider.setValue(channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[29])-1]);
-//				bank_1.assignChannel(new int[]{(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[29])-1});
-//				bank_1.prev_val = channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[29])-1];
-//				bank_1.setName("Prism");
-//				setStringValueForFaders(bank_1, 29);
-//				
-//				if(selectedFixtures[0].getFixtureType().channel_function[30] != 0){
-//					bank_2.slider.setValue(channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[30])-1]);
-//					bank_2.assignChannel(new int[]{(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[30])-1});
-//					bank_2.prev_val = channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[30])-1];
-//					bank_2.setName("Prism Rot");
-//					setStringValueForFaders(bank_2, 30);
-//				}
-//				
-//			} else if(btn == btnFrost){
-//				
-//				bank_1.slider.setValue(channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[31])-1]);
-//				bank_1.assignChannel(new int[]{(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[31])-1});
-//				bank_1.prev_val = channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[31])-1];
-//				bank_1.setName((String)((Vector)selectedFixtures[0].getFixtureType().function.get(selectedFixtures[0].getFixtureType().channel_function[31])).get(0));
-//				setStringValueForFaders(bank_1, 31);
-//				
-//				if(selectedFixtures[0].getFixtureType().channel_function[32] != 0){
-//					bank_2.slider.setValue(channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[32])-1]);
-//					bank_2.assignChannel(new int[]{(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[32])-1});
-//					bank_2.prev_val = channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[32])-1];
-//					bank_2.setName((String)((Vector)selectedFixtures[0].getFixtureType().function.get(selectedFixtures[0].getFixtureType().channel_function[32])).get(0));
-//					setStringValueForFaders(bank_2, 32);
-//				}
-//				if(selectedFixtures[0].getFixtureType().channel_function[33] != 0){
-//					bank_3.slider.setValue(channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[33])-1]);
-//					bank_3.assignChannel(new int[]{(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[33])-1});
-//					bank_3.prev_val = channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[33])-1];
-//					bank_3.setName((String)((Vector)selectedFixtures[0].getFixtureType().function.get(selectedFixtures[0].getFixtureType().channel_function[33])).get(0));
-//					setStringValueForFaders(bank_3, 33);
-//				}
-//				
-//			} else if(btn == btnControl){
-//				
-//				bank_1.slider.setValue(channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[34])-1]);
-//				bank_1.assignChannel(new int[]{(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[34])-1});
-//				bank_1.prev_val = channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[34])-1];
-//				bank_1.setName((String)((Vector)selectedFixtures[0].getFixtureType().function.get(selectedFixtures[0].getFixtureType().channel_function[34])).get(0));
-//				setStringValueForFaders(bank_1, 34);
-//				
-//				if(selectedFixtures[0].getFixtureType().channel_function[35] != 0){
-//					bank_2.slider.setValue(channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[35])-1]);
-//					bank_2.assignChannel(new int[]{(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[35])-1});
-//					bank_2.prev_val = channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[35])-1];
-//					bank_2.setName((String)((Vector)selectedFixtures[0].getFixtureType().function.get(selectedFixtures[0].getFixtureType().channel_function[35])).get(0));
-//					setStringValueForFaders(bank_2, 35);
-//				}
-//				if(selectedFixtures[0].getFixtureType().channel_function[36] != 0){
-//					bank_3.slider.setValue(channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[36])-1]);
-//					bank_3.assignChannel(new int[]{(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[36])-1});
-//					bank_3.prev_val = channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[36])-1];
-//					bank_3.setName((String)((Vector)selectedFixtures[0].getFixtureType().function.get(selectedFixtures[0].getFixtureType().channel_function[36])).get(0));
-//					setStringValueForFaders(bank_3, 36);
-//				}
-//				if(selectedFixtures[0].getFixtureType().channel_function[36] != 0){
-//					bank_4.slider.setValue(channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[37])-1]);
-//					bank_4.assignChannel(new int[]{(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[37])-1});
-//					bank_4.prev_val = channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[37])-1];
-//					bank_4.setName((String)((Vector)selectedFixtures[0].getFixtureType().function.get(selectedFixtures[0].getFixtureType().channel_function[37])).get(0));
-//					setStringValueForFaders(bank_4, 37);
-//				}
-//				if(selectedFixtures[0].getFixtureType().channel_function[38] != 0){
-//					bank_5.slider.setValue(channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[38])-1]);
-//					bank_5.assignChannel(new int[]{(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[38])-1});
-//					bank_5.prev_val = channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[38])-1];
-//					bank_5.setName((String)((Vector)selectedFixtures[0].getFixtureType().function.get(selectedFixtures[0].getFixtureType().channel_function[38])).get(0));
-//					setStringValueForFaders(bank_5, 38);
-//				}
-//				
-//			} else if(btn == btnOther){
-//				
-//				bank_1.slider.setValue(channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[39])-1]);
-//				bank_1.assignChannel(new int[]{(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[39])-1});
-//				bank_1.prev_val = channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[39])-1];
-//				bank_1.setName((String)((Vector)selectedFixtures[0].getFixtureType().function.get(selectedFixtures[0].getFixtureType().channel_function[39])).get(0));
-//				setStringValueForFaders(bank_1, 39);
-//				
-//				if(selectedFixtures[0].getFixtureType().channel_function[40] != 0){
-//					bank_2.slider.setValue(channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[40])-1]);
-//					bank_2.assignChannel(new int[]{(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[40])-1});
-//					bank_2.prev_val = channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[40])-1];
-//					bank_2.setName((String)((Vector)selectedFixtures[0].getFixtureType().function.get(selectedFixtures[0].getFixtureType().channel_function[40])).get(0));
-//					setStringValueForFaders(bank_2, 40);
-//				}
-//				if(selectedFixtures[0].getFixtureType().channel_function[41] != 0){
-//					bank_3.slider.setValue(channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[41])-1]);
-//					bank_3.assignChannel(new int[]{(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[41])-1});
-//					bank_3.prev_val = channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[41])-1];
-//					bank_3.setName((String)((Vector)selectedFixtures[0].getFixtureType().function.get(selectedFixtures[0].getFixtureType().channel_function[41])).get(0));
-//					setStringValueForFaders(bank_3, 41);
-//				}
-//				if(selectedFixtures[0].getFixtureType().channel_function[42] != 0){
-//					bank_4.slider.setValue(channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[42])-1]);
-//					bank_4.assignChannel(new int[]{(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[42])-1});
-//					bank_4.prev_val = channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[42])-1];
-//					bank_4.setName((String)((Vector)selectedFixtures[0].getFixtureType().function.get(selectedFixtures[0].getFixtureType().channel_function[42])).get(0));
-//					setStringValueForFaders(bank_4, 42);
-//				}
-//				if(selectedFixtures[0].getFixtureType().channel_function[43] != 0){
-//					bank_5.slider.setValue(channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[43])-1]);
-//					bank_5.assignChannel(new int[]{(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[43])-1});
-//					bank_5.prev_val = channel_data[(selectedFixtures[0].getStartChannel()+selectedFixtures[0].getFixtureType().channel_function[43])-1];
-//					bank_5.setName((String)((Vector)selectedFixtures[0].getFixtureType().function.get(selectedFixtures[0].getFixtureType().channel_function[43])).get(0));
-//					setStringValueForFaders(bank_5, 43);
-//				}
-//				
-//			}
-//
-//		}
 		public void setStringValueForFaders(Fader f, int channel_function_index){
 			if( ((Vector)selectedFixtures[0].getFixtureType().function.get(selectedFixtures[0].getFixtureType().channel_function[channel_function_index]-1)).size() >= 3 ){
 				selectedFixtures[0].getFixtureType().setStringValue(f);
@@ -2303,7 +1482,6 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 			if(artnet_node == null){
 				artnet_node = node;
 				dmx.setUniverse(artnet_node.getSubNet(), artnet_node.getDmxOuts()[0]);
-//				System.out.println("node discovered");
 				error_disp.setForeground(Color.WHITE);
 				error_disp.setText("Node discovered on: " + artnet_node.getIPAddress().toString().split("/")[1]);
 			}
@@ -2313,7 +1491,6 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		public void discoveredNodeDisconnected(ArtNetNode node) {
 			error_disp.setForeground(Color.RED);
 			error_disp.setText("! Node on " + node.getIPAddress().toString().split("/")[1] + " Disconnected");
-//			System.out.println("node disconnected: " + node);
 			if(artnet_node == node){
 				artnet_node = null;
 			}
@@ -2321,9 +1498,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 
 		@Override
 		public void discoveryCompleted(List<ArtNetNode> nodes) {
-		//	System.out.println(nodes.size() + " nodes found");
 			if(nodes.size() == 0){
-//				System.out.println("nodes discovered: " + nodes.size());
 				error_disp.setForeground(Color.RED);
 				error_disp.setText("! No ArtNet Nodes Discovered");
 			}
@@ -2333,20 +1508,11 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		public void discoveryFailed(Throwable t) {
 			error_disp.setForeground(Color.RED);
 			error_disp.setText("! Discovery Failed");
-//			System.out.println("failed");
 		}
 
 		public void keyTyped(KeyEvent e) {}
 		public void keyPressed(KeyEvent e) {}
-		public void keyReleased(KeyEvent e) {
-
-//			if(preset_name.getText().equals("") || presets_grid.getSelectedRow() == -1){
-//				assign_current_output.setEnabled(false);
-//			} else {
-//				assign_current_output.setEnabled(true);
-//			}
-			
-		}
+		public void keyReleased(KeyEvent e) {}
 		
 		public void loadProfile(String name){
 //			for(int c=0;c<51;c++){
@@ -2371,16 +1537,6 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 		        super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column); 
 		       	int id = (Integer)table.getValueAt(row, 0);
-
-//		       		try {
-//		       			if(fixture[id].c != null){
-//			       			table.setBackground(fixture[id].c);
-//			       		} else {
-//			                setOpaque(false);
-//			            }
-//		       		} catch(Exception e){
-//		       			
-//		       		}
 		       	
 		        return this;
 		    }
