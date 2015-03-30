@@ -31,9 +31,9 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 	int[] prev_channel_data = new int[513];
 	byte[] blackout = new byte[512];
 	byte[] current_output = new byte[512];
-	static Preset[][] preset = new Preset[10][35];
+//	static Preset[][] preset = new Preset[10][35];
 	JSlider[] bank_fader;
-	cueStack[] cueStack = new cueStack[100];
+//	cueStack[] cueStack = new cueStack[100];
 	static JToggleButton[] fixture_select_btn = new JToggleButton[512];
 	static JToggleButton[] group_select_btn = new JToggleButton[512];
 	static Object[][] fixture_data = new Object[6][7];
@@ -740,16 +740,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 			aboutItem.addActionListener(f);
 		
 		// Listeners
-//		next_cue.addActionListener(this);
-//		prev_cue.addActionListener(this);
-//		cue_slider.addChangeListener(this);
-//		cue_counter.addChangeListener(this);
 		clear_sel.addActionListener(this);
-//		save_show.addActionListener(this);
-//		load_show.addActionListener(this);
-//		fixture_sel_and_ctrl.addChangeListener(this);
-//		screens.addChangeListener(this);
-//		store_cue_btn.addActionListener(this);
 		fixture_table.addMouseListener(this);
 //		group_table.addMouseListener(this);
 		dimmer_table.addMouseListener(this);
@@ -758,16 +749,10 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		master_spinner.addChangeListener(this);
 		fade_slider.addChangeListener(this);
 		execute_preset.addActionListener(this);
-//		stop_cue.addActionListener(this);
 		assign_current_output.addActionListener(this);
 		presets_grid.addMouseListener(this);
 		execute_on_select.addChangeListener(this);
-//		radio_fixture.addActionListener(this);
-//		radio_group.addActionListener(this);
 		preset_name.addKeyListener(this);
-	//	fw_page_spinner.addChangeListener(this);
-//		intensity_fader.addChangeListener(this);
-//		intensity_spinner.addChangeListener(this);
 		open_fw.addActionListener(this);
 		cue_Go.addActionListener(this);
 		cue_next.addActionListener(this);
@@ -779,11 +764,9 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		slct_dim.addActionListener(this);
 		slct_seq.addActionListener(this);
 		bank_page_down.addActionListener(this);
-		bank_page_up.addActionListener(this);
-		
+		bank_page_up.addActionListener(this);	
 		saveItem.addActionListener(this);
-		loadItem.addActionListener(this);
-		
+		loadItem.addActionListener(this);	
 		btnDimmer.addActionListener(this);
 		btnShutter.addActionListener(this);
 		btnIris.addActionListener(this);
@@ -947,27 +930,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 				}
 				
 			} 
-//				else if(e.getSource() == new_cue_stack){
-//				
-//				cueStackNames.add(new_cue_stack_tf.getText());
-//				cueStack[cueStackCounter] = new cueStack();
-//				
-//			} else if(e.getSource() == cue_stack_selector){
-//				
-//				System.out.println("index:" + cue_stack_selector.getSelectedIndex());
-//				int amtCues = cueStack[cue_stack_selector.getSelectedIndex()].getAmtCues();
-//				cue_slider.setMajorTickSpacing(Math.round(amtCues/10));
-//				cue_slider.setMaximum(amtCues);
-//				number_of_cues_lbl.setText("No. of Cues: " + amtCues);
-//				
-//			} else if(e.getSource() == add_cue){
-//				
-//				cueStack[cue_stack_selector.getSelectedIndex()].addCue();
-//				int amtCues = cueStack[cue_stack_selector.getSelectedIndex()].getAmtCues();
-//				cue_slider.setMaximum(amtCues);
-//				number_of_cues_lbl.setText("No. of Cues: " + amtCues);
-//				
-//			} 
+
 			else if(e.getSource() == black_out){
 				
 				if(!blackout_on){
@@ -1021,29 +984,6 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 					blackout_th.stop();
 					black_out.setForeground(Color.BLACK);
 					black_out.setFont(new Font(null, Font.PLAIN, 11));
-				}
-				
-			} else if(e.getSource() == store_cue_btn){
-				
-				cueStack[cue_stack_selector.getSelectedIndex()].saveToCurrentCue(channel_data);
-				
-			} else if(e.getSource() == assign_current_output){
-				
-				int[] data = new int[512];
-				
-				for(int a=0;a<512;a++){
-					data[a] = (int)(((double)channel_data[a+1] / 255) * (Integer)master_spinner.getValue());
-				//  System.out.println(((double)channel_data[a+1] / 255) * (int)master_spinner.getValue());
-//					data[a] = (byte)channel_data[a+1];
-				}
-				preset[presets_grid.getSelectedColumn()][presets_grid.getSelectedRow()] = new Preset(presets_grid.getSelectedRow(), presets_grid.getSelectedColumn(), preset_name.getText(), data);
-
-				data = null;
-				
-			} else if(e.getSource() == execute_preset){
-				
-				if(preset[presets_grid.getSelectedColumn()][presets_grid.getSelectedRow()] != null){
-					preset[presets_grid.getSelectedColumn()][presets_grid.getSelectedRow()].execute();
 				}
 				
 			} 
@@ -1303,35 +1243,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 				}
 				
 			}
-			
-			
-			// else if(e.getSource() == fw_page_spinner){
-				
-//				if((Integer)fw_page_spinner.getValue() > 0){
-//					setFaderWingPage((Integer)fw_page_spinner.getValue());
-//				}
-				
-		//	}
 		}
-		
-//		public static void setFaderWingPage(int page){
-//			for(int z=0;z<18;z++){
-//				if(dimmer[((page-1)*18)+z+1] != null){
-//					Fixture f = dimmer[(((Integer)fw_page_spinner.getValue()-1)*18)+z+1];
-//					fw_fader[z].slider.setValue(Loader.frame.channel_data[f.startChannel]);
-//					fw_fader[z].setChannel("1/" + f.startChannel);
-//					fw_fader[z].assignFixture(f);
-//					fw_fader[z].setName(f.name);  
-//					fw_fader[z].assignChannel(new int[]{f.startChannel});
-//				} else {
-//					fw_fader[z].unassign();
-//					fw_fader[z].setName("-");  
-//					fw_fader[z].setChannel("-");
-//					fw_fader[z].setStrValue("-");
-//					fw_fader[z].slider.setValue(0);
-//				}
-//			}
-//		}
 		
 		public void setMaster(int val){
 			
