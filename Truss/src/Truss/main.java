@@ -5,39 +5,25 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.filechooser.*;
-import javax.swing.plaf.synth.SynthLookAndFeel;
-import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellEditor;
-import javax.swing.table.TableCellRenderer;
-
 import java.awt.event.*;
 import java.io.*;
 import java.util.*;
 import java.net.BindException;
-import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.util.List;
 
 import artnet4j.ArtNet;
-import artnet4j.ArtNetException;
 import artnet4j.ArtNetNode;
 import artnet4j.events.ArtNetDiscoveryListener;
 import artnet4j.packets.ArtDmxPacket;
 
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
-
-import de.javasoft.plaf.synthetica.SyntheticaBlackEyeLookAndFeel;
 
 public class main extends JFrame implements ActionListener, ChangeListener, MouseListener, ArtNetDiscoveryListener, KeyListener {
 	
@@ -121,7 +107,9 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 	
 	SAXParserFactory factory = SAXParserFactory.newInstance();
 	DefaultHandler handler;
-
+	/*
+	 * Called after all components are initialized
+	 */
 	public void initiate() {
 		
 		for(int a=0;a<999;a++){
@@ -291,11 +279,13 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		patch_and_control.add(slct_seq);
 		
 		slct_fix = new JButton("Fixtures");
+		slct_fix.setFocusPainted(false);
 		slct_fix.setBounds(786, 311, 89, 23);
 		slct_fix.setForeground(Color.BLUE);
 		patch_and_control.add(slct_fix);
 		
 		slct_dim = new JButton("Dimmers");
+		slct_dim.setFocusPainted(false);
 		slct_dim.setBounds(687, 311, 89, 23);
 		patch_and_control.add(slct_dim);
 		

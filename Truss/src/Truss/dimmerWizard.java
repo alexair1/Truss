@@ -89,6 +89,7 @@ public class dimmerWizard implements ActionListener {
 		panel.add(errorLbl);
 		
 		acg = new JCheckBox("Auto Create Group");
+		acg.setEnabled(false);
 		acg.setBounds(6, 120, 135, 28);
 		panel.add(acg);
 		

@@ -461,6 +461,7 @@ public final class FixtureSelectionEngine {
 				fader.setStrValue("-");
 				fader.unEnable();
 			} else {
+				fader.assignFixture(selectedFixtures.get(a));
 				fader.slider.setValue(main.channel_data[selectedFixtures.get(a).getStartChannel()]);
 				fader.assignChannel(new int[]{selectedFixtures.get(a).getStartChannel()});
 				fader.prev_val = main.channel_data[selectedFixtures.get(a).getStartChannel()];

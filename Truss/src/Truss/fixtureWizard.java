@@ -124,6 +124,7 @@ public class fixtureWizard implements ActionListener {
 		panel.add(ChooseColour);
 		
 		acg = new JCheckBox("Auto Create Group");
+		acg.setEnabled(false);
 		acg.setBounds(4, 185, 117, 23);
 		panel.add(acg);
 		
