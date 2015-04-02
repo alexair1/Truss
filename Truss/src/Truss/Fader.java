@@ -41,6 +41,7 @@ import javax.swing.event.*;
 			slider.setAlignmentX(Component.CENTER_ALIGNMENT);
 			slider.setPreferredSize(new Dimension(60,220));
 			slider.setEnabled(false);
+			slider.setFocusable(false);
 			p.add(slider);
 			
 			val_spinner = new JSpinner();
@@ -52,6 +53,7 @@ import javax.swing.event.*;
 			fine = new JCheckBox("Fine");
 			fine.setAlignmentX(Component.CENTER_ALIGNMENT);
 			fine.setEnabled(false);
+			fine.setFocusPainted(false);
 			p.add(fine);
 
 			panel.add(p);
@@ -169,7 +171,7 @@ import javax.swing.event.*;
 			this.dmxChannels = dmxChannels;
 			val_spinner.setEnabled(true);
 			slider.setEnabled(true);
-			fine.setEnabled(true);
+	//		fine.setEnabled(true);
 		}
 		public void unEnable(){
 			val_spinner.setEnabled(false);

@@ -39,8 +39,11 @@ public final class FixtureSelectionEngine {
 		main.btnControl.setEnabled(false);
 		main.btnOther.setEnabled(false);
 		
-		main.tilt.setName("Tilt");
-		main.pan.setName("Pan");
+		main.bank_page_up.setEnabled(false);
+		main.bank_page_down.setEnabled(false);
+		
+		main.tilt.setName("-");
+		main.pan.setName("-");
 		
 		// Check if the selected fixture/s have a the following functions, enable accordingly
 		for(int a=0;a<selectedFixtures.size();a++){
@@ -118,6 +121,7 @@ public final class FixtureSelectionEngine {
 						main.pan.slider.setValue(main.channel_data[(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[5])-1]);
 						main.pan.assignChannel(new int[]{(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[5])-1});
 						main.pan.prev_val = main.channel_data[(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[5])-1];
+						main.pan.setName("Pan");
 					}
 				}
 				if(selectedFixtures.get(a).getFixtureType().channel_function[6] != 0){
@@ -125,6 +129,7 @@ public final class FixtureSelectionEngine {
 						main.tilt.slider.setValue(main.channel_data[(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[6])-1]);
 						main.tilt.assignChannel(new int[]{(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[6])-1});
 						main.tilt.prev_val = main.channel_data[(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[6])-1];
+						main.tilt.setName("Tilt");
 					}
 				}
 			}
@@ -162,6 +167,9 @@ public final class FixtureSelectionEngine {
 		main.btnControl.setEnabled(false);
 		main.btnOther.setEnabled(false);
 		
+		main.bank_page_up.setEnabled(true);
+		main.bank_page_down.setEnabled(true);
+		
 		main.tilt.setName("-");
 		main.pan.setName("-");
 		
@@ -193,18 +201,15 @@ public final class FixtureSelectionEngine {
 		} else if(btn == main.btnZoom){
 			index = 4;
 		}
-		main.single.setName((String)((Vector)selectedFixtures.get(0).getFixtureType().function.get(selectedFixtures.get(0).getFixtureType().channel_function[index]-1)).get(0));
+		main.single.setName(selectedFixtures.get(0).getFixtureType().function.get(selectedFixtures.get(0).getFixtureType().channel_function[index]).name);
 
 			if(selectedFixtures.size() == 1){
 				main.single.slider.setValue(main.channel_data[(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[index])-1]);
 				main.single.assignChannel(new int[]{(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[index])-1});
 				main.single.prev_val = main.channel_data[(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[index])-1];
 				
-				if( ((Vector)selectedFixtures.get(0).getFixtureType().function.get(selectedFixtures.get(0).getFixtureType().channel_function[index]-1)).size() >= 3 ){
-					selectedFixtures.get(0).getFixtureType().setStringValue(main.single);
-				} else {
-					main.single.setStrValue("-");
-				}
+				setStringValueForFaders(main.single, index);
+				
 			} else {
 				main.single.prev_val = 0;
 			}	
@@ -340,21 +345,21 @@ public final class FixtureSelectionEngine {
 			main.bank_1.slider.setValue(main.channel_data[(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[31])-1]);
 			main.bank_1.assignChannel(new int[]{(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[31])-1});
 			main.bank_1.prev_val = main.channel_data[(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[31])-1];
-			main.bank_1.setName((String)((Vector)selectedFixtures.get(0).getFixtureType().function.get(selectedFixtures.get(0).getFixtureType().channel_function[31])).get(0));
+			main.bank_1.setName(selectedFixtures.get(0).getFixtureType().function.get(selectedFixtures.get(0).getFixtureType().channel_function[31]).name);
 			setStringValueForFaders(main.bank_1, 31);
 			
 			if(selectedFixtures.get(0).getFixtureType().channel_function[32] != 0){
 				main.bank_2.slider.setValue(main.channel_data[(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[32])-1]);
 				main.bank_2.assignChannel(new int[]{(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[32])-1});
 				main.bank_2.prev_val = main.channel_data[(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[32])-1];
-				main.bank_2.setName((String)((Vector)selectedFixtures.get(0).getFixtureType().function.get(selectedFixtures.get(0).getFixtureType().channel_function[32])).get(0));
+				main.bank_2.setName(selectedFixtures.get(0).getFixtureType().function.get(selectedFixtures.get(0).getFixtureType().channel_function[32]).name);
 				setStringValueForFaders(main.bank_2, 32);
 			}
 			if(selectedFixtures.get(0).getFixtureType().channel_function[33] != 0){
 				main.bank_3.slider.setValue(main.channel_data[(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[33])-1]);
 				main.bank_3.assignChannel(new int[]{(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[33])-1});
 				main.bank_3.prev_val = main.channel_data[(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[33])-1];
-				main.bank_3.setName((String)((Vector)selectedFixtures.get(0).getFixtureType().function.get(selectedFixtures.get(0).getFixtureType().channel_function[33])).get(0));
+				main.bank_3.setName(selectedFixtures.get(0).getFixtureType().function.get(selectedFixtures.get(0).getFixtureType().channel_function[33]).name);
 				setStringValueForFaders(main.bank_3, 33);
 			}
 			
@@ -363,35 +368,35 @@ public final class FixtureSelectionEngine {
 			main.bank_1.slider.setValue(main.channel_data[(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[34])-1]);
 			main.bank_1.assignChannel(new int[]{(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[34])-1});
 			main.bank_1.prev_val = main.channel_data[(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[34])-1];
-			main.bank_1.setName((String)((Vector)selectedFixtures.get(0).getFixtureType().function.get(selectedFixtures.get(0).getFixtureType().channel_function[34])).get(0));
+			main.bank_1.setName(selectedFixtures.get(0).getFixtureType().function.get(selectedFixtures.get(0).getFixtureType().channel_function[34]).name);
 			setStringValueForFaders(main.bank_1, 34);
 			
 			if(selectedFixtures.get(0).getFixtureType().channel_function[35] != 0){
 				main.bank_2.slider.setValue(main.channel_data[(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[35])-1]);
 				main.bank_2.assignChannel(new int[]{(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[35])-1});
 				main.bank_2.prev_val = main.channel_data[(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[35])-1];
-				main.bank_2.setName((String)((Vector)selectedFixtures.get(0).getFixtureType().function.get(selectedFixtures.get(0).getFixtureType().channel_function[35])).get(0));
+				main.bank_2.setName(selectedFixtures.get(0).getFixtureType().function.get(selectedFixtures.get(0).getFixtureType().channel_function[35]).name);
 				setStringValueForFaders(main.bank_2, 35);
 			}
 			if(selectedFixtures.get(0).getFixtureType().channel_function[36] != 0){
 				main.bank_3.slider.setValue(main.channel_data[(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[36])-1]);
 				main.bank_3.assignChannel(new int[]{(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[36])-1});
 				main.bank_3.prev_val = main.channel_data[(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[36])-1];
-				main.bank_3.setName((String)((Vector)selectedFixtures.get(0).getFixtureType().function.get(selectedFixtures.get(0).getFixtureType().channel_function[36])).get(0));
+				main.bank_3.setName(selectedFixtures.get(0).getFixtureType().function.get(selectedFixtures.get(0).getFixtureType().channel_function[36]).name);
 				setStringValueForFaders(main.bank_3, 36);
 			}
 			if(selectedFixtures.get(0).getFixtureType().channel_function[36] != 0){
 				main.bank_4.slider.setValue(main.channel_data[(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[37])-1]);
 				main.bank_4.assignChannel(new int[]{(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[37])-1});
 				main.bank_4.prev_val = main.channel_data[(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[37])-1];
-				main.bank_4.setName((String)((Vector)selectedFixtures.get(0).getFixtureType().function.get(selectedFixtures.get(0).getFixtureType().channel_function[37])).get(0));
+				main.bank_4.setName(selectedFixtures.get(0).getFixtureType().function.get(selectedFixtures.get(0).getFixtureType().channel_function[37]).name);
 				setStringValueForFaders(main.bank_4, 37);
 			}
 			if(selectedFixtures.get(0).getFixtureType().channel_function[38] != 0){
 				main.bank_5.slider.setValue(main.channel_data[(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[38])-1]);
 				main.bank_5.assignChannel(new int[]{(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[38])-1});
 				main.bank_5.prev_val = main.channel_data[(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[38])-1];
-				main.bank_5.setName((String)((Vector)selectedFixtures.get(0).getFixtureType().function.get(selectedFixtures.get(0).getFixtureType().channel_function[38])).get(0));
+				main.bank_5.setName(selectedFixtures.get(0).getFixtureType().function.get(selectedFixtures.get(0).getFixtureType().channel_function[38]).name);
 				setStringValueForFaders(main.bank_5, 38);
 			}
 			
@@ -400,35 +405,36 @@ public final class FixtureSelectionEngine {
 			main.bank_1.slider.setValue(main.channel_data[(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[39])-1]);
 			main.bank_1.assignChannel(new int[]{(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[39])-1});
 			main.bank_1.prev_val = main.channel_data[(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[39])-1];
-			main.bank_1.setName((String)((Vector)selectedFixtures.get(0).getFixtureType().function.get(selectedFixtures.get(0).getFixtureType().channel_function[39])).get(0));
+			main.bank_1.setName(selectedFixtures.get(0).getFixtureType().function.get(selectedFixtures.get(0).getFixtureType().channel_function[39]).name);
 			setStringValueForFaders(main.bank_1, 39);
 			
 			if(selectedFixtures.get(0).getFixtureType().channel_function[40] != 0){
 				main.bank_2.slider.setValue(main.channel_data[(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[40])-1]);
 				main.bank_2.assignChannel(new int[]{(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[40])-1});
 				main.bank_2.prev_val = main.channel_data[(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[40])-1];
-				main.bank_2.setName((String)((Vector)selectedFixtures.get(0).getFixtureType().function.get(selectedFixtures.get(0).getFixtureType().channel_function[40])).get(0));
+				main.bank_2.setName(selectedFixtures.get(0).getFixtureType().function.get(selectedFixtures.get(0).getFixtureType().channel_function[40]).name);
 				setStringValueForFaders(main.bank_2, 40);
 			}
 			if(selectedFixtures.get(0).getFixtureType().channel_function[41] != 0){
 				main.bank_3.slider.setValue(main.channel_data[(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[41])-1]);
 				main.bank_3.assignChannel(new int[]{(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[41])-1});
 				main.bank_3.prev_val = main.channel_data[(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[41])-1];
-				main.bank_3.setName((String)((Vector)selectedFixtures.get(0).getFixtureType().function.get(selectedFixtures.get(0).getFixtureType().channel_function[41])).get(0));
+				main.bank_3.setName(selectedFixtures.get(0).getFixtureType().function.get(selectedFixtures.get(0).getFixtureType().channel_function[41]).name);
 				setStringValueForFaders(main.bank_3, 41);
 			}
 			if(selectedFixtures.get(0).getFixtureType().channel_function[42] != 0){
 				main.bank_4.slider.setValue(main.channel_data[(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[42])-1]);
 				main.bank_4.assignChannel(new int[]{(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[42])-1});
 				main.bank_4.prev_val = main.channel_data[(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[42])-1];
-				main.bank_4.setName((String)((Vector)selectedFixtures.get(0).getFixtureType().function.get(selectedFixtures.get(0).getFixtureType().channel_function[42])).get(0));
+				main.bank_4.setName(selectedFixtures.get(0).getFixtureType().function.get(selectedFixtures.get(0).getFixtureType().channel_function[42]).name);
 				setStringValueForFaders(main.bank_4, 42);
 			}
 			if(selectedFixtures.get(0).getFixtureType().channel_function[43] != 0){
 				main.bank_5.slider.setValue(main.channel_data[(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[43])-1]);
 				main.bank_5.assignChannel(new int[]{(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[43])-1});
 				main.bank_5.prev_val = main.channel_data[(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[43])-1];
-				main.bank_5.setName((String)((Vector)selectedFixtures.get(0).getFixtureType().function.get(selectedFixtures.get(0).getFixtureType().channel_function[43])).get(0));
+			//	main.bank_5.setName((String)((Vector)selectedFixtures.get(0).getFixtureType().function.get(selectedFixtures.get(0).getFixtureType().channel_function[43])).get(0));
+				main.bank_5.setName(selectedFixtures.get(0).getFixtureType().function.get(selectedFixtures.get(0).getFixtureType().channel_function[43]).name);
 				setStringValueForFaders(main.bank_5, 43);
 			}
 			
@@ -440,11 +446,18 @@ public final class FixtureSelectionEngine {
 	 * Sets the string value for the given fader to the given channel function index
 	 */
 	private static void setStringValueForFaders(Fader f, int channel_function_index){
-		if( ((Vector)selectedFixtures.get(0).getFixtureType().function.get(selectedFixtures.get(0).getFixtureType().channel_function[channel_function_index]-1)).size() >= 3 ){
+		Vector<ProfileChannel> v = selectedFixtures.get(0).getFixtureType().function;
+	//	ProfileChannel p = v.get(selectedFixtures.get(0).getFixtureType().channel_function[channel_function_index]-1);
+		if(selectedFixtures.get(0).getFixtureType().function.get(selectedFixtures.get(0).getFixtureType().channel_function[channel_function_index]).func.size() > 0){
 			selectedFixtures.get(0).getFixtureType().setStringValue(f);
 		} else {
 			f.setStrValue("-");
 		}
+//		if( ((Vector)selectedFixtures.get(0).getFixtureType().function.get(selectedFixtures.get(0).getFixtureType().channel_function[channel_function_index]-1)).size() >= 3 ){
+//			selectedFixtures.get(0).getFixtureType().setStringValue(f);
+//		} else {
+//			f.setStrValue("-");
+//		}
 	}
 	
 	static void setFaderBankPage(int page){

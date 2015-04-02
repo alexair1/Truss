@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!--
+	Modified 2/4/15
+	v1.0
+-->
+
+<fixture name="Generic RGB LED" mode="Standard">
+
+	<channel name="Red" func="Red">
+		<range low="0" high="255" name="Red" />
+	</channel>
+
+	<channel name="Green" func="Red" >
+		<range low="0" high="255" name="Green" />
+	</channel>
+
+	<channel name="Blue" func="Blue" >
+		<range low="0" high="255" name="Blue" />
+	</channel>
+
+</fixture>

@@ -99,6 +99,11 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 	static JButton btnControl;
 	static JButton btnOther;
 	
+	final String[] channels = {"Dimmer", "Shutter", "Iris", "Focus", "Zoom", "Pan", "Tilt", "Colour Wheel", 
+			   "Colour Wheel (Fine)", "Red", "Red (Fine)", "Green", "Green (Fine)", "Blue", "Blue (Fine)",
+			   "Cyan", "Cyan (Fine)", "Magenta", "Magenta (Fine)", "Yellow", "Yellow (Fine)", "CTO",
+			   "CTO (Fine)"};
+	
 	JMenuItem saveItem, loadItem, fixtureItem, dimmerItem, aboutItem, patch_newFixture, patch_newDimmer, patch_newSequence;
 	
 	// Vars for setting patch_table cell background
@@ -154,20 +159,17 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 
 		boolean b = true;
 		
-		final String[] channels = {"Dimmer", "Shutter", "Iris", "Focus", "Zoom", "Pan", "Tilt", "Colour Wheel", 
-								   "Colour Wheel (Fine)", "Red", "Red (Fine)", "Green", "Green (Fine)", "Blue", "Blue (Fine)",
-								   "Cyan", "Cyan (Fine)", "Magenta", "Magenta (Fine)", "Yellow", "Yellow (Fine)", "CTO",
-								   "CTO (Fine)"};
+		
 		
 		try {
 			
 			handler = new DefaultHandler(){
 				
-				String profile_name, profile_mode;
-				Vector<Vector<Object>> profile_channels = new Vector<Vector<Object>>();
-				boolean profile_built_in_dimmer;
+				String profile_name = null, profile_mode = null, channel_name = null, channel_func_name = null;
+				Vector<ProfileChannel> profile_channels = new Vector<ProfileChannel>();
 				int[] profile_channel_function = new int[51];
-				Vector<Object> profile_channel;
+				Vector<Range> profile_channel = null;
+				ProfileChannel channel_func = null;
 					
 				public void startElement(String uri, String localname, String name, Attributes attributes) throws SAXException {
 					
@@ -179,14 +181,16 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 						
 						if(name == "channel"){
 							
-							profile_channel = new Vector<Object>();
-							profile_channel.addElement(attributes.getValue(0));
-							profile_channel.addElement(attributes.getValue(1));
+							profile_channel = new Vector<Range>();
+							channel_name = attributes.getValue(0);
+							channel_func_name = attributes.getValue(0);
+						//	profile_channel.addElement(attributes.getValue(0));
+						//	profile_channel.addElement(attributes.getValue(1));
 							
-							channel_amt++;
 							if(Arrays.asList(channels).indexOf(attributes.getValue(1)) != -1){
 								profile_channel_function[Arrays.asList(channels).indexOf(attributes.getValue(1))] = channel_amt;
 							}
+							channel_amt++;
 							
 						} else {
 							profile_channel.addElement(new Range(Integer.parseInt(attributes.getValue(0)), Integer.parseInt(attributes.getValue(1)), attributes.getValue(2)));
@@ -198,13 +202,17 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 				public void endElement(String uri, String localname, String name) throws SAXException {
 					
 					if(name == "fixture"){
-						profile[profileID] = new Profile(profile_name, profile_mode, profile_channels, profile_built_in_dimmer, profile_channel_function);
+						profile[profileID] = new Profile(profile_name, profile_mode, profile_channels, profile_channel_function);
 					} else if(name == "channel"){
-						profile_channels.add(profile_channel);
+						
+						channel_func = new ProfileChannel(channel_name, channel_func_name, profile_channel);
+						profile_channels.add(channel_func);
+					
 					}
 					
 				}
 			};
+			loadProfile("Generic-RGB_LED.xml");
 			loadProfile("test.xml");
 			
 		} catch(Exception e){
@@ -278,7 +286,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		slct_seq.setBounds(885, 311, 89, 23);
 		patch_and_control.add(slct_seq);
 		
-		slct_fix = new JButton("Fixtures");
+		slct_fix = new JButton("Fixtures"); 
 		slct_fix.setFocusPainted(false);
 		slct_fix.setBounds(786, 311, 89, 23);
 		slct_fix.setForeground(Color.BLUE);
@@ -311,6 +319,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		fixture_table.setRowHeight(50);
 		fixture_table.setComponentPopupMenu(fixture_menu);
 		fixture_table.setTableHeader(null);
+		fixture_table.setFocusable(false);
 		fixture_table.setSelectionBackground(Color.LIGHT_GRAY);
 		
 		dimmer_table = new JTable(dimmer_data, new Object[] {"","","","","","",""}){
@@ -323,6 +332,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		dimmer_table.setRowHeight(50);
 		dimmer_table.setComponentPopupMenu(dimmer_menu);
 		dimmer_table.setTableHeader(null);
+		dimmer_table.setFocusable(false);
 		dimmer_table.setSelectionBackground(Color.LIGHT_GRAY);
 		
 		sequence_table = new JTable(sequence_data, new Object[] {"","","","","","",""}){
@@ -382,69 +392,82 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 			
 			pan = new Fader();
 			pan.create(0, fixture_control, bg, 620, 0);
-			pan.setName("Pan");
 			
 			tilt = new Fader();
 			tilt.create(0, fixture_control, bg, 710, 0);
-			tilt.setName("Tilt");
 			
 			btnDimmer = new JButton("Dimmer");
+			btnDimmer.setFocusable(false);
 			btnDimmer.setBounds(90, 0, 75, 39);
 			fixture_control.add(btnDimmer);
 			
 			btnFocus = new JButton("Focus");
+			btnFocus.setFocusable(false);
 			btnFocus.setBounds(90, 50, 75, 39);
 			fixture_control.add(btnFocus);
 			
 			btnIris = new JButton("Iris");
+			btnIris.setFocusable(false);
 			btnIris.setBounds(90, 100, 75, 39);
 			fixture_control.add(btnIris);
 			
 			btnShutter = new JButton("Shutter");
+			btnShutter.setFocusable(false);
 			btnShutter.setBounds(90, 150, 75, 39);
 			fixture_control.add(btnShutter);
 			
 			btnZoom = new JButton("Zoom");
+			btnZoom.setFocusable(false);
 			btnZoom.setBounds(90, 200, 75, 39);
 			fixture_control.add(btnZoom);
 			
 			btnColourWheel = new JButton("<html>Colour<br/>Wheel</html>");
+			btnColourWheel.setFocusable(false);
 			btnColourWheel.setBounds(800, 0, 85, 39);
 			fixture_control.add(btnColourWheel);
 			
 			btnRgbMixing = new JButton("RGB Mixing");
+			btnRgbMixing.setFocusable(false);
 			btnRgbMixing.setBounds(800, 50, 85, 39);
 			fixture_control.add(btnRgbMixing);
 			
 			btnCto = new JButton("CTO");
+			btnCto.setFocusable(false);
 			btnCto.setBounds(800, 100, 85, 39);
 			fixture_control.add(btnCto);
 			
 			btnGobo_1 = new JButton("Gobo 1");
+			btnGobo_1.setFocusable(false);
 			btnGobo_1.setBounds(800, 150, 85, 39);
 			fixture_control.add(btnGobo_1);
 			
 			btnGobo_2 = new JButton("Gobo 2");
+			btnGobo_2.setFocusable(false);
 			btnGobo_2.setBounds(800, 200, 85, 39);
 			fixture_control.add(btnGobo_2);
 			
 			btnGobo_3 = new JButton("Gobo 3");
+			btnGobo_3.setFocusable(false);
 			btnGobo_3.setBounds(800, 250, 85, 39);
 			fixture_control.add(btnGobo_3);
 			
 			btnPrism = new JButton("Prism");
+			btnPrism.setFocusable(false);
 			btnPrism.setBounds(895, 0, 67, 39);
 			fixture_control.add(btnPrism);
 			
 			btnFrost = new JButton("Frost");
+			btnFrost.setFocusable(false);
 			btnFrost.setBounds(895, 50, 67, 39);
 			fixture_control.add(btnFrost);
 			
 			btnControl = new JButton("Control");
+			btnControl.setFocusable(false);
 			btnControl.setBounds(895, 100, 67, 39);
 			fixture_control.add(btnControl);
 			
 			btnOther = new JButton("Other");
+			btnOther.setFocusable(false);
 			btnOther.setBounds(895, 150, 67, 39);
 			fixture_control.add(btnOther);	
 
@@ -509,6 +532,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 //		contentPane.add(test_button);
 		
 		clear_sel = new JButton("Clear");
+		clear_sel.setFocusable(false);
 		clear_sel.setBounds(229, 35, 65, 23);
 		clear_sel.setEnabled(false);
 		main_controls_panel.add(clear_sel);
@@ -540,6 +564,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 //		contentPane.add(separator_3);
 		
 		master_slider = new JSlider(0, 255, 0);
+		master_slider.setFocusable(false);
 		master_slider.addMouseListener(this);
 		master_slider.setMinorTickSpacing(15);
 		master_slider.setPaintTicks(true);
@@ -558,6 +583,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		main_controls_panel.add(lblMaster);
 		
 		fade_slider = new JSlider(0, 10000, 0);
+		fade_slider.setFocusable(false);
 		fade_slider.setMinorTickSpacing(100);
 	//	fade_slider.setBackground(new Color(130, 130, 130));
 		fade_slider.setSnapToTicks(true);
@@ -631,6 +657,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		cue_panel.setLayout(null);
 		
 		cue_Go = new JButton("GO");
+		cue_Go.setFocusable(false);
 		cue_Go.setFont(new Font("Tahoma", Font.BOLD, 12));
 		cue_Go.setBounds(10, 102, 89, 36);
 		cue_panel.add(cue_Go);
@@ -642,18 +669,22 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		cue_panel.add(current_cue_lbl);
 		
 		cue_next = new JButton("+ Cue");
+		cue_next.setFocusable(false);
 		cue_next.setBounds(109, 10, 63, 36);
 		cue_panel.add(cue_next);
 		
 		cue_prev = new JButton("- Cue");
+		cue_prev.setFocusable(false);
 		cue_prev.setBounds(109, 52, 63, 36);
 		cue_panel.add(cue_prev);
 		
 		bypass_go_chk = new JCheckBox("Bypass Go");
+		bypass_go_chk.setFocusable(false);
 		bypass_go_chk.setBounds(178, 10, 97, 23);
 		cue_panel.add(bypass_go_chk);
 		
 		cue_store = new JButton("Store");
+		cue_store.setFocusable(false);
 		cue_store.setBounds(182, 52, 89, 36);
 		cue_panel.add(cue_store);
 		
@@ -663,6 +694,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		cue_name_tf.setColumns(10);
 		
 		cue_ok = new JButton("OK");
+		cue_ok.setFocusable(false);
 		cue_ok.setBounds(229, 109, 46, 25);
 		cue_panel.add(cue_ok);
 		
@@ -675,7 +707,8 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		//	control.add(lbl_nothingselected);
 			
 			black_out = new JButton("B.O");
-			black_out.setBounds(229, 229, 65, 32);
+			black_out.setFocusable(false);
+			black_out.setBounds(229, 290, 65, 32);
 			main_controls_panel.add(black_out);
 			
 			error_disp = new JLabel("", SwingConstants.RIGHT);
@@ -697,10 +730,14 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		menu_panel.setLayout(null);
 		
 		bank_page_up = new JButton("Page +");
+		bank_page_up.setEnabled(false);
+		bank_page_up.setFocusable(false);
 		bank_page_up.setBounds(895, 200, 67, 23);
 		fixture_control.add(bank_page_up);
 		
 		bank_page_down = new JButton("Page -");
+		bank_page_down.setEnabled(false);
+		bank_page_down.setFocusable(false);
 		bank_page_down.setBounds(895, 266, 67, 23);
 		fixture_control.add(bank_page_down);
 		
@@ -1366,13 +1403,13 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 			}
 		}
 
-		public void setStringValueForFaders(Fader f, int channel_function_index){
-			if( ((Vector)selectedFixtures[0].getFixtureType().function.get(selectedFixtures[0].getFixtureType().channel_function[channel_function_index]-1)).size() >= 3 ){
-				selectedFixtures[0].getFixtureType().setStringValue(f);
-			} else {
-				f.setStrValue("-");
-			}
-		}
+//		public void setStringValueForFaders(Fader f, int channel_function_index){
+//			if( ((Vector)selectedFixtures[0].getFixtureType().function.get(selectedFixtures[0].getFixtureType().channel_function[channel_function_index]-1)).size() >= 3 ){
+//				selectedFixtures[0].getFixtureType().setStringValue(f);
+//			} else {
+//				f.setStrValue("-");
+//			}
+//		}
 		
 		public void mouseClicked(MouseEvent e) {}
 		public void mouseReleased(MouseEvent e) {}
@@ -1425,7 +1462,57 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 			SAXParser parser;
 			try {
 				parser = factory.newSAXParser();
-				parser.parse("file:\\Desktop/"+name, handler);
+				parser.parse("xml/"+name, new DefaultHandler(){
+					
+					String profile_name = null, profile_mode = null, channel_name = null, channel_func_name = null;
+					Vector<ProfileChannel> profile_channels = new Vector<ProfileChannel>();
+					int[] profile_channel_function = new int[51];
+					Vector<Range> profile_channel = null;
+					ProfileChannel channel_func = null;
+						
+					public void startElement(String uri, String localname, String name, Attributes attributes) throws SAXException {
+						
+						if(name == "fixture"){
+							profileID++;
+							profile_name = attributes.getValue(0);
+							profile_mode = attributes.getValue(1);
+						} else {
+							
+							if(name == "channel"){
+								
+								profile_channel = new Vector<Range>();
+								channel_name = attributes.getValue(0);
+								channel_func_name = attributes.getValue(0);
+							//	profile_channel.addElement(attributes.getValue(0));
+							//	profile_channel.addElement(attributes.getValue(1));
+								
+								if(Arrays.asList(channels).indexOf(attributes.getValue(1)) != -1){
+									profile_channel_function[Arrays.asList(channels).indexOf(attributes.getValue(1))] = channel_amt;
+								}
+								channel_amt++;
+								
+							} else {
+								profile_channel.addElement(new Range(Integer.parseInt(attributes.getValue(0)), Integer.parseInt(attributes.getValue(1)), attributes.getValue(2)));
+							}
+							
+						} 
+						
+					}		
+					public void endElement(String uri, String localname, String name) throws SAXException {
+						
+						if(name == "fixture"){
+							profile[profileID] = new Profile(profile_name, profile_mode, profile_channels, profile_channel_function);
+						} else if(name == "channel"){
+							
+							channel_func = new ProfileChannel(channel_name, channel_func_name, profile_channel);
+							profile_channels.add(channel_func);
+						
+						}
+						
+					}
+				}
+						
+			);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
