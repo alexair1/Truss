@@ -6,6 +6,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.filechooser.*;
 import javax.swing.table.DefaultTableCellRenderer;
+
 import java.awt.event.*;
 import java.io.*;
 import java.util.*;
@@ -48,7 +49,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 	static Profile[] profile = new Profile[100];
 	static Group[] group = new Group[513];
 	static byte[] data = new byte[512];
-	static int selectedFixtures_amt = 0, current_cue = 1, ctrl_fader_counter = 0, cueStackCounter = 0, fixture_select_btn_counter = 0, fixtureNumber = 1, dimmerNumber = 1, profileID = -1, fader_wing_counter = 0, group_counter = 1, sequenceID = 0;
+	static int channel_amt = 0, selectedFixtures_amt = 0, current_cue = 1, ctrl_fader_counter = 0, cueStackCounter = 0, fixture_select_btn_counter = 0, fixtureNumber = 1, dimmerNumber = 1, profileID = 0, fader_wing_counter = 0, group_counter = 1, sequenceID = 0;
 	static JLabel lbl_nothingpatched;
 	static JPanel fixture_select, control, fixture_sel_panel, group_sel_panel;
 	static Fixture[] selectedFixtures = new Fixture[512];
@@ -58,6 +59,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 //	static Vector<Preset> preset = new Vector<Preset>();
 	
 	static JButton bank_page_up, bank_page_down, slct_fix, slct_dim, slct_seq, cue_Go, cue_next, cue_prev, cue_store, cue_ok, open_fw, new_dimmer, stop_cue, execute_preset, assign_current_output, group_btn, store_cue_btn, page1_btn, page2_btn, page3_btn, page4_btn, remote_btn, add_cue, black_out, new_cue_stack, load_show, next_cue, prev_cue, new_fixture, edit_fixture, clear_sel, save_show;
+	static JButton btnFocus, btnDimmer, btnIris, btnShutter, btnZoom, btnColourWheel, btnRgbMixing, btnCto, btnGobo_1, btnGobo_2, btnGobo_3, btnPrism, btnFrost, btnControl, btnOther;
 	JSlider cue_slider, master_slider, fade_slider, intensity_fader;
 	JTextField bank_fader1_spinner, bank_fader2_spinner, textField, new_cue_stack_tf, preset_name, cue_name_tf;
 	JPanel patch_and_control, contentPane, fw, presets;
@@ -73,8 +75,6 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 	static ArtNet artnet = new ArtNet();
 	static ArtDmxPacket dmx = new ArtDmxPacket();
 	
-	int channel_amt = 0;
-
 	Thread clear_flash, blackout_th;
 	JToggleButton selectedFixture_btn;
 	FileOutputStream file_stream_out;
@@ -83,21 +83,6 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 	Vector cueStackNames = new Vector();
 	static boolean blackout_on = false;
 	boolean artnet_con = false, on_preset_screen = false, dimmerControl = false;
-	static JButton btnFocus;
-	static JButton btnDimmer;
-	static JButton btnIris;
-	static JButton btnShutter;
-	static JButton btnZoom;
-	static JButton btnColourWheel;
-	static JButton btnRgbMixing;
-	static JButton btnCto;
-	static JButton btnGobo_1;
-	static JButton btnGobo_2;
-	static JButton btnGobo_3;
-	static JButton btnPrism;
-	static JButton btnFrost;
-	static JButton btnControl;
-	static JButton btnOther;
 	
 	final String[] channels = {"Dimmer", "Shutter", "Iris", "Focus", "Zoom", "Pan", "Tilt", "Colour Wheel", 
 			   "Colour Wheel (Fine)", "Red", "Red (Fine)", "Green", "Green (Fine)", "Blue", "Blue (Fine)",
@@ -106,12 +91,15 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 	
 	JMenuItem saveItem, loadItem, fixtureItem, dimmerItem, aboutItem, patch_newFixture, patch_newDimmer, patch_newSequence;
 	
+//	static SpinnerNumberModel channel_model = new SpinnerNumberModel(0, 0, 255, 1);  
+	
 	// Vars for setting patch_table cell background
-	Color cell_bg = Color.black;
-	int cell_row = 2, cell_col = 3;
+//	Color cell_bg = Color.black;
+//	int cell_row = 2, cell_col = 3;
 	
 	SAXParserFactory factory = SAXParserFactory.newInstance();
-	DefaultHandler handler;
+//	DefaultHandler handler;
+	
 	/*
 	 * Called after all components are initialized
 	 */
@@ -156,67 +144,13 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 			};
 		};
 		artnet_discovery.start();  
-
-		boolean b = true;
 		
-		
-		
-		try {
-			
-			handler = new DefaultHandler(){
-				
-				String profile_name = null, profile_mode = null, channel_name = null, channel_func_name = null;
-				Vector<ProfileChannel> profile_channels = new Vector<ProfileChannel>();
-				int[] profile_channel_function = new int[51];
-				Vector<Range> profile_channel = null;
-				ProfileChannel channel_func = null;
-					
-				public void startElement(String uri, String localname, String name, Attributes attributes) throws SAXException {
-					
-					if(name == "fixture"){
-						profileID++;
-						profile_name = attributes.getValue(0);
-						profile_mode = attributes.getValue(1);
-					} else {
-						
-						if(name == "channel"){
-							
-							profile_channel = new Vector<Range>();
-							channel_name = attributes.getValue(0);
-							channel_func_name = attributes.getValue(0);
-						//	profile_channel.addElement(attributes.getValue(0));
-						//	profile_channel.addElement(attributes.getValue(1));
-							
-							if(Arrays.asList(channels).indexOf(attributes.getValue(1)) != -1){
-								profile_channel_function[Arrays.asList(channels).indexOf(attributes.getValue(1))] = channel_amt;
-							}
-							channel_amt++;
-							
-						} else {
-							profile_channel.addElement(new Range(Integer.parseInt(attributes.getValue(0)), Integer.parseInt(attributes.getValue(1)), attributes.getValue(2)));
-						}
-						
-					} 
-					
-				}		
-				public void endElement(String uri, String localname, String name) throws SAXException {
-					
-					if(name == "fixture"){
-						profile[profileID] = new Profile(profile_name, profile_mode, profile_channels, profile_channel_function);
-					} else if(name == "channel"){
-						
-						channel_func = new ProfileChannel(channel_name, channel_func_name, profile_channel);
-						profile_channels.add(channel_func);
-					
-					}
-					
-				}
-			};
-			loadProfile("Generic-RGB_LED.xml");
-			loadProfile("test.xml");
-			
-		} catch(Exception e){
-			e.printStackTrace();
+		/*
+		 * Loads all xml profiles located in the 'xml' folder in the root directory
+		 */
+		File f = new File("xml");
+		for(int v=0;v<f.list().length;v++){
+			loadProfile(f.list()[v].substring(0, f.list()[v].length()-4));
 		}
 
 		load_show_filter = new FileNameExtensionFilter("Truss Show File", "truss");
@@ -225,7 +159,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 	public main() {
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(0, 0, 1290, 680);
+		setBounds(50, 50, 1290, 680);
 		setMinimumSize(new Dimension(1280, 710));
 		patch_and_control = new JPanel();
 		patch_and_control.setBounds(6, 0, 974, 660);
@@ -563,7 +497,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 //		separator_3.setBounds(995, 660, 279, 12);
 //		contentPane.add(separator_3);
 		
-		master_slider = new JSlider(0, 255, 0);
+		master_slider = new JSlider(0, 100, 0);
 		master_slider.setFocusable(false);
 		master_slider.addMouseListener(this);
 		master_slider.setMinorTickSpacing(15);
@@ -874,7 +808,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 	public static Profile getProfileByName(String name){
 		for(Profile p : profile){
 			
-			if(p != null && p.getName().equals(name)){
+			if(p != null && p.getFullName().equals(name)){
 				return p;
 			}
 			
@@ -1253,17 +1187,19 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 				
 				fade_val.setText(""+fade_slider.getValue());
 				
-			} else if(e.getSource() == intensity_fader){
-				
-				intensity_spinner.setValue(intensity_fader.getValue());
-				setIntensity((Integer)intensity_spinner.getValue());
-				
-			} else if(e.getSource() == intensity_spinner){
-				
-				intensity_fader.setValue((Integer)intensity_spinner.getValue());
-				setIntensity((Integer)intensity_spinner.getValue());
-				
-			} else if(e.getSource() == execute_on_select){
+			}
+//			else if(e.getSource() == intensity_fader){
+//				
+//				intensity_spinner.setValue(intensity_fader.getValue());
+//				setIntensity((Integer)intensity_spinner.getValue());
+//				
+//			} else if(e.getSource() == intensity_spinner){
+//				
+//				intensity_fader.setValue((Integer)intensity_spinner.getValue());
+//				setIntensity((Integer)intensity_spinner.getValue());
+//				
+//			} 
+			else if(e.getSource() == execute_on_select){
 				
 				if(execute_on_select.isSelected()){
 					execute_preset.setEnabled(false);
@@ -1285,60 +1221,57 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		public void setMaster(int val){
 			
 			for(int a=0;a<512;a++){
-				data[a] = (byte)((double)channel_data[a+1] / 255 * val);
+				
+				if(fixture[a+1] != null){
+					if((fixture[a+1].getStartChannel()+fixture[a+1].getFixtureType().channel_function[0])-1 == (a+1)){
+						data[a] = (byte)((double)channel_data[a+1] * (val/100));
+					} else {
+						data[a] = (byte)(double)channel_data[a+1];
+					}
+				} else {
+					data[a] = (byte)(double)channel_data[a+1];
+				}
+
 			}
-			
-//			if(selectedFixture != null){
-//				
-//				if(selectedFixture instanceof Group){
-//					for(int b=0;b<(((Group)selectedFixture).getMembers()[0]).getChannels();b++){
-//						data[((((Group)selectedFixture).getMembers()[b]).getStartChannel()+b)-1] = (byte)((double)channel_data[(((Group)selectedFixture).getMembers()[b]).getStartChannel()+b] / 255 * (Integer)intensity_spinner.getValue() / 255 * val);
-//					}
-//				} else {
-//					for(int b=0;b<((Fixture)(selectedFixture)).getChannels();b++){
-//						data[(((Fixture)(selectedFixture)).getStartChannel()+b)-1] = (byte)((double)channel_data[((Fixture)(selectedFixture)).getStartChannel()+b] / 255 * (Integer)intensity_spinner.getValue() / 255 * val);
-//					}
-//				}
-//			}
 			
 			// Broadcast channel_data with new master value
 			if(artnet_node != null && !blackout_on) {
 				dmx.setSequenceID(sequenceID % 255);
-				dmx.setDMX(data, 512);
+				dmx.setDMX(data, data.length);
            		artnet.unicastPacket(dmx, artnet_node.getIPAddress());
            		sequenceID++;
             }
 		}
 		
 		// Changes output of currently selected fixture to 'val'
-		public void setIntensity(int val){
-			
+//		public void setIntensity(int val){
+//			
 //			for(int a=0;a<512;a++){
 //				data[a] = (byte)((double)channel_data[a+1] / 255 * (Integer)master_spinner.getValue() / 255 * val);
 //			}
-			
-			if(selectedFixture != null){
-				if(selectedFixture instanceof Group){
-					for(int b=0;b<(((Group)selectedFixture).getMembers()[0]).getChannels();b++){
-						data[((((Group)selectedFixture).getMembers()[b]).getStartChannel()+b)-1] = (byte)((double)channel_data[(((Group)selectedFixture).getMembers()[0]).getStartChannel()+b] / 255 * val / 255 * (Integer)master_spinner.getValue());
-					}
-				} else {
-					for(int b=0;b<((Fixture)(selectedFixture)).getChannels();b++){
-						data[(((Fixture)(selectedFixture)).getStartChannel()+b)-1] = (byte)((double)channel_data[((Fixture)(selectedFixture)).getStartChannel()+b] / 255 * val / 255 * (Integer)master_spinner.getValue());
-					}
-				}
-				
-				((Fixture)(selectedFixture)).intensity = val;
-				
-				// Broadcast channel_data with new master value
-				if(artnet_node != null && !blackout_on) {
-					dmx.setSequenceID(sequenceID % 255);
-					dmx.setDMX(data, 512);
-	           		artnet.unicastPacket(dmx, artnet_node.getIPAddress());
-	           		sequenceID++;
-	            }
-			}
-		}
+//			
+//			if(selectedFixture != null){
+//				if(selectedFixture instanceof Group){
+//					for(int b=0;b<(((Group)selectedFixture).getMembers()[0]).getChannels();b++){
+//						data[((((Group)selectedFixture).getMembers()[b]).getStartChannel()+b)-1] = (byte)((double)channel_data[(((Group)selectedFixture).getMembers()[0]).getStartChannel()+b] / 255 * val / 255 * (Integer)master_spinner.getValue());
+//					}
+//				} else {
+//					for(int b=0;b<((Fixture)(selectedFixture)).getChannels();b++){
+//						data[(((Fixture)(selectedFixture)).getStartChannel()+b)-1] = (byte)((double)channel_data[((Fixture)(selectedFixture)).getStartChannel()+b] / 255 * val / 255 * (Integer)master_spinner.getValue());
+//					}
+//				}
+//				
+//				((Fixture)(selectedFixture)).intensity = val;
+//				
+//				 Broadcast channel_data with new master value
+//				if(artnet_node != null && !blackout_on) {
+//					dmx.setSequenceID(sequenceID % 255);
+//					dmx.setDMX(data, 512);
+//	           		artnet.unicastPacket(dmx, artnet_node.getIPAddress());
+//	           		sequenceID++;
+//	            }
+//			}
+//		}
 
 		public void mousePressed(MouseEvent e) {
 				
@@ -1402,14 +1335,6 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 				}
 			}
 		}
-
-//		public void setStringValueForFaders(Fader f, int channel_function_index){
-//			if( ((Vector)selectedFixtures[0].getFixtureType().function.get(selectedFixtures[0].getFixtureType().channel_function[channel_function_index]-1)).size() >= 3 ){
-//				selectedFixtures[0].getFixtureType().setStringValue(f);
-//			} else {
-//				f.setStrValue("-");
-//			}
-//		}
 		
 		public void mouseClicked(MouseEvent e) {}
 		public void mouseReleased(MouseEvent e) {}
@@ -1421,7 +1346,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 			if(artnet_node == null){
 				artnet_node = node;
 				dmx.setUniverse(artnet_node.getSubNet(), artnet_node.getDmxOuts()[0]);
-				error_disp.setForeground(Color.WHITE);
+				error_disp.setForeground(Color.BLUE);
 				error_disp.setText("Node discovered on: " + artnet_node.getIPAddress().toString().split("/")[1]);
 			}
 		}
@@ -1454,54 +1379,47 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		public void keyReleased(KeyEvent e) {}
 		
 		public void loadProfile(String name){
-//			for(int c=0;c<51;c++){
-//				profile_channel_function[c] = 0;
-//			}
+
 			channel_amt = 0;
+			final String fullname = name;
+			final String profile_manu = name.split("-")[0].replace("_", " ");
+			final String profile_mode = name.split("@")[1].replace("_", " ");
+			final String profile_name = name.split("-")[1].split("@")[0].replace("_", " "); 
 			
 			SAXParser parser;
 			try {
 				parser = factory.newSAXParser();
-				parser.parse("xml/"+name, new DefaultHandler(){
+				parser.parse("xml/"+name+".xml", new DefaultHandler(){
 					
-					String profile_name = null, profile_mode = null, channel_name = null, channel_func_name = null;
+					String channel_name = null, channel_func_name = null;
 					Vector<ProfileChannel> profile_channels = new Vector<ProfileChannel>();
 					int[] profile_channel_function = new int[51];
 					Vector<Range> profile_channel = null;
 					ProfileChannel channel_func = null;
-						
+
 					public void startElement(String uri, String localname, String name, Attributes attributes) throws SAXException {
-						
-						if(name == "fixture"){
-							profileID++;
-							profile_name = attributes.getValue(0);
-							profile_mode = attributes.getValue(1);
-						} else {
-							
-							if(name == "channel"){
+
+						if(name == "channel"){
 								
-								profile_channel = new Vector<Range>();
-								channel_name = attributes.getValue(0);
-								channel_func_name = attributes.getValue(0);
-							//	profile_channel.addElement(attributes.getValue(0));
-							//	profile_channel.addElement(attributes.getValue(1));
+							profile_channel = new Vector<Range>();
+							channel_name = attributes.getValue(0);
+							channel_func_name = attributes.getValue(0);
 								
-								if(Arrays.asList(channels).indexOf(attributes.getValue(1)) != -1){
-									profile_channel_function[Arrays.asList(channels).indexOf(attributes.getValue(1))] = channel_amt;
-								}
-								channel_amt++;
-								
-							} else {
-								profile_channel.addElement(new Range(Integer.parseInt(attributes.getValue(0)), Integer.parseInt(attributes.getValue(1)), attributes.getValue(2)));
+							if(Arrays.asList(channels).indexOf(attributes.getValue(1)) != -1){
+								profile_channel_function[Arrays.asList(channels).indexOf(attributes.getValue(1))] = channel_amt;
 							}
-							
-						} 
+							channel_amt++;
+								
+						} else if(name == "range"){
+							profile_channel.addElement(new Range(Integer.parseInt(attributes.getValue(0)), Integer.parseInt(attributes.getValue(1)), attributes.getValue(2)));
+						}
 						
 					}		
 					public void endElement(String uri, String localname, String name) throws SAXException {
 						
 						if(name == "fixture"){
-							profile[profileID] = new Profile(profile_name, profile_mode, profile_channels, profile_channel_function);
+							profile[profileID] = new Profile(profile_name, profile_manu, profile_mode, fullname, profile_channels, profile_channel_function);
+							profileID++;
 						} else if(name == "channel"){
 							
 							channel_func = new ProfileChannel(channel_name, channel_func_name, profile_channel);

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<fixture name="Clay Paky B-Eye K10" mode="Standard">
+<fixture>
 
 	<channel name="Red" func="Red">
 		<range low="0" high="255" name="Red" />

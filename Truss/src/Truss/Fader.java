@@ -81,14 +81,24 @@ import javax.swing.event.*;
 					val_spinner.addChangeListener(this);
 					
 				}
-				updateChannelData();
+				broadcast();
 			}
 		}
-		private void updateChannelData(){
+		private void broadcast(){
 			
 			if(dmxChannels != null){
 				if(dmxChannels.length == 1){
 					Loader.frame.channel_data[dmxChannels[0]] = slider.getValue();
+					
+					if(f != null){
+						if((f.getStartChannel()+f.getFixtureType().channel_function[0])-1 == dmxChannels[0]){
+							main.data[dmxChannels[0]-1] = (byte)((double)main.channel_data[dmxChannels[0]] * ((Integer)Loader.frame.master_spinner.getValue()/100));
+						} else {
+							main.data[dmxChannels[0]-1] = (byte)(double)main.channel_data[dmxChannels[0]];
+						}
+					} else {
+						main.data[dmxChannels[0]-1] = (byte)(double)main.channel_data[dmxChannels[0]];
+					}
 					
 //					System.out.println(f);
 //					System.out.println(f.getFixtureType());
@@ -173,13 +183,20 @@ import javax.swing.event.*;
 			slider.setEnabled(true);
 	//		fine.setEnabled(true);
 		}
-		public void unEnable(){
+//		public void unEnable(){
+//			val_spinner.setEnabled(false);
+//			slider.setEnabled(false);
+//			fine.setEnabled(false);
+//		}
+		public void unassign(){
+			dmxChannels = null;
+			f = null;
+			this.setName("-");
+			slider.setValue(0);
+			this.setStrValue("-");
 			val_spinner.setEnabled(false);
 			slider.setEnabled(false);
 			fine.setEnabled(false);
-		}
-		public void unassign(){
-			dmxChannels = null;
 		}
 		public void assignFixture(Fixture f){
 			this.f = f;
@@ -188,6 +205,6 @@ import javax.swing.event.*;
 			}
 		}
 		public void revalidate(){
-			updateChannelData();
+			broadcast();
 		}
 	}

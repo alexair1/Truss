@@ -205,6 +205,7 @@ public final class FixtureSelectionEngine {
 
 			if(selectedFixtures.size() == 1){
 				main.single.slider.setValue(main.channel_data[(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[index])-1]);
+				main.single.assignFixture(selectedFixtures.get(0));
 				main.single.assignChannel(new int[]{(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[index])-1});
 				main.single.prev_val = main.channel_data[(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[index])-1];
 				
@@ -467,12 +468,7 @@ public final class FixtureSelectionEngine {
 		
 		for(Fader fader : faders){
 			if(a >= selectedFixtures.size()){
-				fader.f = null;
 				fader.unassign();
-				fader.setName("-");
-				fader.slider.setValue(0);
-				fader.setStrValue("-");
-				fader.unEnable();
 			} else {
 				fader.assignFixture(selectedFixtures.get(a));
 				fader.slider.setValue(main.channel_data[selectedFixtures.get(a).getStartChannel()]);

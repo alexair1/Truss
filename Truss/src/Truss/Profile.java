@@ -5,19 +5,30 @@ import java.util.Vector;
 import Truss.main.Range;
 
 public class Profile {
-	String name;
-	int id = main.profileID += 1;
+	String name, mode, manu, fullname;
 	Vector<ProfileChannel> function;
 	int[] channel_function;
 	
-	public Profile(String name, String mode, Vector<ProfileChannel> function, int[] channel_function){
+	public Profile(String name, String manu, String mode, String fullname, Vector<ProfileChannel> function, int[] channel_function){
 		this.name = name;
+		this.mode = mode;
+		this.manu = manu;
+		this.fullname = fullname;
 		this.function = function;
 		this.channel_function = channel_function;
 	}
 	
 	public String getName(){
 		return name;
+	}
+	public String getMode(){
+		return mode;
+	}
+	public String getManufacturer(){
+		return manu;
+	}
+	public String getFullName(){
+		return fullname;
 	}
 	public int getChannels(){
 		return function.size();
