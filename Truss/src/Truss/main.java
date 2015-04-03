@@ -457,24 +457,11 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 //		contentPane.add(load_show);
 		main_controls_panel.setLayout(null);
 		
-//		JButton test_button = new JButton();
-//		test_button.setIcon(new ImageIcon("src/img/add.png"));
-//		test_button.setBorder(new EmptyBorder(0,0,0,0));
-//		test_button.setContentAreaFilled(false);
-//		test_button.setFocusPainted(false);
-//		test_button.setBounds(10, 10, 25, 25);
-//		contentPane.add(test_button);
-		
 		clear_sel = new JButton("Clear");
 		clear_sel.setFocusable(false);
 		clear_sel.setBounds(229, 35, 65, 23);
 		clear_sel.setEnabled(false);
 		main_controls_panel.add(clear_sel);
-		
-//		JLabel cur_sel_title = new JLabel("Current Selection");
-//		cur_sel_title.setFont(new Font("Lucida Grande", Font.BOLD, 13));
-//		cur_sel_title.setBounds(993, 53, 116, 16);
-//		contentPane.add(cur_sel_title);
 		
 		cur_sel_id = new JLabel("ID--");
 		cur_sel_id.setBounds(10, 10, 30, 14);
@@ -488,14 +475,6 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		cur_sel_type = new JLabel("-");
 		cur_sel_type.setBounds(190, 10, 105, 14);
 		main_controls_panel.add(cur_sel_type);
-		
-//		JSeparator separator_2 = new JSeparator();
-//		separator_2.setBounds(995, 147, 279, 12);
-//		contentPane.add(separator_2);
-		
-//		JSeparator separator_3 = new JSeparator();
-//		separator_3.setBounds(995, 660, 279, 12);
-//		contentPane.add(separator_3);
 		
 		master_slider = new JSlider(0, 100, 0);
 		master_slider.setFocusable(false);
@@ -525,27 +504,6 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		fade_slider.setBounds(139, 360, 80, 224);
 		main_controls_panel.add(fade_slider);
 		
-//		intensity_fader_lbl = new JLabel("-", SwingConstants.CENTER);
-//		intensity_fader_lbl.setFont(new Font("Lucida Grande", Font.BOLD, 13));
-//		intensity_fader_lbl.setBounds(993, 343, 65, 16);
-//		contentPane.add(intensity_fader_lbl);
-//		
-//		intensity_fader = new JSlider(0, 255, 0);
-//		intensity_fader.setMinorTickSpacing(15);
-//		intensity_fader.setBackground(new Color(238, 238, 238));
-//		intensity_fader.setPaintTicks(true);
-//		intensity_fader.setOrientation(SwingConstants.VERTICAL);
-//		intensity_fader.setBounds(993, 370, 65, 224);
-//		contentPane.add(intensity_fader);
-//		
-//		intensity_spinner = new JSpinner();
-//		intensity_spinner.setBounds(993, 605, 65, 28);
-//		contentPane.add(intensity_spinner);
-//		
-//		intensity_fader.setEnabled(false);
-//		intensity_spinner.setEnabled(false);
-//		intensity_fader_lbl.setEnabled(false);
-		
 		fade_val = new JLabel("0", SwingConstants.CENTER);
 		fade_val.setBounds(139, 595, 80, 28);
 		main_controls_panel.add(fade_val);
@@ -554,30 +512,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		lblFade.setFont(new Font("Lucida Grande", Font.BOLD, 13));
 		lblFade.setBounds(139, 333, 80, 16);
 		main_controls_panel.add(lblFade);
-		
-//		active_preset_lbl = new JLabel("No Preset");
-//		active_preset_lbl.setBounds(1158, 276, 116, 16);
-//		contentPane.add(active_preset_lbl);
-		
-//		stop_cue = new JButton("Stop Cue");
-//		stop_cue.setEnabled(false);
-//		stop_cue.setBounds(1157, 319, 117, 29);
-//		contentPane.add(stop_cue);
-		
-//		JLabel lblFaderWingPage = new JLabel("Fader Wing Page");
-//		lblFaderWingPage.setBounds(993, 276, 104, 16);
-//		contentPane.add(lblFaderWingPage);
-		
-//		fw_page_spinner = new JSpinner();
-//		fw_page_spinner.setBounds(993, 303, 80, 28);
-//		fw_page_spinner.setValue(1);
-//		contentPane.add(fw_page_spinner);
-		
-//		JSeparator separator_4 = new JSeparator();
-//		separator_4.setOrientation(SwingConstants.VERTICAL);
-//		separator_4.setBounds(1083, 372, 12, 269);
-//		contentPane.add(separator_4);
-		
+
 		open_fw = new JButton("Dimmer Control");
 		open_fw.setBounds(1025, 320, 116, 28);
 		menu_panel.add(open_fw);
@@ -679,11 +614,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		bank_page_lbl.setFont(new Font("Tahoma", Font.PLAIN, 28));
 		bank_page_lbl.setBounds(895, 234, 67, 21);
 		fixture_control.add(bank_page_lbl);
-		
-//		JButton btnAbout = new JButton("About");
-//		btnAbout.setBounds(6, 638, 65, 23);
-//		contentPane.add(btnAbout);
-		
+
 //		JButton btnSettings = new JButton("Settings");
 //		btnSettings.setEnabled(false);
 //		btnSettings.setBounds(81, 681, 90, 23);
@@ -829,26 +760,13 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 				cue_counter.setValue(cue_slider.getValue());
 				
 			} else if(e.getSource() == clear_sel){
-
-					selectedFixture = null;
 					
-					for(int d=0;d<512;d++){
-						if(ctrl_fader[d] != null){
-							ctrl_fader[d].setFaderVisible(false);
-							ctrl_fader[d].unassign();
-							ctrl_fader[d].slider.setValue(0);
-						}
-					}
+					FixtureSelectionEngine.clearSelection();
+					
 					cur_sel_id.setText("ID--");
 					cur_sel_name.setText("-");
 					cur_sel_type.setText("-");
-					lbl_nothingselected.setVisible(true);
-					
-					intensity_fader.setValue(0);
-					
-					intensity_fader.setEnabled(false);
-					intensity_spinner.setEnabled(false);
-					intensity_fader_lbl.setEnabled(false);
+
 					clear_sel.setEnabled(false);
 
 			} else if(e.getSource() == saveItem){
@@ -905,52 +823,52 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 			else if(e.getSource() == black_out){
 				
 				if(!blackout_on){
-		//			System.out.println("Blackout on");
+
 					blackout_on = true;
+					setMaster(0);
 					
 					// Broadcast Blackout
-					if(artnet_node != null) {
-						dmx.setSequenceID(sequenceID % 255);
-						dmx.setDMX(blackout, 512);
-		           		artnet.unicastPacket(dmx, artnet_node.getIPAddress());
-		           		sequenceID++;
-		            }
+//					if(artnet_node != null) {
+//						dmx.setSequenceID(sequenceID % 255);
+//						dmx.setDMX(blackout, 512);
+//		           		artnet.unicastPacket(dmx, artnet_node.getIPAddress());
+//		           		sequenceID++;
+//		            }
 					
 					blackout_th = new Thread(){
 						int count = 0;
 						public void run(){
+							black_out.setForeground(Color.BLUE);
 							while(true){
-									if(count == 0){
-										black_out.setForeground(Color.BLUE);
-										black_out.setFont(new Font(null, Font.BOLD, 13));
-										count++;
-									} else {
-										black_out.setForeground(Color.BLACK);
-										count--;
-									}
-									try {
-										Thread.sleep(500);
-									} catch(Exception e){e.printStackTrace();}	
+								black_out.setFont(new Font(null, Font.BOLD, 11));
+								try {
+									Thread.sleep(500);
+								} catch (InterruptedException e) {e.printStackTrace();}
+								black_out.setFont(new Font(null, Font.PLAIN, 11));
+								try {
+									Thread.sleep(500);
+								} catch (InterruptedException e) {e.printStackTrace();}
 							}
 						};
 					};
 					blackout_th.start();
 				} else {
-			//		System.out.println("Blackout off");
+
 					blackout_on = false;
+					setMaster((Integer)master_spinner.getValue());
 					
-					for(int a=0;a<512;a++){
-						data[a] = (byte)(((double)channel_data[a+1] / 255) * (Integer)master_spinner.getValue());
+//					for(int a=0;a<512;a++){
+//						data[a] = (byte)(((double)channel_data[a+1] / 255) * (Integer)master_spinner.getValue());
 					//	data[a] = (byte)channel_data[a+1];
-					}
+			//		}
 					
 					// Broadcast channel_data
-					if(artnet_node != null && !blackout_on) {
-						dmx.setSequenceID(sequenceID % 255);
-						dmx.setDMX(data, 512);
-		           		artnet.unicastPacket(dmx, artnet_node.getIPAddress());
-		           		sequenceID++;
-		            }
+//					if(artnet_node != null && !blackout_on) {
+//						dmx.setSequenceID(sequenceID % 255);
+//						dmx.setDMX(data, 512);
+//		           		artnet.unicastPacket(dmx, artnet_node.getIPAddress());
+//		           		sequenceID++;
+//		            }
 					
 					blackout_th.stop();
 					black_out.setForeground(Color.BLACK);
@@ -983,41 +901,6 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 	           		artnet.unicastPacket(dmx, artnet_node.getIPAddress());
 	           		sequenceID++;
 	            }
-				
-//			else if(e.getSource() == open_fw){
-//				
-//				if(!dimmerControl){
-//					patch_table_pane.setViewportView(dimmer_table);
-//				} else {
-//					patch_table_pane.setViewportView(fixture_table);
-//				}
-//				dimmerControl = !dimmerControl;
-
-//				for(int b=0;b<512;b++){
-//					if(dimmer[b+1] != null){
-//						ctrl_fader[b].slider.setMinimum(0);
-//						ctrl_fader[b].slider.setMaximum(255);
-//						ctrl_fader[b].slider.setBackground(dimmer[b+1].c);
-//						ctrl_fader[b].setChannel("1/" + (b+1));
-//						ctrl_fader[b].setFaderVisible(true);
-//						ctrl_fader[b].assignFixture(dimmer[b+1]);
-//						ctrl_fader[b].slider.setValue(channel_data[dimmer[b+1].getStartChannel()]);
-//						ctrl_fader[b].setName(dimmer[b+1].name);
-//						ctrl_fader[b].assignChannel(new int[]{dimmer[b+1].startChannel});
-//						ctrl_fader[b].prev_val = 0;
-//						lbl_nothingselected.setVisible(false);
-//					} else {
-//						if(ctrl_fader[b] != null){
-//							ctrl_fader[b].setFaderVisible(false);
-//							ctrl_fader[b].unassign();
-//							ctrl_fader[b].slider.setValue(0);
-//						}
-//					}
-//				}
-//				cur_sel_id.setText("-");
-//				cur_sel_name.setText("Dimmers");
-//				cur_sel_type.setText("-");
-//				clear_sel.setEnabled(true);
 				
 			} else if(e.getSource() == cue_Go){
 				
@@ -1231,6 +1114,11 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 				} else {
 					data[a] = (byte)(double)channel_data[a+1];
 				}
+				if(dimmer[a+1] != null){
+					data[a] = (byte)((double)channel_data[a+1] * (val/100));
+				} else {
+					data[a] = (byte)(double)channel_data[a+1];
+				}
 
 			}
 			
@@ -1242,36 +1130,6 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
            		sequenceID++;
             }
 		}
-		
-		// Changes output of currently selected fixture to 'val'
-//		public void setIntensity(int val){
-//			
-//			for(int a=0;a<512;a++){
-//				data[a] = (byte)((double)channel_data[a+1] / 255 * (Integer)master_spinner.getValue() / 255 * val);
-//			}
-//			
-//			if(selectedFixture != null){
-//				if(selectedFixture instanceof Group){
-//					for(int b=0;b<(((Group)selectedFixture).getMembers()[0]).getChannels();b++){
-//						data[((((Group)selectedFixture).getMembers()[b]).getStartChannel()+b)-1] = (byte)((double)channel_data[(((Group)selectedFixture).getMembers()[0]).getStartChannel()+b] / 255 * val / 255 * (Integer)master_spinner.getValue());
-//					}
-//				} else {
-//					for(int b=0;b<((Fixture)(selectedFixture)).getChannels();b++){
-//						data[(((Fixture)(selectedFixture)).getStartChannel()+b)-1] = (byte)((double)channel_data[((Fixture)(selectedFixture)).getStartChannel()+b] / 255 * val / 255 * (Integer)master_spinner.getValue());
-//					}
-//				}
-//				
-//				((Fixture)(selectedFixture)).intensity = val;
-//				
-//				 Broadcast channel_data with new master value
-//				if(artnet_node != null && !blackout_on) {
-//					dmx.setSequenceID(sequenceID % 255);
-//					dmx.setDMX(data, 512);
-//	           		artnet.unicastPacket(dmx, artnet_node.getIPAddress());
-//	           		sequenceID++;
-//	            }
-//			}
-//		}
 
 		public void mousePressed(MouseEvent e) {
 				
@@ -1290,38 +1148,18 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 					} catch(NullPointerException n){
 						return;
 					}
+				clear_sel.setEnabled(true);
 				return;
 				
-			} else if(e.getSource() == group_table){
-	
-					selectedFixture = group[group_table.getSelectedRow()+1];					
-			//		selectFixtures(group[group_table.getSelectedRow()+1].getMembers());
-
-//					cur_sel_id.setText("GRP");
-//					cur_sel_name.setText(group[group_table.getSelectedRow()+1].getName());
-//					cur_sel_type.setText(group[group_table.getSelectedRow()+1].getFixtureType());
-
-//					if(!getProfileByName(((Group) selectedFixture).getMembers()[0].getFixtureType()).built_in_dimmer){
-//						intensity_fader.setMinimum(-255);
-//						intensity_fader.setMaximum(255);
-//						intensity_fader.setValue(0);
-//						intensity_spinner.setValue(0);
-//						intensity_fader.setEnabled(true);
-//						intensity_spinner.setEnabled(true);
-//						intensity_fader_lbl.setEnabled(true);
-//						intensity_fader_lbl.setText(((Group)selectedFixture).getName());
-//					} else {
-//						intensity_fader.setValue(0);
-//						intensity_fader.setEnabled(false);
-//						intensity_spinner.setEnabled(false);
-//						intensity_fader_lbl.setEnabled(false);
-//						intensity_fader_lbl.setText("-");
-//					}
-				
-	//			group_btn.setEnabled(false);
-				return;
-				
-			} else if(e.getSource() == dimmer_table){
+			} 
+//			else if(e.getSource() == group_table){
+//	
+//					selectedFixture = group[group_table.getSelectedRow()+1];					
+//
+//				return;
+//				
+//			} 
+			else if(e.getSource() == dimmer_table){
 				
 				dimmer_table.setColumnSelectionInterval(e.getX()/137, e.getX()/137);
 				dimmer_table.setRowSelectionInterval(e.getY()/50, e.getY()/50);
@@ -1333,6 +1171,8 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 				} catch(NullPointerException npe){
 					return;
 				}
+				clear_sel.setEnabled(true);
+				return;
 			}
 		}
 		

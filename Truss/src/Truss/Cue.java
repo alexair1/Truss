@@ -18,7 +18,7 @@ public class Cue {
 		if(data != null){
 			
 			Loader.frame.prev_channel_data = Loader.frame.channel_data;
-			Loader.frame.stop_cue.setEnabled(true);
+//			Loader.frame.stop_cue.setEnabled(true);
 			
 			//	boolean complete = false;
 			//	System.out.println(Loader.frame.fade_slider.getValue());

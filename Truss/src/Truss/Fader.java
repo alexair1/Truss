@@ -91,11 +91,13 @@ import javax.swing.event.*;
 					Loader.frame.channel_data[dmxChannels[0]] = slider.getValue();
 					
 					if(f != null){
-						if((f.getStartChannel()+f.getFixtureType().channel_function[0])-1 == dmxChannels[0]){
+
+						if(f.fixtureType.equals("Dimmer") || (f.getStartChannel()+f.getFixtureType().channel_function[0])-1 == dmxChannels[0]){
 							main.data[dmxChannels[0]-1] = (byte)((double)main.channel_data[dmxChannels[0]] * ((Integer)Loader.frame.master_spinner.getValue()/100));
 						} else {
 							main.data[dmxChannels[0]-1] = (byte)(double)main.channel_data[dmxChannels[0]];
 						}
+						
 					} else {
 						main.data[dmxChannels[0]-1] = (byte)(double)main.channel_data[dmxChannels[0]];
 					}
@@ -159,7 +161,9 @@ import javax.swing.event.*;
 			} // End parent if statement
 			
 			if(f != null){
-				if(f.isUsingProfile() && dmxChannels != null){
+				if(f.fixtureType.equals("Dimmer")){
+					this.setStrValue("Intensity");
+				} else if(f.isUsingProfile() && dmxChannels != null){
 					f.getFixtureType().setStringValue(Fader.this);
 				}
 			} else {
@@ -200,7 +204,9 @@ import javax.swing.event.*;
 		}
 		public void assignFixture(Fixture f){
 			this.f = f;
-			if(f.isUsingProfile() && dmxChannels != null){
+			if(f.fixtureType.equals("Dimmer")){
+				this.setStrValue("Intensity");
+			} else if(f.isUsingProfile() && dmxChannels != null){
 				f.getFixtureType().setStringValue(Fader.this);
 			}
 		}

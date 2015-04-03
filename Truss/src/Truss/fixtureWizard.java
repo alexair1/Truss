@@ -67,6 +67,7 @@ public class fixtureWizard implements ActionListener {
 		namefield.setColumns(10);
 		
 		usingProfile = new JCheckBox("Profile");
+		usingProfile.setFocusable(false);
 		usingProfile.setSelected(true);
 		usingProfile.setBounds(230, 8, 94, 23);
 		panel.add(usingProfile);
@@ -105,14 +106,17 @@ public class fixtureWizard implements ActionListener {
 		panel.add(separator_1);
 		
 		create = new JButton("Create");
+		create.setFocusable(false);
 		create.setBounds(334, 291, 100, 29);
 		panel.add(create);
 		
 		cancel = new JButton("Cancel");
+		cancel.setFocusable(false);
 		cancel.setBounds(224, 291, 100, 29);
 		panel.add(cancel);
 		
 		incrName = new JCheckBox("Incr. Name");
+		incrName.setFocusable(false);
 		incrName.setEnabled(false);
 		incrName.setBounds(315, 233, 79, 23);
 		panel.add(incrName);
@@ -127,11 +131,13 @@ public class fixtureWizard implements ActionListener {
 		panel.add(errorLbl);
 		
 		ChooseColour = new JButton("Choose Colour");
+		ChooseColour.setFocusable(false);
 		ChooseColour.setEnabled(false);
 		ChooseColour.setBounds(329, 6, 105, 29);
 		panel.add(ChooseColour);
 		
 		acg = new JCheckBox("Auto Create Group");
+		acg.setFocusable(false);
 		acg.setEnabled(false);
 		acg.setBounds(315, 214, 117, 23);
 		panel.add(acg);
@@ -252,15 +258,11 @@ public class fixtureWizard implements ActionListener {
 			} else if(e.getSource() == cancel){
 				frame.dispose();
 			} else if(e.getSource() == usingProfile){
-				if(usingProfile.isSelected()){
-					channels.setEnabled(false);
-					lblChannels.setEnabled(false);
-					profileSelector.setEnabled(true);
-				} else {
-					channels.setEnabled(true);
-					lblChannels.setEnabled(true);
-					profileSelector.setEnabled(false);
-				}
+
+					channels.setEnabled(!usingProfile.isSelected());
+					lblChannels.setEnabled(!usingProfile.isSelected());
+					profile_table.setEnabled(usingProfile.isSelected());
+
 			} else if(e.getSource() == ChooseColour){
 				
 				color = chooser.showDialog(frame, "Fader Colour", new Color(238,238,238));
@@ -328,7 +330,7 @@ public class fixtureWizard implements ActionListener {
 		
 		if((((Integer)amount.getValue() > 0) && ((Integer)amount.getValue() < 513)) && (((Integer)channels.getValue() > 0) && ((Integer)channels.getValue() < 513)) && (((Integer)startchannel.getValue() > 0) && ((Integer)startchannel.getValue() < 513))){
 			errorLbl.setForeground(Color.BLACK);
-			errorLbl.setText("						  																			Ready to Create");
+			errorLbl.setText("Ready to Create");
 			create.setEnabled(true);
 		}
 		

@@ -67,14 +67,17 @@ public class dimmerWizard implements ActionListener {
 		panel.add(separator_1);
 		
 		create = new JButton("Create");
+		create.setFocusable(false);
 		create.setBounds(194, 212, 100, 29);
 		panel.add(create);
 		
 		cancel = new JButton("Cancel");
+		cancel.setFocusable(false);
 		cancel.setBounds(96, 212, 100, 29);
 		panel.add(cancel);
 		
 		incrName = new JCheckBox("Incr. Name");
+		incrName.setFocusable(false);
 		incrName.setEnabled(false);
 		incrName.setBounds(6, 64, 100, 23);
 		panel.add(incrName);
@@ -84,16 +87,18 @@ public class dimmerWizard implements ActionListener {
 		exampleLbl.setBounds(16, 92, 105, 16);
 		panel.add(exampleLbl);
 		
-		errorLbl = new JLabel("																									Ready to Create");
+		errorLbl = new JLabel("Ready to Create");
 		errorLbl.setBounds(6, 184, 288, 16);
 		panel.add(errorLbl);
 		
 		acg = new JCheckBox("Auto Create Group");
+		acg.setFocusable(false);
 		acg.setEnabled(false);
 		acg.setBounds(6, 120, 135, 28);
 		panel.add(acg);
 		
 		btnChooseColour = new JButton("Choose Colour");
+		btnChooseColour.setFocusable(false);
 		btnChooseColour.setBounds(189, 119, 105, 30);
 		panel.add(btnChooseColour);
 		

@@ -4,7 +4,9 @@ import java.io.*;
 
 public class saveShow {
 	
-	// Save Show
+	/*
+	 * Save Show
+	 */
 	public static void save(File file_path){
 		try {
 			ObjectOutputStream o = new ObjectOutputStream(new FileOutputStream(file_path));
@@ -52,7 +54,9 @@ public class saveShow {
 		}
 	}
 	
-	// Load Show
+	/*
+	 * Load Show
+	 */
 	public static void load(File file_path){
 		try {
 			ObjectInputStream o = new ObjectInputStream(new FileInputStream(file_path));

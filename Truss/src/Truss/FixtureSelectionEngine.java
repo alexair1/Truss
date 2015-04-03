@@ -23,27 +23,7 @@ public final class FixtureSelectionEngine {
 		main.cur_sel_name.setText(f.getName());
 		main.cur_sel_type.setText(f.getFixtureType().name);
 		
-		main.btnDimmer.setEnabled(false);
-		main.btnShutter.setEnabled(false);
-		main.btnIris.setEnabled(false);
-		main.btnFocus.setEnabled(false);
-		main.btnZoom.setEnabled(false);
-		main.btnColourWheel.setEnabled(false);
-		main.btnRgbMixing.setEnabled(false);
-		main.btnCto.setEnabled(false);
-		main.btnGobo_1.setEnabled(false);
-		main.btnGobo_2.setEnabled(false);
-		main.btnGobo_3.setEnabled(false);
-		main.btnPrism.setEnabled(false);
-		main.btnFrost.setEnabled(false);
-		main.btnControl.setEnabled(false);
-		main.btnOther.setEnabled(false);
-		
-		main.bank_page_up.setEnabled(false);
-		main.bank_page_down.setEnabled(false);
-		
-		main.tilt.setName("-");
-		main.pan.setName("-");
+		clearSelection();
 		
 		// Check if the selected fixture/s have a the following functions, enable accordingly
 		for(int a=0;a<selectedFixtures.size();a++){
@@ -151,27 +131,10 @@ public final class FixtureSelectionEngine {
 		main.cur_sel_name.setText(d.name);
 		main.cur_sel_type.setText("Size: " + d.getFixtures().length);
 		
-		main.btnDimmer.setEnabled(false);
-		main.btnShutter.setEnabled(false);
-		main.btnIris.setEnabled(false);
-		main.btnFocus.setEnabled(false);
-		main.btnZoom.setEnabled(false);
-		main.btnColourWheel.setEnabled(false);
-		main.btnRgbMixing.setEnabled(false);
-		main.btnCto.setEnabled(false);
-		main.btnGobo_1.setEnabled(false);
-		main.btnGobo_2.setEnabled(false);
-		main.btnGobo_3.setEnabled(false);
-		main.btnPrism.setEnabled(false);
-		main.btnFrost.setEnabled(false);
-		main.btnControl.setEnabled(false);
-		main.btnOther.setEnabled(false);
+		clearSelection();
 		
 		main.bank_page_up.setEnabled(true);
 		main.bank_page_down.setEnabled(true);
-		
-		main.tilt.setName("-");
-		main.pan.setName("-");
 		
 		Fader[] faders = {main.single, main.bank_1, main.bank_2, main.bank_3, main.bank_4, main.bank_5, main.pan, main.tilt};
 		
@@ -447,20 +410,18 @@ public final class FixtureSelectionEngine {
 	 * Sets the string value for the given fader to the given channel function index
 	 */
 	private static void setStringValueForFaders(Fader f, int channel_function_index){
-		Vector<ProfileChannel> v = selectedFixtures.get(0).getFixtureType().function;
-	//	ProfileChannel p = v.get(selectedFixtures.get(0).getFixtureType().channel_function[channel_function_index]-1);
+
 		if(selectedFixtures.get(0).getFixtureType().function.get(selectedFixtures.get(0).getFixtureType().channel_function[channel_function_index]).func.size() > 0){
 			selectedFixtures.get(0).getFixtureType().setStringValue(f);
 		} else {
 			f.setStrValue("-");
 		}
-//		if( ((Vector)selectedFixtures.get(0).getFixtureType().function.get(selectedFixtures.get(0).getFixtureType().channel_function[channel_function_index]-1)).size() >= 3 ){
-//			selectedFixtures.get(0).getFixtureType().setStringValue(f);
-//		} else {
-//			f.setStrValue("-");
-//		}
+
 	}
 	
+	/*
+	 * Sets the page for the bank fader to the given index, only applies when dimmers are selected
+	 */
 	static void setFaderBankPage(int page){
 		
 		Fader[] faders = {main.bank_1, main.bank_2, main.bank_3, main.bank_4, main.bank_5, main.pan, main.tilt};
@@ -470,6 +431,7 @@ public final class FixtureSelectionEngine {
 			if(a >= selectedFixtures.size()){
 				fader.unassign();
 			} else {
+				System.out.println(main.channel_data[selectedFixtures.get(a).getStartChannel()]);
 				fader.assignFixture(selectedFixtures.get(a));
 				fader.slider.setValue(main.channel_data[selectedFixtures.get(a).getStartChannel()]);
 				fader.assignChannel(new int[]{selectedFixtures.get(a).getStartChannel()});
@@ -480,6 +442,42 @@ public final class FixtureSelectionEngine {
 			
 		}
 		
+	}
+	
+	/*
+	 * Clears all selected fixtures from faders etc
+	 */
+	public static void clearSelection(){
+		
+		main.btnDimmer.setEnabled(false);
+		main.btnShutter.setEnabled(false);
+		main.btnIris.setEnabled(false);
+		main.btnFocus.setEnabled(false);
+		main.btnZoom.setEnabled(false);
+		main.btnColourWheel.setEnabled(false);
+		main.btnRgbMixing.setEnabled(false);
+		main.btnCto.setEnabled(false);
+		main.btnGobo_1.setEnabled(false);
+		main.btnGobo_2.setEnabled(false);
+		main.btnGobo_3.setEnabled(false);
+		main.btnPrism.setEnabled(false);
+		main.btnFrost.setEnabled(false);
+		main.btnControl.setEnabled(false);
+		main.btnOther.setEnabled(false);
+		
+		main.bank_page_up.setEnabled(false);
+		main.bank_page_down.setEnabled(false);
+		
+		main.tilt.setName("-");
+		main.pan.setName("-");
+		
+		main.bank_page_lbl.setText("1");
+		
+		Fader[] faders = {main.single, main.bank_1, main.bank_2, main.bank_3, main.bank_4, main.bank_5, main.pan, main.tilt};
+		
+		for(Fader fader : faders){
+			fader.unassign();
+		}
 	}
 	
 }
