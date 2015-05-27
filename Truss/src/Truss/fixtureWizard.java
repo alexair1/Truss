@@ -28,9 +28,7 @@ public class fixtureWizard implements ActionListener {
 	
 	/**
 	 * @wbp.parser.entryPoint
-	 */
-
-	
+	 */	
 	public void actionPerformed(ActionEvent a){
 		
 		for(int b=0;b<100;b++){

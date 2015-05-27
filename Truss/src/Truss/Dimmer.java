@@ -10,6 +10,7 @@ public class Dimmer {
 	public Dimmer(String name, Fixture[] f){
 		fixtures = f;
 		this.name = name;
+		saveShow.isSaved = false;
 	}
 	
 	public Fixture[] getFixtures(){

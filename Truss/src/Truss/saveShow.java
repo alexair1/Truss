@@ -1,8 +1,11 @@
 package Truss;
 
 import java.io.*;
+import java.util.Properties;
 
 public class saveShow {
+	
+	static boolean isSaved = false;
 	
 	/*
 	 * Save Show
@@ -13,7 +16,7 @@ public class saveShow {
 			int a;
 			
 			for(a=1;a<513;a++){
-				o.writeObject(Loader.frame.channel_data[a]);
+				o.writeObject(main.channel_data[a]);
 			}
 
 			for(a=1;a<513;a++){
@@ -23,27 +26,7 @@ public class saveShow {
 			for(a=1;a<513;a++){
 				o.writeObject(main.dimmer[a]);
 			}
-			
-			for(a=0;a<512;a++){
-				o.writeObject(main.patch_data[a]);
-			} 
-			
-			for(a=1;a<513;a++){
-				o.writeObject(main.group[a]);
-			}
-			
-			o.write(main.groupNames.size());
-			
-			for(a=0;a<main.groupNames.size();a++){
-				o.writeUTF(main.groupNames.get(a));
-			}
-			
-			for(a=0;a<10;a++){
-				for(int b=0;b<35;b++){
-					o.writeObject(main.preset[a][b]);
-				}
-			}
-			
+
 			o.write(Loader.frame.master_slider.getValue());
 			
 			o.writeInt(Loader.frame.fade_slider.getValue());
@@ -52,12 +35,104 @@ public class saveShow {
 		} catch(Exception e){
 			e.printStackTrace();
 		}
+		isSaved = true;
 	}
-	
+//	public static void save(File file_path){
+//		
+//		try {
+//			ObjectOutputStream o = new ObjectOutputStream(new FileOutputStream(file_path));
+//			Properties prop = new Properties();
+//			
+//			int a;
+//			
+//			for(a=1;a<513;a++){
+//				prop.setProperty("ch"+a, String.valueOf(main.channel_data[a]));
+//			}
+//
+//			for(a=1;a<513;a++){
+//				prop.setProperty("fix"+a, String.valueOf(main.fixture[a]));
+//			}
+//			
+//			for(a=1;a<513;a++){
+//				prop.setProperty("dim"+a, String.valueOf(main.dimmer[a]));
+//			}
+//			
+//			prop.setProperty("mstr", String.valueOf(Loader.frame.master_slider.getValue()));
+//			prop.setProperty("fade"+a, String.valueOf(Loader.frame.fade_slider.getValue()));
+//			
+//			prop.store(o, null);
+//			o.close();
+//		} catch(Exception e){
+//			e.printStackTrace();
+//		}
+//		
+//	}
+		
 	/*
 	 * Load Show
 	 */
+//public static void load(File file_path){
+//		
+//		ProgressDialog prog = new ProgressDialog("Saving");
+//		
+//		try {
+//			ObjectInputStream o = new ObjectInputStream(new FileInputStream(file_path));
+//			Properties prop = new Properties();
+//			
+//			prop.load(o);
+//			
+//			int a;
+//			
+//			for(a=1;a<513;a++){
+//				main.channel_data[a] = Integer.parseInt(prop.getProperty("ch"+a));
+//			}
+//			
+//			for(a=1;a<513;a++){
+//				main.channel_data[a] = Integer.parseInt(prop.getProperty("ch"+a));
+//			}
+//			System.out.println("loaded channel data");
+//			prog.setProgress(20);
+//
+//
+//			main.fixtureNumber = 1;
+//			main.fixture_data = new Object[6][7];
+//			main.fixture = new Fixture[513];
+//			
+//			for(a=1;a<513;a++){
+//				main.fixture[a] = (Fixture)(Object)prop.getProperty("fix"+a);
+//				main.fixtureNumber++;
+//			}
+//			System.out.println("loaded fixtures");
+//			prog.setProgress(40);
+//
+//			
+//			main.dimmerNumber = 1;
+//			main.dimmer_data = new Object[6][7];
+//			main.dimmer = new Dimmer[513];
+//			
+//			for(a=1;a<513;a++){
+//				main.dimmer[a] = (Dimmer)(Object)prop.getProperty("dim"+a);
+//				main.dimmerNumber++;
+//			}
+//			System.out.println("loaded dimmers");
+//			prog.setProgress(60);
+//			
+//			Loader.frame.master_slider.setValue(Integer.parseInt(prop.getProperty("mstr")));
+//			Loader.frame.fade_slider.setValue(Integer.parseInt(prop.getProperty("fade")));
+//
+//			o.close();
+//			prog.dispose();
+//		} catch(Exception e){
+//			e.printStackTrace();
+//		}
+//	}
+	
+	
+	
 	public static void load(File file_path){
+		
+		ProgressDialog prog = new ProgressDialog("Saving");
+		
 		try {
 			ObjectInputStream o = new ObjectInputStream(new FileInputStream(file_path));
 			
@@ -68,148 +143,76 @@ public class saveShow {
 					Loader.frame.channel_data[a+1] = (Integer)o.readObject();
 					a++;
 				} catch(Exception e){
-	//				e.printStackTrace();
+					e.printStackTrace();
 				}
 			} 
 			System.out.println("loaded channel data");
+			prog.setProgress(20);
 
 			a=1;
-			
-	//		main.fixture_select_btn_counter = 0;
+
 			main.fixtureNumber = 1;
-	//		main.fader_wing_counter = 0;
+			main.fixture_data = new Object[6][7];
+			main.fixture = new Fixture[513];
+			
 			while(a < 513){
 				try {
 					Object f = o.readObject();
 
 					if(f instanceof Fixture){
-		//				System.out.println(a + " : " + f);
+
 						main.fixture[a] = (Fixture)f;
-					//	main.fixture[a].createControls();
 						main.fixtureNumber++;
+						
 					} else {
+						
 						main.fixture[a] = null;
+						
 					}
+					
 					a++;
+					
 				} catch(Exception e){
-			//		e.printStackTrace();
+					e.printStackTrace();
 				}
 			}
 			System.out.println("loaded fixtures");
+			prog.setProgress(40);
 			
 			a=1;
 			
-	//		main.fixture_select_btn_counter = 0;
 			main.dimmerNumber = 1;
-	//		main.fader_wing_counter = 0;
+			main.dimmer_data = new Object[6][7];
+			main.dimmer = new Dimmer[513];
+
 			while(a < 513){
 				try {
 					Object d = o.readObject();
 
 					if(d instanceof Fixture){
-		//				System.out.println(a + " : " + f);
-						main.dimmer[a] = (Fixture)d;
-					//	main.fixture[a].createControls();
+
+						main.dimmer[a] = (Dimmer)d;
 						main.dimmerNumber++;
-					} else {
-						main.dimmer[a] = null;
-					}
-					a++;
-				} catch(Exception e){
-					e.printStackTrace();
-				}
-			}
-//			main.setFaderWingPage((Integer)main.fw_page_spinner.getValue());
-			System.out.println("loaded dimmers");
-
-			a=0;
-			
-			while(a < 512){
-				try {
-					main.patch_data[a] = (Object[])o.readObject();
-					a++;
-				} catch(Exception e){
-					e.printStackTrace();
-				}
-			} 
-			System.out.println("loaded patch data");
-			
-			a=1;
-			main.group_counter = 1;
-			
-			while(a < 513){
-				try {
-					
-					Object g = o.readObject();
-
-					if(g instanceof Group){
-						main.group[a] = (Group)g;			
-						main.group_data[main.group_counter-1][0] = main.group[a].name;
-						main.group_data[main.group_counter-1][1] = main.group[a].fixtureType;
-						main.group_data[main.group_counter-1][2] = main.group[a].getMembers().length;
-						main.group_counter++;
-					} else {
-						main.group[a] = null;
-					}
-					a++;
-				} catch(Exception e){
-					if(a == 1){
-						e.printStackTrace();
-					}
-				}
-			} 
-			System.out.println("loaded groups");
-			
-			boolean b = true;
-			a=0;
-			int groupNamesSize = 0;
-			
-			try {
-				groupNamesSize = o.read();
-			} catch(Exception e){
-				e.printStackTrace();
-			}
-			
-			while(a < groupNamesSize){
-				try {
-					if(main.groupNames.size() == 0){
-						main.groupNames.add(o.readUTF());
-					} else if(a < main.groupNames.size()){
-						main.groupNames.set(a, o.readUTF());
-					} else {
-						main.groupNames.add(o.readUTF());
-					}
-					
-					a++;
-				} catch(Exception e){
-					b = false;
-					e.printStackTrace();
-				}
-			}
-			System.out.println("loaded group names");
-			
-			a=0;
-			
-			for(a=0;a<10;a++){
-				for(int z=0;z<35;z++){
-					try {
-						Preset p = (Preset)o.readObject();
-						if(p instanceof Preset){
-							main.preset[a][z] = new Preset(p.row, p.col, p.name, p.data);
-						} else {
-							main.preset[a][z] = null;
-						}
 						
-					} catch(Exception e){
-						e.printStackTrace();
+					} else {
+						
+						main.dimmer[a] = null;
+						
 					}
+					
+					a++;
+					
+				} catch(Exception e){
+					e.printStackTrace();
 				}
 			}
-			System.out.println("loaded presets");
+			System.out.println("loaded dimmers");
+			prog.setProgress(60);
 			
 			try{
 				Loader.frame.master_slider.setValue(o.read());
 				System.out.println("loaded master fader");
+				prog.setProgress(80);
 			} catch(Exception e){
 				e.printStackTrace();
 			}
@@ -217,13 +220,15 @@ public class saveShow {
 			try{
 				Loader.frame.fade_slider.setValue(o.readInt());
 				System.out.println("loaded fade fader");
+				prog.setProgress(100);
 			} catch(Exception e){
 				e.printStackTrace();
 			}
 			
 			o.close();
+			prog.dispose();
 		} catch(Exception e){
-	//		e.printStackTrace();
+			e.printStackTrace();
 		}
 	}
 } 

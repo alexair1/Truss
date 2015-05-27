@@ -86,6 +86,8 @@ import javax.swing.event.*;
 		}
 		private void broadcast(){
 			
+			saveShow.isSaved = false;
+			
 			if(dmxChannels != null){
 				if(dmxChannels.length == 1){
 					Loader.frame.channel_data[dmxChannels[0]] = slider.getValue();

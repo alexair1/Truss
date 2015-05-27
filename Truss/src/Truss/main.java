@@ -26,7 +26,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-public class main extends JFrame implements ActionListener, ChangeListener, MouseListener, ArtNetDiscoveryListener, KeyListener {
+public class main extends JFrame implements ActionListener, ChangeListener, MouseListener, ArtNetDiscoveryListener, KeyListener, WindowListener {
 	
 	static int[] channel_data = new int[513];
 	int[] prev_channel_data = new int[513];
@@ -89,7 +89,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 			   "Cyan", "Cyan (Fine)", "Magenta", "Magenta (Fine)", "Yellow", "Yellow (Fine)", "CTO",
 			   "CTO (Fine)"};
 	
-	JMenuItem saveItem, loadItem, fixtureItem, dimmerItem, aboutItem, patch_newFixture, patch_newDimmer, patch_newSequence;
+	JMenuItem saveItem, loadItem, fixtureItem, dimmerItem, aboutItem, patch_newFixture, patch_newDimmer, patch_newSequence, settingsItem;
 	
 //	static SpinnerNumberModel channel_model = new SpinnerNumberModel(0, 0, 255, 1);  
 	
@@ -158,7 +158,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 
 	public main() {
 		
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		setBounds(50, 50, 1290, 680);
 		setMinimumSize(new Dimension(1280, 710));
 		patch_and_control = new JPanel();
@@ -183,6 +183,12 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		
 			aboutItem = new JMenuItem("About");
 			aboutMenu.add(aboutItem);
+			
+		JMenu settingsMenu = new JMenu("Settings");
+		menuBar.add(settingsMenu);
+		
+			settingsItem = new JMenuItem("Settings");
+			settingsMenu.add(settingsItem);
 			
 		setJMenuBar(menuBar);
 
@@ -701,6 +707,8 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		btnControl.setEnabled(false);
 		btnOther.setEnabled(false);
 		
+		addWindowListener(this);
+		
 		initiate();
 	}
 
@@ -809,7 +817,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 				
 				JFileChooser fc = new JFileChooser();
 				fc.setAcceptAllFileFilterUsed(false);
-				fc.setFileFilter(load_show_filter);
+			//	fc.setFileFilter(load_show_filter);
 
 				if(fc.showOpenDialog(main.this) == JFileChooser.APPROVE_OPTION){
 					currently_loaded_show = fc.getSelectedFile();
@@ -1029,32 +1037,32 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 				
 			} else if(e.getSource() == screens){
 			
-				if(screens.getSelectedIndex() == 1){
-					if(!on_preset_screen){
-						for(int a=0;a<18;a++){
-							if(fw_fader[a].f != null){
-								fw_fader[a].slider.setValue(channel_data[fw_fader[a].dmxChannels[0]]);
-								fw_fader[a].revalidate();
-							}
-						}
-					}
-					on_preset_screen = false;
-				} else if(screens.getSelectedIndex() == 0){
-					if(!on_preset_screen){
-						for(int a=0;a<50;a++){
-							if(ctrl_fader[a].f != null){
-								if(ctrl_fader[a].dmxChannels.length == 1){
-									ctrl_fader[a].slider.setValue(ctrl_fader[a].dmxChannels[0]);
-								}
-//								ctrl_fader[a].slider.setValue(channel_data[ctrl_fader[a].dmxChannels[0]]);
-								ctrl_fader[a].revalidate();
-							}
-						}
-					}
-					on_preset_screen = false;
-				} else if(screens.getSelectedIndex() == 2){
-					on_preset_screen = true;
-				}
+//				if(screens.getSelectedIndex() == 1){
+//					if(!on_preset_screen){
+//						for(int a=0;a<18;a++){
+//							if(fw_fader[a].f != null){
+//								fw_fader[a].slider.setValue(channel_data[fw_fader[a].dmxChannels[0]]);
+//								fw_fader[a].revalidate();
+//							}
+//						}
+//					}
+//					on_preset_screen = false;
+//				} else if(screens.getSelectedIndex() == 0){
+//					if(!on_preset_screen){
+//						for(int a=0;a<50;a++){
+//							if(ctrl_fader[a].f != null){
+//								if(ctrl_fader[a].dmxChannels.length == 1){
+//									ctrl_fader[a].slider.setValue(ctrl_fader[a].dmxChannels[0]);
+//								}
+////								ctrl_fader[a].slider.setValue(channel_data[ctrl_fader[a].dmxChannels[0]]);
+//								ctrl_fader[a].revalidate();
+//							}
+//						}
+//					}
+//					on_preset_screen = false;
+//				} else if(screens.getSelectedIndex() == 2){
+//					on_preset_screen = true;
+//				}
 				
 			} else if(e.getSource() == master_spinner){
 				
@@ -1287,5 +1295,46 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		       	
 		        return this;
 		    }
+		}
+
+		public void windowActivated(WindowEvent arg0) {}
+		public void windowClosed(WindowEvent arg0) {}
+		public void windowDeactivated(WindowEvent arg0) {}
+		public void windowDeiconified(WindowEvent arg0) {}
+		public void windowIconified(WindowEvent arg0) {}
+		public void windowOpened(WindowEvent arg0) {}
+		public void windowClosing(WindowEvent arg0) {
+			
+			if(!saveShow.isSaved){
+				
+				int operation = JOptionPane.showOptionDialog(this, "Would you like to save before exiting?", 
+		    			   "Show has not been saved", JOptionPane.YES_NO_CANCEL_OPTION, 
+		    			   JOptionPane.WARNING_MESSAGE, null, 
+		    			   new String[]{"Yes", "No", "Cancel"}, "Yes");
+
+							switch(operation){
+								case JOptionPane.YES_OPTION: {
+
+											if(currently_loaded_show == null){
+
+												JFileChooser fc = new JFileChooser();
+												fc.setSelectedFile(new File("show.truss"));
+
+												if(fc.showSaveDialog(main.this) == JFileChooser.APPROVE_OPTION){
+													saveShow.save(fc.getSelectedFile());
+												}
+
+											} else {
+												saveShow.save(currently_loaded_show);
+											}
+
+								}
+								case JOptionPane.NO_OPTION: dispose();
+							}
+				
+			} else {
+				
+			}
+			
 		}
 }

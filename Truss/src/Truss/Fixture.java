@@ -17,6 +17,7 @@ public class Fixture extends Object implements Serializable{
 		this.usingProfile = usingProfile;
 		id = main.fixtureNumber;
 		c = colour;
+		saveShow.isSaved = false;
 		
 //		if(main.getProfileByName(fixtureType).built_in_dimmer){
 //			intensity = 255;
