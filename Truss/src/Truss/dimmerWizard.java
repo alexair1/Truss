@@ -16,6 +16,8 @@ public class dimmerWizard implements ActionListener {
 	JLabel lblAmount, lblStartChannel, exampleLbl, errorLbl;
 	JFrame frame = new JFrame();
 	
+	int x = 0, y = 0;
+	
 	Color color = new Color(238,238,238);
 	JColorChooser chooser = new JColorChooser();
 	
@@ -23,6 +25,10 @@ public class dimmerWizard implements ActionListener {
 	 * @wbp.parser.entryPoint
 	 */
 	public void actionPerformed(ActionEvent a){
+		
+		x = Loader.frame.fixture_table.getSelectedColumn();
+		y = Loader.frame.fixture_table.getSelectedRow();
+		
 		JPanel panel = new JPanel();
 		panel.setLayout(null);
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -124,7 +130,7 @@ public class dimmerWizard implements ActionListener {
 				if(incrName.isSelected()){
 
 					for(int a=0;a<(Integer)amount.getValue();a++){
-						f[a] = new Fixture(namefield.getText()+"-"+(a+1), "Dimmer", startChannel, 1, true, color);
+						f[a] = new Fixture(namefield.getText()+"-"+(a+1), "Dimmer", startChannel, 1, true, color, x, y);
 				//		updatePatchTable();
 						startChannel ++;
 						System.out.println(f[a].getStartChannel());
@@ -133,7 +139,7 @@ public class dimmerWizard implements ActionListener {
 				} else {
 
 					for(int a=0;a<(Integer)amount.getValue();a++){ 
-						f[a] = new Fixture(namefield.getText(), "Dimmer", startChannel, 1, true, color); 
+						f[a] = new Fixture(namefield.getText(), "Dimmer", startChannel, 1, true, color, x, y); 
 			//			updatePatchTable();
 						startChannel ++;
 					}

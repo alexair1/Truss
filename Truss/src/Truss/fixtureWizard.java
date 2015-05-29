@@ -24,12 +24,17 @@ public class fixtureWizard implements ActionListener {
 	String[][] profiles = new String[100][3];
 	String[][] profiles_original;
 	
+	int x = 0, y = 0;
+	
 	JColorChooser chooser = new JColorChooser();
 	
 	/**
 	 * @wbp.parser.entryPoint
 	 */	
 	public void actionPerformed(ActionEvent a){
+		
+		x = Loader.frame.fixture_table.getSelectedColumn();
+		y = Loader.frame.fixture_table.getSelectedRow();
 		
 		for(int b=0;b<100;b++){
 			for(int c=0;c<3;c++){
@@ -91,10 +96,12 @@ public class fixtureWizard implements ActionListener {
 		panel.add(startchannel);
 		
 		lblAmount = new JLabel("Amount:");
+		lblAmount.setEnabled(false);
 		lblAmount.setBounds(141, 247, 61, 16);
 		panel.add(lblAmount);
 		
 		amount = new JSpinner();
+		amount.setEnabled(false);
 		amount.setValue(1);
 		amount.setBounds(233, 241, 61, 28);
 		panel.add(amount);
@@ -209,7 +216,7 @@ public class fixtureWizard implements ActionListener {
 				if((usingProfile.isSelected()) && (incrName.isSelected())){
 
 					for(int a=0;a<(Integer)amount.getValue();a++){
-						main.fixture[main.fixtureNumber] = new Fixture(namefield.getText()+"-"+(a+1), fullname, startChannel, main.getProfileByName(fullname).getChannels(), true, color); 
+						main.fixture[main.fixtureNumber] = new Fixture(namefield.getText()+"-"+(a+1), fullname, startChannel, main.getProfileByName(fullname).getChannels(), true, color, x, y); 
 						updatePatchTable();
 						main.fixtureNumber++;
 						startChannel += main.getProfileByName(fullname).getChannels();
@@ -218,7 +225,7 @@ public class fixtureWizard implements ActionListener {
 				} else if((usingProfile.isSelected()) && (!incrName.isSelected())){
 
 					for(int a=0;a<(Integer)amount.getValue();a++){
-						main.fixture[main.fixtureNumber] = new Fixture(namefield.getText(), fullname, startChannel, main.getProfileByName(fullname).getChannels(), true, color); 
+						main.fixture[main.fixtureNumber] = new Fixture(namefield.getText(), fullname, startChannel, main.getProfileByName(fullname).getChannels(), true, color, x, y); 
 						updatePatchTable();
 						main.fixtureNumber++;
 						startChannel += main.getProfileByName(fullname).getChannels();
@@ -227,7 +234,7 @@ public class fixtureWizard implements ActionListener {
 				} else if((!usingProfile.isSelected()) && (incrName.isSelected())){
 
 					for(int a=0;a<(Integer)amount.getValue();a++){
-						main.fixture[main.fixtureNumber] = new Fixture(namefield.getText()+"-"+(a+1), "Custom", startChannel, (Integer)channels.getValue(), false, color); 
+						main.fixture[main.fixtureNumber] = new Fixture(namefield.getText()+"-"+(a+1), "Custom", startChannel, (Integer)channels.getValue(), false, color, x, y); 
 						updatePatchTable();
 						main.fixtureNumber++;
 						startChannel += (Integer)channels.getValue();
@@ -236,7 +243,7 @@ public class fixtureWizard implements ActionListener {
 				} else if((!usingProfile.isSelected()) && (!incrName.isSelected())){
 					
 					for(int a=0;a<(Integer)amount.getValue();a++){
-						main.fixture[main.fixtureNumber] = new Fixture(namefield.getText(), "Custom", startChannel, (Integer)channels.getValue(), false, color); 
+						main.fixture[main.fixtureNumber] = new Fixture(namefield.getText(), "Custom", startChannel, (Integer)channels.getValue(), false, color, x, y); 
 						updatePatchTable();
 						main.fixtureNumber++;
 						startChannel += (Integer)channels.getValue();
@@ -273,7 +280,7 @@ public class fixtureWizard implements ActionListener {
 		}
 		
 		private void updatePatchTable(){
-	 		main.fixture_data[Loader.frame.fixture_table.getSelectedRow()][Loader.frame.fixture_table.getSelectedColumn()] = "<html>&emsp;" + main.fixture[main.fixtureNumber].getName() + "<br>&emsp; " + main.fixtureNumber + "</html>";
+	 		main.fixture_data[y][x] = "<html>&emsp;" + main.fixture[main.fixtureNumber].getName() + "<br>&emsp; " + main.fixtureNumber + "</html>";
 			Loader.frame.fixture_table.repaint();
 		}
 		

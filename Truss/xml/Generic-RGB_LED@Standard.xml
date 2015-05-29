@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
 <!--
-	Modified 3/4/15
+	Modified 29/5/15
 	v1.1
 -->
 
@@ -11,7 +11,7 @@
 		<range low="0" high="255" name="Red" />
 	</channel>
 
-	<channel name="Green" func="Red" >
+	<channel name="Green" func="Green" >
 		<range low="0" high="255" name="Green" />
 	</channel>
 

@@ -10,9 +10,11 @@ import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.event.*;
 import java.io.*;
 import java.util.*;
+import java.util.Timer;
 import java.net.BindException;
 import java.util.List;
 
+import Truss.Settings.Operation;
 import artnet4j.ArtNet;
 import artnet4j.ArtNetNode;
 import artnet4j.events.ArtNetDiscoveryListener;
@@ -28,21 +30,25 @@ import org.xml.sax.helpers.DefaultHandler;
 
 public class main extends JFrame implements ActionListener, ChangeListener, MouseListener, ArtNetDiscoveryListener, KeyListener, WindowListener {
 	
+	/**
+	 * 
+	 */
+//	private static final long serialVersionUID = 457254905222613447L;
 	static int[] channel_data = new int[513];
 	int[] prev_channel_data = new int[513];
 	byte[] blackout = new byte[512];
 	byte[] current_output = new byte[512];
 //	static Preset[][] preset = new Preset[10][35];
-	JSlider[] bank_fader;
+//	JSlider[] bank_fader;
 //	cueStack[] cueStack = new cueStack[100];
-	static JToggleButton[] fixture_select_btn = new JToggleButton[512];
-	static JToggleButton[] group_select_btn = new JToggleButton[512];
+//	static JToggleButton[] fixture_select_btn = new JToggleButton[512];
+//	static JToggleButton[] group_select_btn = new JToggleButton[512];
 	static Object[][] fixture_data = new Object[6][7];
-	static Object[][] group_data = new Object[512][3];
+//	static Object[][] group_data = new Object[512][3];
 	static Object[][] dimmer_data = new Object[6][7];
 	static Object[][] sequence_data = new Object[6][7];
-	static Fader[] ctrl_fader = new Fader[512];
-	static Fader[] fw_fader = new Fader[18];
+//	static Fader[] ctrl_fader = new Fader[512];
+//	static Fader[] fw_fader = new Fader[18];
 	static Fixture[] fixture = new Fixture[513];
 	static Dimmer[] dimmer = new  Dimmer[513];
 	static Cue[] cue = new Cue[1000];
@@ -50,7 +56,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 	static Group[] group = new Group[513];
 	static byte[] data = new byte[512];
 	static int channel_amt = 0, selectedFixtures_amt = 0, current_cue = 1, ctrl_fader_counter = 0, cueStackCounter = 0, fixture_select_btn_counter = 0, fixtureNumber = 1, dimmerNumber = 1, profileID = 0, fader_wing_counter = 0, group_counter = 1, sequenceID = 0;
-	static JLabel lbl_nothingpatched;
+//	static JLabel lbl_nothingpatched;
 	static JPanel fixture_select, control, fixture_sel_panel, group_sel_panel;
 	static Fixture[] selectedFixtures = new Fixture[512];
 	static File currently_loaded_show;
@@ -75,6 +81,8 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 	static ArtNet artnet = new ArtNet();
 	static ArtDmxPacket dmx = new ArtDmxPacket();
 	
+	JPopupMenu fixture_menu, dimmer_menu, sequence_menu;
+	
 	Thread clear_flash, blackout_th;
 	JToggleButton selectedFixture_btn;
 	FileOutputStream file_stream_out;
@@ -91,11 +99,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 	
 	JMenuItem saveItem, loadItem, fixtureItem, dimmerItem, aboutItem, patch_newFixture, patch_newDimmer, patch_newSequence, settingsItem;
 	
-//	static SpinnerNumberModel channel_model = new SpinnerNumberModel(0, 0, 255, 1);  
-	
-	// Vars for setting patch_table cell background
-//	Color cell_bg = Color.black;
-//	int cell_row = 2, cell_col = 3;
+//	Settings settings = new Settings();
 	
 	SAXParserFactory factory = SAXParserFactory.newInstance();
 //	DefaultHandler handler;
@@ -158,6 +162,12 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 
 	public main() {
 		
+		try {
+			UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}; 
+		
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		setBounds(50, 50, 1290, 680);
 		setMinimumSize(new Dimension(1280, 710));
@@ -166,6 +176,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		patch_and_control.setLayout(null);
 		
 		JMenuBar menuBar = new JMenuBar();
+		menuBar.setBorderPainted(false);
 		
 		JMenu fileMenu = new JMenu("File");
 		menuBar.add(fileMenu);
@@ -177,7 +188,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 			loadItem = new JMenuItem("Load");
 			loadItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK));
 			fileMenu.add(loadItem);
-
+		
 		JMenu aboutMenu = new JMenu("About");
 		menuBar.add(aboutMenu);
 		
@@ -188,6 +199,11 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		menuBar.add(settingsMenu);
 		
 			settingsItem = new JMenuItem("Settings");
+			settingsItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+//					settings.setVisible(!settings.isVisible());
+				}
+			});
 			settingsMenu.add(settingsItem);
 			
 		setJMenuBar(menuBar);
@@ -202,13 +218,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 
 		setContentPane(contentPane);
 		setTitle("Truss, Alpha 1.0");
-		setResizable(false);
-		
-		try {
-			UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
-		} catch (Exception e1) {
-			e1.printStackTrace();
-		};  
+		setResizable(false); 
 		
 		JPanel menu_panel = new JPanel();
 		menu_panel.setBounds(0, 0, 1284, 45);
@@ -237,55 +247,22 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		slct_dim.setBounds(687, 311, 89, 23);
 		patch_and_control.add(slct_dim);
 		
-		JPopupMenu fixture_menu = new JPopupMenu();		
+		fixture_menu = new JPopupMenu();		
 		patch_newFixture = new JMenuItem("New Fixture");
 		fixture_menu.add(patch_newFixture);
 		
-		JPopupMenu dimmer_menu = new JPopupMenu();		
+		dimmer_menu = new JPopupMenu();		
 		patch_newDimmer = new JMenuItem("New Dimmer");
 		dimmer_menu.add(patch_newDimmer);
 		
-		JPopupMenu sequence_menu = new JPopupMenu();		
+		sequence_menu = new JPopupMenu();		
 		patch_newSequence = new JMenuItem("New Sequence");
 		sequence_menu.add(patch_newSequence);
-
-		fixture_table = new JTable(fixture_data, new Object[] {"","","","","","",""}){
-			public boolean isCellEditable(int row, int column) {                
-                return false;               
-			}
-		};
-		fixture_table.setCellSelectionEnabled(true);
-		fixture_table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		fixture_table.setRowHeight(50);
-		fixture_table.setComponentPopupMenu(fixture_menu);
-		fixture_table.setTableHeader(null);
-		fixture_table.setFocusable(false);
-		fixture_table.setSelectionBackground(Color.LIGHT_GRAY);
 		
-		dimmer_table = new JTable(dimmer_data, new Object[] {"","","","","","",""}){
-			public boolean isCellEditable(int row, int column) {                
-                return false;               
-			};
-		};
-		dimmer_table.setCellSelectionEnabled(true);
-		dimmer_table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		dimmer_table.setRowHeight(50);
-		dimmer_table.setComponentPopupMenu(dimmer_menu);
-		dimmer_table.setTableHeader(null);
-		dimmer_table.setFocusable(false);
-		dimmer_table.setSelectionBackground(Color.LIGHT_GRAY);
-		
-		sequence_table = new JTable(sequence_data, new Object[] {"","","","","","",""}){
-			public boolean isCellEditable(int row, int column) {                
-                return false;               
-			}
-		};
-		sequence_table.setCellSelectionEnabled(true);
-		sequence_table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		sequence_table.setRowHeight(50);
-		sequence_table.setComponentPopupMenu(sequence_menu);
-		sequence_table.setTableHeader(null);
-		sequence_table.setSelectionBackground(Color.LIGHT_GRAY);
+		/*
+		 * Create dimmer, fixture and sequence table
+		 */
+			createTables();
 		
 		patch_table_pane = new JScrollPane(fixture_table);
 		patch_table_pane.setColumnHeaderView(null);
@@ -445,42 +422,13 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		lblName.setBounds(204, 599, 40, 16);
 		presets.add(lblName);
 
-		// contentPane content
-//		save_show = new JButton();
-//		save_show.setBounds(156, 638, 23, 23);
-//		save_show.setBorder(BorderFactory.createEmptyBorder());
-//		save_show.setIcon(new ImageIcon("src/img/save.png"));
-//		save_show.setContentAreaFilled(false);
-//		save_show.setFocusPainted(false);
-//		contentPane.add(save_show);
-//		
-//		load_show = new JButton();
-//		load_show.setBorder(BorderFactory.createEmptyBorder());
-//		load_show.setIcon(new ImageIcon("src/img/load.png"));
-//		load_show.setBounds(179, 638, 23, 23);
-//		load_show.setContentAreaFilled(false);
-//		load_show.setFocusPainted(false);
-//		contentPane.add(load_show);
 		main_controls_panel.setLayout(null);
 		
 		clear_sel = new JButton("Clear");
 		clear_sel.setFocusable(false);
-		clear_sel.setBounds(229, 35, 65, 23);
+		clear_sel.setBounds(64, 561, 65, 23);
 		clear_sel.setEnabled(false);
 		main_controls_panel.add(clear_sel);
-		
-		cur_sel_id = new JLabel("ID--");
-		cur_sel_id.setBounds(10, 10, 30, 14);
-		main_controls_panel.add(cur_sel_id);
-		
-		cur_sel_name = new JLabel("-");
-		cur_sel_name.setFont(new Font("Lucida Grande", Font.ITALIC, 13));
-		cur_sel_name.setBounds(50, 7, 130, 18);
-		main_controls_panel.add(cur_sel_name);
-		
-		cur_sel_type = new JLabel("-");
-		cur_sel_type.setBounds(190, 10, 105, 14);
-		main_controls_panel.add(cur_sel_type);
 		
 		master_slider = new JSlider(0, 100, 0);
 		master_slider.setFocusable(false);
@@ -496,7 +444,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		master_spinner.setBounds(229, 595, 65, 28);
 		main_controls_panel.add(master_spinner);
 		
-		JLabel lblMaster = new JLabel("Master", SwingConstants.CENTER);
+		JLabel lblMaster = new JLabel("Master (%)", SwingConstants.CENTER);
 		lblMaster.setFont(new Font("Lucida Grande", Font.BOLD, 13));
 		lblMaster.setBounds(229, 333, 65, 16);
 		main_controls_panel.add(lblMaster);
@@ -526,7 +474,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		// Cue components
 		
 		JPanel cue_panel = new JPanel();
-		cue_panel.setBounds(10, 69, 281, 149);
+		cue_panel.setBounds(10, 0, 281, 322);
 	//	cue_panel.setBackground(new Color(120, 120, 120));
 		main_controls_panel.add(cue_panel);
 		cue_panel.setLayout(null);
@@ -583,7 +531,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 			
 			black_out = new JButton("B.O");
 			black_out.setFocusable(false);
-			black_out.setBounds(229, 290, 65, 32);
+			black_out.setBounds(64, 591, 65, 32);
 			main_controls_panel.add(black_out);
 			
 			error_disp = new JLabel("", SwingConstants.RIGHT);
@@ -594,7 +542,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 			error_disp.setForeground(Color.RED);
 			
 			remote_btn = new JButton("Sync");
-			remote_btn.setBounds(10, 229, 65, 23);
+			remote_btn.setBounds(64, 527, 65, 23);
 			main_controls_panel.add(remote_btn);
 			remote_btn.setVisible(false);
 			remote_btn.setEnabled(false);
@@ -649,10 +597,6 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		
 		// Listeners
 		clear_sel.addActionListener(this);
-		fixture_table.addMouseListener(this);
-//		group_table.addMouseListener(this);
-		dimmer_table.addMouseListener(this);
-		sequence_table.addMouseListener(this);
 		master_slider.addChangeListener(this);
 		master_spinner.addChangeListener(this);
 		fade_slider.addChangeListener(this);
@@ -706,6 +650,19 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		btnFrost.setEnabled(false);
 		btnControl.setEnabled(false);
 		btnOther.setEnabled(false);
+		
+		cur_sel_id = new JLabel("ID--");
+		cur_sel_id.setBounds(10, 314, 30, 14);
+		patch_and_control.add(cur_sel_id);
+		
+		cur_sel_name = new JLabel("-");
+		cur_sel_name.setBounds(50, 311, 130, 18);
+		patch_and_control.add(cur_sel_name);
+		cur_sel_name.setFont(new Font("Lucida Grande", Font.ITALIC, 13));
+		
+		cur_sel_type = new JLabel("-");
+		cur_sel_type.setBounds(190, 314, 105, 14);
+		patch_and_control.add(cur_sel_type);
 		
 		addWindowListener(this);
 		
@@ -817,13 +774,11 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 				
 				JFileChooser fc = new JFileChooser();
 				fc.setAcceptAllFileFilterUsed(false);
-			//	fc.setFileFilter(load_show_filter);
 
 				if(fc.showOpenDialog(main.this) == JFileChooser.APPROVE_OPTION){
 					currently_loaded_show = fc.getSelectedFile();
 					saveShow.load(fc.getSelectedFile());
 					setTitle("Truss Alpha 1.0 - " + currently_loaded_show.getName());
-			//		patch_table.revalidate();
 				}
 				
 			} 
@@ -1025,45 +980,6 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 				
 				cue_slider.setValue((Integer)cue_counter.getValue());
 				
-			} else if(e.getSource() == fixture_sel_and_ctrl){
-				
-				if(fixture_sel_and_ctrl.getSelectedIndex() == 1){
-					for(int a=0;a<50;a++){
-						if(ctrl_fader[a].f != null){
-							ctrl_fader[a].revalidate();
-						}
-					}
-				}
-				
-			} else if(e.getSource() == screens){
-			
-//				if(screens.getSelectedIndex() == 1){
-//					if(!on_preset_screen){
-//						for(int a=0;a<18;a++){
-//							if(fw_fader[a].f != null){
-//								fw_fader[a].slider.setValue(channel_data[fw_fader[a].dmxChannels[0]]);
-//								fw_fader[a].revalidate();
-//							}
-//						}
-//					}
-//					on_preset_screen = false;
-//				} else if(screens.getSelectedIndex() == 0){
-//					if(!on_preset_screen){
-//						for(int a=0;a<50;a++){
-//							if(ctrl_fader[a].f != null){
-//								if(ctrl_fader[a].dmxChannels.length == 1){
-//									ctrl_fader[a].slider.setValue(ctrl_fader[a].dmxChannels[0]);
-//								}
-////								ctrl_fader[a].slider.setValue(channel_data[ctrl_fader[a].dmxChannels[0]]);
-//								ctrl_fader[a].revalidate();
-//							}
-//						}
-//					}
-//					on_preset_screen = false;
-//				} else if(screens.getSelectedIndex() == 2){
-//					on_preset_screen = true;
-//				}
-				
 			} else if(e.getSource() == master_spinner){
 				
 				master_slider.setValue((Integer)master_spinner.getValue());
@@ -1078,19 +994,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 				
 				fade_val.setText(""+fade_slider.getValue());
 				
-			}
-//			else if(e.getSource() == intensity_fader){
-//				
-//				intensity_spinner.setValue(intensity_fader.getValue());
-//				setIntensity((Integer)intensity_spinner.getValue());
-//				
-//			} else if(e.getSource() == intensity_spinner){
-//				
-//				intensity_fader.setValue((Integer)intensity_spinner.getValue());
-//				setIntensity((Integer)intensity_spinner.getValue());
-//				
-//			} 
-			else if(e.getSource() == execute_on_select){
+			} else if(e.getSource() == execute_on_select){
 				
 				if(execute_on_select.isSelected()){
 					execute_preset.setEnabled(false);
@@ -1197,6 +1101,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 				error_disp.setForeground(Color.BLUE);
 				error_disp.setText("Node discovered on: " + artnet_node.getIPAddress().toString().split("/")[1]);
 			}
+//			settings.updateNodeList(node, Operation.NODE_DISCOVERED);
 		}
 
 		@Override
@@ -1206,6 +1111,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 			if(artnet_node == node){
 				artnet_node = null;
 			}
+//			settings.updateNodeList(node, Operation.NODE_DISCONECCTED);
 		}
 
 		@Override
@@ -1285,17 +1191,63 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 			
 		}
 		
+		public void createTables(){
+			
+			fixture_table = new JTable(fixture_data, new Object[] {"","","","","","",""}){
+				public boolean isCellEditable(int row, int column) {                
+	                return false;               
+				}
+			};
+			fixture_table.setCellSelectionEnabled(true);
+			fixture_table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			fixture_table.setRowHeight(50);
+			fixture_table.setComponentPopupMenu(fixture_menu);
+			fixture_table.setTableHeader(null);
+			fixture_table.setFocusable(false);
+			fixture_table.setSelectionBackground(Color.LIGHT_GRAY);
+			
+			dimmer_table = new JTable(dimmer_data, new Object[] {"","","","","","",""}){
+				public boolean isCellEditable(int row, int column) {                
+	                return false;               
+				};
+			};
+			dimmer_table.setCellSelectionEnabled(true);
+			dimmer_table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			dimmer_table.setRowHeight(50);
+			dimmer_table.setComponentPopupMenu(dimmer_menu);
+			dimmer_table.setTableHeader(null);
+			dimmer_table.setFocusable(false);
+			dimmer_table.setSelectionBackground(Color.LIGHT_GRAY);
+			
+			sequence_table = new JTable(sequence_data, new Object[] {"","","","","","",""}){
+				public boolean isCellEditable(int row, int column) {                
+	                return false;               
+				}
+			};
+			sequence_table.setCellSelectionEnabled(true);
+			sequence_table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			sequence_table.setRowHeight(50);
+			sequence_table.setComponentPopupMenu(sequence_menu);
+			sequence_table.setTableHeader(null);
+			sequence_table.setSelectionBackground(Color.LIGHT_GRAY);
+			
+			fixture_table.addMouseListener(this);
+//			group_table.addMouseListener(this);
+			dimmer_table.addMouseListener(this);
+			sequence_table.addMouseListener(this);
+		}
+		
 		// TABLE ROW COLOUR RENDERERS
 		
-		public static class FixtureTableRenderer extends DefaultTableCellRenderer {
-			@Override
-		    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-		        super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column); 
-		       	int id = (Integer)table.getValueAt(row, 0);
-		       	
-		        return this;
-		    }
-		}
+//		public static class FixtureTableRenderer extends DefaultTableCellRenderer {
+//			@Override
+//		    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+//		        super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column); 
+//		       	int id = (Integer)table.getValueAt(row, 0);
+//		       	
+//		        return this;
+//		    }
+//		}
 
 		public void windowActivated(WindowEvent arg0) {}
 		public void windowClosed(WindowEvent arg0) {}
@@ -1329,11 +1281,11 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 											}
 
 								}
-								case JOptionPane.NO_OPTION: dispose();
+								case JOptionPane.NO_OPTION: System.exit(0);
 							}
 				
 			} else {
-				
+				System.exit(0);
 			}
 			
 		}

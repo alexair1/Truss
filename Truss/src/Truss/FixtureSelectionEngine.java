@@ -206,19 +206,19 @@ public final class FixtureSelectionEngine {
 			
 		} else if(btn == main.btnRgbMixing){
 			
-			main.bank_1.slider.setValue(main.channel_data[(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[9])-1]);
+			main.bank_1.slider.setValue(main.channel_data[(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[9])]);
 			main.bank_1.assignChannel(new int[]{(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[9])});
 			main.bank_1.prev_val = main.channel_data[(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[9])-1];
 			main.bank_1.setName("Red");
 			setStringValueForFaders(main.bank_1, 9);
 			
-			main.bank_2.slider.setValue(main.channel_data[(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[11])-1]);
+			main.bank_2.slider.setValue(main.channel_data[(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[11])]);
 			main.bank_2.assignChannel(new int[]{(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[11])});
 			main.bank_2.prev_val = main.channel_data[(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[11])-1];
 			main.bank_2.setName("Green");
 			setStringValueForFaders(main.bank_2, 11);
 			
-			main.bank_3.slider.setValue(main.channel_data[(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[13])-1]);
+			main.bank_3.slider.setValue(main.channel_data[(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[13])]);
 			main.bank_3.assignChannel(new int[]{(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[13])});
 			main.bank_3.prev_val = main.channel_data[(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[13])-1];
 			main.bank_3.setName("Blue");

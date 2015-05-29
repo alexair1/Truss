@@ -1,7 +1,11 @@
 package Truss;
 
+import java.awt.Color;
 import java.io.*;
 import java.util.Properties;
+
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
 
 public class saveShow {
 	
@@ -37,98 +41,7 @@ public class saveShow {
 		}
 		isSaved = true;
 	}
-//	public static void save(File file_path){
-//		
-//		try {
-//			ObjectOutputStream o = new ObjectOutputStream(new FileOutputStream(file_path));
-//			Properties prop = new Properties();
-//			
-//			int a;
-//			
-//			for(a=1;a<513;a++){
-//				prop.setProperty("ch"+a, String.valueOf(main.channel_data[a]));
-//			}
-//
-//			for(a=1;a<513;a++){
-//				prop.setProperty("fix"+a, String.valueOf(main.fixture[a]));
-//			}
-//			
-//			for(a=1;a<513;a++){
-//				prop.setProperty("dim"+a, String.valueOf(main.dimmer[a]));
-//			}
-//			
-//			prop.setProperty("mstr", String.valueOf(Loader.frame.master_slider.getValue()));
-//			prop.setProperty("fade"+a, String.valueOf(Loader.frame.fade_slider.getValue()));
-//			
-//			prop.store(o, null);
-//			o.close();
-//		} catch(Exception e){
-//			e.printStackTrace();
-//		}
-//		
-//	}
-		
-	/*
-	 * Load Show
-	 */
-//public static void load(File file_path){
-//		
-//		ProgressDialog prog = new ProgressDialog("Saving");
-//		
-//		try {
-//			ObjectInputStream o = new ObjectInputStream(new FileInputStream(file_path));
-//			Properties prop = new Properties();
-//			
-//			prop.load(o);
-//			
-//			int a;
-//			
-//			for(a=1;a<513;a++){
-//				main.channel_data[a] = Integer.parseInt(prop.getProperty("ch"+a));
-//			}
-//			
-//			for(a=1;a<513;a++){
-//				main.channel_data[a] = Integer.parseInt(prop.getProperty("ch"+a));
-//			}
-//			System.out.println("loaded channel data");
-//			prog.setProgress(20);
-//
-//
-//			main.fixtureNumber = 1;
-//			main.fixture_data = new Object[6][7];
-//			main.fixture = new Fixture[513];
-//			
-//			for(a=1;a<513;a++){
-//				main.fixture[a] = (Fixture)(Object)prop.getProperty("fix"+a);
-//				main.fixtureNumber++;
-//			}
-//			System.out.println("loaded fixtures");
-//			prog.setProgress(40);
-//
-//			
-//			main.dimmerNumber = 1;
-//			main.dimmer_data = new Object[6][7];
-//			main.dimmer = new Dimmer[513];
-//			
-//			for(a=1;a<513;a++){
-//				main.dimmer[a] = (Dimmer)(Object)prop.getProperty("dim"+a);
-//				main.dimmerNumber++;
-//			}
-//			System.out.println("loaded dimmers");
-//			prog.setProgress(60);
-//			
-//			Loader.frame.master_slider.setValue(Integer.parseInt(prop.getProperty("mstr")));
-//			Loader.frame.fade_slider.setValue(Integer.parseInt(prop.getProperty("fade")));
-//
-//			o.close();
-//			prog.dispose();
-//		} catch(Exception e){
-//			e.printStackTrace();
-//		}
-//	}
-	
-	
-	
+
 	public static void load(File file_path){
 		
 		ProgressDialog prog = new ProgressDialog("Saving");
@@ -136,11 +49,11 @@ public class saveShow {
 		try {
 			ObjectInputStream o = new ObjectInputStream(new FileInputStream(file_path));
 			
-			int a=0;
+			int a=1;
 
-			while(a < 512){
+			while(a < 513){
 				try {
-					Loader.frame.channel_data[a+1] = (Integer)o.readObject();
+					Loader.frame.channel_data[a] = (Integer)o.readObject();
 					a++;
 				} catch(Exception e){
 					e.printStackTrace();
@@ -157,11 +70,14 @@ public class saveShow {
 			
 			while(a < 513){
 				try {
+
 					Object f = o.readObject();
 
 					if(f instanceof Fixture){
 
 						main.fixture[a] = (Fixture)f;
+
+						main.fixture_data[main.fixture[a].y][main.fixture[a].x] = "<html>&emsp;" + main.fixture[a].getName() + "<br>&emsp; " + a + "</html>";
 						main.fixtureNumber++;
 						
 					} else {
@@ -230,5 +146,8 @@ public class saveShow {
 		} catch(Exception e){
 			e.printStackTrace();
 		}
+		
+		Loader.frame.createTables();
+		Loader.frame.patch_table_pane.setViewportView(Loader.frame.fixture_table);
 	}
 } 
