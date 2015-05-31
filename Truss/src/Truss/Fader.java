@@ -1,6 +1,7 @@
 package Truss;
 
 import java.awt.*;
+
 import javax.swing.*;
 import javax.swing.event.*;
 	
@@ -13,6 +14,7 @@ import javax.swing.event.*;
 		JCheckBox fine;
 		int[] dmxChannels = null;
 		Fixture f = null;
+		Dimmer d = null;
 		JPanel p;
 		
 		public void create(int id, JPanel panel, Color bg_colour, int x, int y){
@@ -125,11 +127,12 @@ import javax.swing.event.*;
 
 					for(int a=0;a<dmxChannels.length;a++){
 						if((slider.getValue() != Loader.frame.channel_data[dmxChannels[a]])){
-							int new_val;
+							int new_val = 0;
 
 							if(prev_val < slider.getValue()){
 								new_val = Loader.frame.channel_data[dmxChannels[a]] + Math.abs(slider.getValue()-prev_val);
-							} else {
+							} 
+							else {
 								new_val = Loader.frame.channel_data[dmxChannels[a]] - Math.abs(slider.getValue()-prev_val);
 							}
 
@@ -140,6 +143,17 @@ import javax.swing.event.*;
 							} else if(new_val < 0){
 								Loader.frame.channel_data[dmxChannels[a]] = 0;
 							}
+
+							int index = a % 7;
+							if(index == 0 && a != 0){
+								index = 7;
+							}
+
+							Fader[] faders = {main.bank_1, main.bank_2, main.bank_3, main.bank_4, main.bank_5, main.pan, main.tilt};
+							
+							try{
+								faders[index].slider.setValue(Loader.frame.channel_data[dmxChannels[a]]);
+							} catch(ArrayIndexOutOfBoundsException e){}
 						
 						}
 						
@@ -157,7 +171,8 @@ import javax.swing.event.*;
 			           		main.sequenceID++;
 			            }
 					}
-				}
+				
+				} // End channel if statement
 				prev_val = slider.getValue();
 
 			} // End parent if statement
@@ -197,6 +212,7 @@ import javax.swing.event.*;
 		public void unassign(){
 			dmxChannels = null;
 			f = null;
+			d = null;
 			this.setName("-");
 			slider.setValue(0);
 			this.setStrValue("-");
@@ -211,6 +227,10 @@ import javax.swing.event.*;
 			} else if(f.isUsingProfile() && dmxChannels != null){
 				f.getFixtureType().setStringValue(Fader.this);
 			}
+		}
+		public void assignDimmer(Dimmer d){
+			f = d.getFixtures()[0];
+			this.d = d;
 		}
 		public void revalidate(){
 			broadcast();

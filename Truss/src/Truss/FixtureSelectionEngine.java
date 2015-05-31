@@ -1,8 +1,6 @@
 package Truss;
 
 import java.util.ArrayList;
-import java.util.Vector;
-
 import javax.swing.JButton;
 
 public final class FixtureSelectionEngine {
@@ -102,6 +100,7 @@ public final class FixtureSelectionEngine {
 						main.pan.assignChannel(new int[]{(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[5])-1});
 						main.pan.prev_val = main.channel_data[(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[5])-1];
 						main.pan.setName("Pan");
+						setStringValueForFaders(main.pan, 5);
 					}
 				}
 				if(selectedFixtures.get(a).getFixtureType().channel_function[6] != 0){
@@ -110,6 +109,7 @@ public final class FixtureSelectionEngine {
 						main.tilt.assignChannel(new int[]{(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[6])-1});
 						main.tilt.prev_val = main.channel_data[(selectedFixtures.get(0).getStartChannel()+selectedFixtures.get(0).getFixtureType().channel_function[6])-1];
 						main.tilt.setName("Tilt");
+						setStringValueForFaders(main.tilt, 6);
 					}
 				}
 			}
@@ -136,13 +136,30 @@ public final class FixtureSelectionEngine {
 		main.bank_page_up.setEnabled(true);
 		main.bank_page_down.setEnabled(true);
 		
-		Fader[] faders = {main.single, main.bank_1, main.bank_2, main.bank_3, main.bank_4, main.bank_5, main.pan, main.tilt};
+		Fader[] faders = {main.bank_1, main.bank_2, main.bank_3, main.bank_4, main.bank_5, main.pan, main.tilt};
 		
 		for(Fader fader : faders){
 			fader.slider.setMinimum(0);
 			fader.slider.setMaximum(255);
 		}
 		setFaderBankPage(1);
+		
+		/*
+		 * Set the 'single' fader to act as a master for entire dimmer
+		 */
+		
+		int[] channels = new int[d.getFixtures().length];
+		for(int i=0; i<channels.length; i++){
+			channels[i] = d.getFixtures()[i].getStartChannel();
+		}
+		
+		main.single.slider.setMinimum(-255);
+		main.single.slider.setMaximum(255);
+		main.single.assignFixture(selectedFixtures.get(0));
+		main.single.assignChannel(channels);
+		main.single.slider.setValue(0);
+		main.single.prev_val = 0;
+		main.single.setName("Sub Master");
 		
 	}
 	
@@ -481,6 +498,8 @@ public final class FixtureSelectionEngine {
 		
 		for(Fader fader : faders){
 			fader.unassign();
+			fader.slider.setMaximum(255);
+			fader.slider.setMinimum(0);
 		}
 	}
 	

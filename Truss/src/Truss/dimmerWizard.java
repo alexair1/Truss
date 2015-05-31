@@ -133,7 +133,6 @@ public class dimmerWizard implements ActionListener {
 						f[a] = new Fixture(namefield.getText()+"-"+(a+1), "Dimmer", startChannel, 1, true, color, x, y);
 				//		updatePatchTable();
 						startChannel ++;
-						System.out.println(f[a].getStartChannel());
 					}
 					
 				} else {

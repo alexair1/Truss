@@ -5,16 +5,12 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.filechooser.*;
-import javax.swing.table.DefaultTableCellRenderer;
-
 import java.awt.event.*;
 import java.io.*;
 import java.util.*;
-import java.util.Timer;
 import java.net.BindException;
 import java.util.List;
 
-import Truss.Settings.Operation;
 import artnet4j.ArtNet;
 import artnet4j.ArtNetNode;
 import artnet4j.events.ArtNetDiscoveryListener;
@@ -30,47 +26,33 @@ import org.xml.sax.helpers.DefaultHandler;
 
 public class main extends JFrame implements ActionListener, ChangeListener, MouseListener, ArtNetDiscoveryListener, KeyListener, WindowListener {
 	
-	/**
-	 * 
-	 */
 //	private static final long serialVersionUID = 457254905222613447L;
 	static int[] channel_data = new int[513];
 	int[] prev_channel_data = new int[513];
 	byte[] blackout = new byte[512];
 	byte[] current_output = new byte[512];
-//	static Preset[][] preset = new Preset[10][35];
-//	JSlider[] bank_fader;
-//	cueStack[] cueStack = new cueStack[100];
-//	static JToggleButton[] fixture_select_btn = new JToggleButton[512];
-//	static JToggleButton[] group_select_btn = new JToggleButton[512];
 	static Object[][] fixture_data = new Object[6][7];
-//	static Object[][] group_data = new Object[512][3];
 	static Object[][] dimmer_data = new Object[6][7];
 	static Object[][] sequence_data = new Object[6][7];
-//	static Fader[] ctrl_fader = new Fader[512];
-//	static Fader[] fw_fader = new Fader[18];
 	static Fixture[] fixture = new Fixture[513];
 	static Dimmer[] dimmer = new  Dimmer[513];
 	static Cue[] cue = new Cue[1000];
 	static Profile[] profile = new Profile[100];
 	static Group[] group = new Group[513];
 	static byte[] data = new byte[512];
-	static int channel_amt = 0, selectedFixtures_amt = 0, current_cue = 1, ctrl_fader_counter = 0, cueStackCounter = 0, fixture_select_btn_counter = 0, fixtureNumber = 1, dimmerNumber = 1, profileID = 0, fader_wing_counter = 0, group_counter = 1, sequenceID = 0;
-//	static JLabel lbl_nothingpatched;
+	static int channel_amt = 0, selectedFixtures_amt = 0, current_cue = 1, cueStackCounter = 0, fixture_select_btn_counter = 0, fixtureNumber = 1, dimmerNumber = 1, profileID = 0, group_counter = 1, sequenceID = 0;
 	static JPanel fixture_select, control, fixture_sel_panel, group_sel_panel;
 	static Fixture[] selectedFixtures = new Fixture[512];
 	static File currently_loaded_show;
 	static Vector<String> groupNames = new Vector<String>();
 	static Object selectedFixture = null;
-//	static Vector<Preset> preset = new Vector<Preset>();
 	
 	static JButton bank_page_up, bank_page_down, slct_fix, slct_dim, slct_seq, cue_Go, cue_next, cue_prev, cue_store, cue_ok, open_fw, new_dimmer, stop_cue, execute_preset, assign_current_output, group_btn, store_cue_btn, page1_btn, page2_btn, page3_btn, page4_btn, remote_btn, add_cue, black_out, new_cue_stack, load_show, next_cue, prev_cue, new_fixture, edit_fixture, clear_sel, save_show;
 	static JButton btnFocus, btnDimmer, btnIris, btnShutter, btnZoom, btnColourWheel, btnRgbMixing, btnCto, btnGobo_1, btnGobo_2, btnGobo_3, btnPrism, btnFrost, btnControl, btnOther;
-	JSlider cue_slider, master_slider, fade_slider, intensity_fader;
+	JSlider  master_slider, fade_slider, intensity_fader;
 	JTextField bank_fader1_spinner, bank_fader2_spinner, textField, new_cue_stack_tf, preset_name, cue_name_tf;
 	JPanel patch_and_control, contentPane, fw, presets;
 	JTable fixture_table, presets_grid, group_table, dimmer_table, sequence_table;
-	JComboBox cue_stack_selector;
 	JScrollPane patch_table_pane, group_table_pane;
 	JTabbedPane fixture_sel_and_ctrl, screens;
 	JCheckBox execute_on_select, bypass_go_chk;
@@ -90,7 +72,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 	FileNameExtensionFilter load_show_filter;
 	Vector cueStackNames = new Vector();
 	static boolean blackout_on = false;
-	boolean artnet_con = false, on_preset_screen = false, dimmerControl = false;
+	boolean artnet_con = false;
 	
 	final String[] channels = {"Dimmer", "Shutter", "Iris", "Focus", "Zoom", "Pan", "Tilt", "Colour Wheel", 
 			   "Colour Wheel (Fine)", "Red", "Red (Fine)", "Green", "Green (Fine)", "Blue", "Blue (Fine)",
@@ -102,6 +84,11 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 //	Settings settings = new Settings();
 	
 	SAXParserFactory factory = SAXParserFactory.newInstance();
+	private JCheckBox chckbxHoldFor;
+	private JLabel lblCurrentTheFirst;
+	private JLabel lblIn;
+	private JLabel lblHold;
+	private JLabel lblPreviousA;
 //	DefaultHandler handler;
 	
 	/*
@@ -239,12 +226,12 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		slct_fix = new JButton("Fixtures"); 
 		slct_fix.setFocusPainted(false);
 		slct_fix.setBounds(786, 311, 89, 23);
-		slct_fix.setForeground(Color.BLUE);
 		patch_and_control.add(slct_fix);
 		
 		slct_dim = new JButton("Dimmers");
 		slct_dim.setFocusPainted(false);
 		slct_dim.setBounds(687, 311, 89, 23);
+		slct_dim.setForeground(Color.BLUE);
 		patch_and_control.add(slct_dim);
 		
 		fixture_menu = new JPopupMenu();		
@@ -264,7 +251,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		 */
 			createTables();
 		
-		patch_table_pane = new JScrollPane(fixture_table);
+		patch_table_pane = new JScrollPane(dimmer_table);
 		patch_table_pane.setColumnHeaderView(null);
 		patch_table_pane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 		patch_table_pane.setBounds(0, 0, 975, 300);
@@ -525,10 +512,42 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		no_assign_lbl.setBounds(182, 32, 93, 14);
 		cue_panel.add(no_assign_lbl);
 		
-//			lbl_nothingselected = new JLabel("No fixtures selected.", SwingConstants.CENTER);
-//			lbl_nothingselected.setBounds(6, 50, 917, 16);
-		//	control.add(lbl_nothingselected);
-			
+		chckbxHoldFor = new JCheckBox("Hold for");
+		chckbxHoldFor.setBounds(10, 144, 63, 14);
+		cue_panel.add(chckbxHoldFor);
+		
+		JLabel lblNextTest = new JLabel("<html><i>Next:</i> &emsp;&nbsp;&nbsp;&nbsp; &#34;test cue name&#34; &emsp (#2)</html>");
+		lblNextTest.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		lblNextTest.setBounds(10, 260, 265, 14);
+		cue_panel.add(lblNextTest);
+		
+		lblCurrentTheFirst = new JLabel("<html><b>Current Cue:</b>&emsp;IN &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;HOLD</html>");
+		lblCurrentTheFirst.setBounds(10, 181, 265, 14);
+		cue_panel.add(lblCurrentTheFirst);
+		
+		lblIn = new JLabel("00:00:00");
+		lblIn.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblIn.setBounds(91, 201, 72, 14);
+		cue_panel.add(lblIn);
+		
+		lblHold = new JLabel("00:00:00");
+		lblHold.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblHold.setBounds(181, 201, 89, 14);
+		cue_panel.add(lblHold);
+		
+		lblPreviousA = new JLabel("<html><i>Previous:</i> &nbsp; &#34;test cue name&#34; &emsp; (#0)</html>");
+		lblPreviousA.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		lblPreviousA.setBounds(10, 285, 261, 14);
+		cue_panel.add(lblPreviousA);
+		
+		JSeparator separator = new JSeparator();
+		separator.setBounds(10, 165, 265, 2);
+		cue_panel.add(separator);
+		
+		JSeparator separator_1 = new JSeparator();
+		separator_1.setBounds(10, 227, 265, 2);
+		cue_panel.add(separator_1);
+
 			black_out = new JButton("B.O");
 			black_out.setFocusable(false);
 			black_out.setBounds(64, 591, 65, 32);
@@ -546,9 +565,6 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 			main_controls_panel.add(remote_btn);
 			remote_btn.setVisible(false);
 			remote_btn.setEnabled(false);
-			//	new_cue_stack.addActionListener(this);
-			//	add_cue.addActionListener(this);
-			//	cue_stack_selector.addActionListener(this);
 				black_out.addActionListener(this);
 		menu_panel.setLayout(null);
 		
@@ -569,11 +585,6 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		bank_page_lbl.setBounds(895, 234, 67, 21);
 		fixture_control.add(bank_page_lbl);
 
-//		JButton btnSettings = new JButton("Settings");
-//		btnSettings.setEnabled(false);
-//		btnSettings.setBounds(81, 681, 90, 23);
-//		contentPane.add(btnSettings);
-		
 		fixtureWizard a = new fixtureWizard();
 			patch_newFixture.addActionListener(a);
 			
@@ -668,18 +679,6 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		
 		initiate();
 	}
-
-/*	public static void updateGroupTable(){
-		for(int a=0;a<512;a++){
-			if(fixture[a] != null){
-				for(int b=0;b<fixture[a].getChannels();b++){
-					group_data[fixture[a].getId()-1][1] = fixture[a].getName();
-					group_data[fixture[a].getId()-1][2] = fixture[a].getFixtureType();
-					group_data[fixture[a].getId()-1][3] = fixture[a].getStartChannel() + "-" + (fixture[a].getStartChannel()+fixture[a].getChannels()-1);
-				}
-			}
-		}
-	}  */
 	
 	// Range (used in profile creation)
 	public static class Range extends Object implements Serializable{
@@ -714,17 +713,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 	
 		public void actionPerformed(ActionEvent e){
 
-			if(e.getSource() == next_cue){
-				
-				cue_slider.setValue(cue_slider.getValue()+1);
-				cue_counter.setValue(cue_slider.getValue());
-				
-			} else if(e.getSource() == prev_cue){
-				
-				cue_slider.setValue(cue_slider.getValue()-1);
-				cue_counter.setValue(cue_slider.getValue());
-				
-			} else if(e.getSource() == clear_sel){
+			if(e.getSource() == clear_sel){
 					
 					FixtureSelectionEngine.clearSelection();
 					
@@ -838,22 +827,11 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 					black_out.setFont(new Font(null, Font.PLAIN, 11));
 				}
 				
-			} 
-//			else if(e.getSource() == radio_fixture){
-//				
-//				patch_table_pane.setViewportView(patch_table);
-//				
-//			} else if(e.getSource() == radio_group){
-//				
-//				patch_table_pane.setViewportView(group_table);
-//				
-//			} 
-			else if(e.getSource() == stop_cue){
+			} else if(e.getSource() == stop_cue){
 				
 				stop_cue.setEnabled(false);
 
 				for(int a=0;a<512;a++){
-//					data[a] = (byte)channe
 					data[a] = (byte)channel_data[a+1];
 				}
 				
@@ -972,15 +950,8 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		 */
 		
 		public void stateChanged(ChangeEvent e){
-			if(e.getSource() == cue_slider){
-				
-				cue_counter.setValue(cue_slider.getValue());
-				
-			} else if(e.getSource() == cue_counter){
-				
-				cue_slider.setValue((Integer)cue_counter.getValue());
-				
-			} else if(e.getSource() == master_spinner){
+			
+			if(e.getSource() == master_spinner){
 				
 				master_slider.setValue((Integer)master_spinner.getValue());
 				setMaster((Integer)master_spinner.getValue());
@@ -1100,6 +1071,9 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 				dmx.setUniverse(artnet_node.getSubNet(), artnet_node.getDmxOuts()[0]);
 				error_disp.setForeground(Color.BLUE);
 				error_disp.setText("Node discovered on: " + artnet_node.getIPAddress().toString().split("/")[1]);
+			} else {
+				error_disp.setForeground(Color.ORANGE);
+				error_disp.setText("Multiple nodes discovered, using first found");
 			}
 //			settings.updateNodeList(node, Operation.NODE_DISCOVERED);
 		}

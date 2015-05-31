@@ -79,7 +79,8 @@ public class Cue {
 					}
 					
 					int a=0;
-					while(a <= Loader.frame.fade_slider.getValue()/22.72){	
+					while(a <= Loader.frame.fade_slider.getValue()/22.72){
+						
 						// Broadcast
 						if(main.artnet_node != null && !main.blackout_on) {
 							main.dmx.setSequenceID(main.sequenceID % 255);
@@ -91,6 +92,7 @@ public class Cue {
 							Thread.sleep((long)22.72);
 						} catch(Exception e){}
 						a++;
+						
 					}
 				}
 			

@@ -50,10 +50,14 @@
 	</channel>
 	<channel name="Dimmer (Fine)" func="Dimmer (Fine)" ></channel>
 
-	<channel name="Pan" func="Pan" ></channel>
+	<channel name="Pan" func="Pan" >
+		<range low="0" high="255" name="Pan" />
+	</channel>
 	<channel name="Pan (Fine)" func="Pan (Fine)" ></channel>
 
-	<channel name="Tilt" func="Tilt" ></channel>
+	<channel name="Tilt" func="Tilt" >
+		<range low="0" high="255" name="Tilt" />
+	</channel>
 	<channel name="Tilt (Fine)" func="Tilt (Fine)" ></channel>
 
 	<channel name="Function" func="Control 1" ></channel>
