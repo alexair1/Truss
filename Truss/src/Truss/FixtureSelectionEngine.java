@@ -198,7 +198,7 @@ public final class FixtureSelectionEngine {
 	}
 	
 	/*
-	 * Set the single fader to the function associated with the JButton passed
+	 * Set the fader bank to the function associated with the JButton passed
 	 */
 	static void setFaderBank(JButton btn){
 		

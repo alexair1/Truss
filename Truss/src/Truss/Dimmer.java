@@ -5,9 +5,6 @@ import java.io.Serializable;
 
 public class Dimmer implements Serializable {
 	
-	/**
-	 * 
-	 */
 //	private static final long serialVersionUID = -9007954121995439031L;
 	Fixture[] fixtures;
 	String name;

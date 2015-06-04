@@ -4,9 +4,7 @@ import java.awt.Color;
 import java.io.Serializable;
 
 public class Fixture extends Object implements Serializable{
-	/**
-	 * 
-	 */
+
 //	private static final long serialVersionUID = -1290584544546311538L;
 	String name, fixtureType;
 	int startChannel, channels, id, intensity = 0, x, y;
@@ -28,8 +26,7 @@ public class Fixture extends Object implements Serializable{
 //		if(main.getProfileByName(fixtureType).built_in_dimmer){
 //			intensity = 255;
 //		}
-		
-//		createControls();
+
 	}
 		public String getName() {
 			return name;
@@ -58,23 +55,5 @@ public class Fixture extends Object implements Serializable{
 		public int getId(){
 			return id;
 		}
-//		public void createControls(){
-//			
-//			Loader.frame.edit_fixture.setEnabled(true);
-//
-//			if(fixtureType.equals("Conventional")){
-//				
-//				main.fw_fader[main.fader_wing_counter].assignFixture(this);
-//				main.fw_fader[main.fader_wing_counter].slider.setValue(Loader.frame.channel_data[startChannel]);
-//				main.fw_fader[main.fader_wing_counter].setChannel("1/" + startChannel);
-//				main.fw_fader[main.fader_wing_counter].setName(name);  
-//				main.fw_fader[main.fader_wing_counter].assignChannel(new int[]{startChannel});
-//
-//				main.fader_wing_counter++;
-//				main.fixture_select_btn_counter++;
-//				
-//			} else {
-//				
-//			}   
-//		}
+
 }

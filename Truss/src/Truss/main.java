@@ -5,8 +5,11 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.filechooser.*;
+import javax.swing.text.MaskFormatter;
+
 import java.awt.event.*;
 import java.io.*;
+import java.text.ParseException;
 import java.util.*;
 import java.net.BindException;
 import java.util.List;
@@ -47,16 +50,16 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 	static Vector<String> groupNames = new Vector<String>();
 	static Object selectedFixture = null;
 	
-	static JButton bank_page_up, bank_page_down, slct_fix, slct_dim, slct_seq, cue_Go, cue_next, cue_prev, cue_store, cue_ok, open_fw, new_dimmer, stop_cue, execute_preset, assign_current_output, group_btn, store_cue_btn, page1_btn, page2_btn, page3_btn, page4_btn, remote_btn, add_cue, black_out, new_cue_stack, load_show, next_cue, prev_cue, new_fixture, edit_fixture, clear_sel, save_show;
+	static JButton bank_page_up, bank_page_down, slct_fix, slct_dim, slct_seq, cue_Go, cue_next, cue_prev, cue_store, cue_ok, group_btn, store_cue_btn, remote_btn, add_cue, black_out, new_cue_stack, load_show, next_cue, prev_cue, new_fixture, edit_fixture, clear_sel, save_show;
 	static JButton btnFocus, btnDimmer, btnIris, btnShutter, btnZoom, btnColourWheel, btnRgbMixing, btnCto, btnGobo_1, btnGobo_2, btnGobo_3, btnPrism, btnFrost, btnControl, btnOther;
 	JSlider  master_slider, fade_slider, intensity_fader;
-	JTextField bank_fader1_spinner, bank_fader2_spinner, textField, new_cue_stack_tf, preset_name, cue_name_tf;
+	JTextField cue_name_tf, hold_for_tf;
 	JPanel patch_and_control, contentPane, fw, presets;
 	JTable fixture_table, presets_grid, group_table, dimmer_table, sequence_table;
 	JScrollPane patch_table_pane, group_table_pane;
 	JTabbedPane fixture_sel_and_ctrl, screens;
-	JCheckBox execute_on_select, bypass_go_chk;
-	static JLabel bank_page_lbl, no_assign_lbl, cur_sel_id, cur_sel_name, cur_sel_type, lbl_nothingselected, error_disp, number_of_cues_lbl, fade_val, active_preset_lbl, intensity_fader_lbl, current_cue_lbl;
+	JCheckBox execute_on_select, bypass_go_chk, hold_for_chk;
+	static JLabel bank_page_lbl, no_assign_lbl, cur_sel_id, cur_sel_name, cur_sel_type, error_disp, fade_val, current_cue_lbl, nextCueLbl, prevCueLbl, inTimeLbl;
 	JSpinner cue_counter, master_spinner, intensity_spinner;
 	static Fader single, bank_1, bank_2, bank_3, bank_4, bank_5, pan, tilt;
 	static ArtNetNode artnet_node;
@@ -84,11 +87,8 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 //	Settings settings = new Settings();
 	
 	SAXParserFactory factory = SAXParserFactory.newInstance();
-	private JCheckBox chckbxHoldFor;
 	private JLabel lblCurrentTheFirst;
-	private JLabel lblIn;
 	private JLabel lblHold;
-	private JLabel lblPreviousA;
 //	DefaultHandler handler;
 	
 	/*
@@ -97,8 +97,9 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 	public void initiate() {
 		
 		for(int a=0;a<999;a++){
-			cue[a+1] = new Cue(null, "");
+			cue[a+1] = new Cue(null, "New Cue", 0, 0, (a+1));
 		}
+		cue[1].inTime = 30000;
 		new Thread(){
 			public void run(){
 				while(true){
@@ -375,40 +376,6 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 			btnOther.setBounds(895, 150, 67, 39);
 			fixture_control.add(btnOther);	
 
-		// Presets Screen
-		presets_grid = new JTable(new Object[35][10], new Object[]{"","","","","","","","","",""});
-		presets_grid.setRowSelectionAllowed(false);
-		presets_grid.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		presets_grid.setColumnSelectionAllowed(false);
-		presets_grid.setCellSelectionEnabled(true);
-		presets_grid.setGridColor(Color.LIGHT_GRAY);
-		
-		JScrollPane presets_sp = new JScrollPane(presets_grid);
-		presets_sp.setBounds(6, 6, 944, 566);
-		presets.add(presets_sp);
-		
-		assign_current_output = new JButton("Assign Current Output");
-		assign_current_output.setBounds(6, 594, 186, 29);
-		assign_current_output.setEnabled(false);
-		presets.add(assign_current_output);
-		
-		execute_preset = new JButton("Execute");
-		execute_preset.setBounds(703, 594, 93, 29);
-		presets.add(execute_preset);
-		
-		execute_on_select = new JCheckBox("Execute on Select");
-		execute_on_select.setBounds(808, 595, 142, 23);
-		presets.add(execute_on_select);
-		
-		preset_name = new JTextField();
-		preset_name.setBounds(250, 593, 186, 28);
-		presets.add(preset_name);
-		preset_name.setColumns(10);
-		
-		JLabel lblName = new JLabel("Name:");
-		lblName.setBounds(204, 599, 40, 16);
-		presets.add(lblName);
-
 		main_controls_panel.setLayout(null);
 		
 		clear_sel = new JButton("Clear");
@@ -453,12 +420,10 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		lblFade.setFont(new Font("Lucida Grande", Font.BOLD, 13));
 		lblFade.setBounds(139, 333, 80, 16);
 		main_controls_panel.add(lblFade);
-
-		open_fw = new JButton("Dimmer Control");
-		open_fw.setBounds(1025, 320, 116, 28);
-		menu_panel.add(open_fw);
 		
-		// Cue components
+		/*
+		 * Cue Panel
+		 */
 		
 		JPanel cue_panel = new JPanel();
 		cue_panel.setBounds(10, 0, 281, 322);
@@ -498,55 +463,67 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		cue_store.setBounds(182, 52, 89, 36);
 		cue_panel.add(cue_store);
 		
-		cue_name_tf = new JTextField();
-		cue_name_tf.setBounds(109, 110, 120, 23);
+		cue_name_tf = new JTextField("New Cue");
+		cue_name_tf.setBounds(109, 110, 162, 23);
 		cue_panel.add(cue_name_tf);
 		cue_name_tf.setColumns(10);
-		
-		cue_ok = new JButton("OK");
-		cue_ok.setFocusable(false);
-		cue_ok.setBounds(229, 109, 46, 25);
-		cue_panel.add(cue_ok);
 		
 		no_assign_lbl = new JLabel("No Assign");
 		no_assign_lbl.setBounds(182, 32, 93, 14);
 		cue_panel.add(no_assign_lbl);
 		
-		chckbxHoldFor = new JCheckBox("Hold for");
-		chckbxHoldFor.setBounds(10, 144, 63, 14);
-		cue_panel.add(chckbxHoldFor);
+		hold_for_chk = new JCheckBox("Hold for");
+		hold_for_chk.setFocusPainted(false);
+		hold_for_chk.setBounds(148, 147, 63, 14);
+		cue_panel.add(hold_for_chk);
 		
-		JLabel lblNextTest = new JLabel("<html><i>Next:</i> &emsp;&nbsp;&nbsp;&nbsp; &#34;test cue name&#34; &emsp (#2)</html>");
-		lblNextTest.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		lblNextTest.setBounds(10, 260, 265, 14);
-		cue_panel.add(lblNextTest);
+		MaskFormatter time = null;
+		try {
+			time = new MaskFormatter("##:##:##");
+			time.setPlaceholder("00:00:00");
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		
+		hold_for_tf = new JFormattedTextField(time);
+		hold_for_tf.setEnabled(false);
+		hold_for_tf.setBounds(211, 144, 60, 20);
+		cue_panel.add(hold_for_tf);
+		hold_for_tf.setColumns(10);
+		
+		nextCueLbl = new JLabel("<html><i>Next:</i> &emsp;&nbsp;&nbsp;&nbsp; - &emsp (-)</html>");
+		nextCueLbl.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		nextCueLbl.setBounds(10, 250, 265, 14);
+		cue_panel.add(nextCueLbl);
 		
 		lblCurrentTheFirst = new JLabel("<html><b>Current Cue:</b>&emsp;IN &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;HOLD</html>");
-		lblCurrentTheFirst.setBounds(10, 181, 265, 14);
+		lblCurrentTheFirst.setBounds(10, 191, 265, 14);
 		cue_panel.add(lblCurrentTheFirst);
 		
-		lblIn = new JLabel("00:00:00");
-		lblIn.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblIn.setBounds(91, 201, 72, 14);
-		cue_panel.add(lblIn);
+		prevCueLbl = new JLabel("<html><i>Previous:</i> &nbsp; - &emsp; (-)</html>");
+		prevCueLbl.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		prevCueLbl.setBounds(10, 275, 261, 14);
+		cue_panel.add(prevCueLbl);
+		
+		inTimeLbl = new JLabel("00:00:00");
+		inTimeLbl.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		inTimeLbl.setBounds(91, 211, 72, 14);
+		cue_panel.add(inTimeLbl);
 		
 		lblHold = new JLabel("00:00:00");
 		lblHold.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblHold.setBounds(181, 201, 89, 14);
+		lblHold.setBounds(181, 211, 89, 14);
 		cue_panel.add(lblHold);
 		
-		lblPreviousA = new JLabel("<html><i>Previous:</i> &nbsp; &#34;test cue name&#34; &emsp; (#0)</html>");
-		lblPreviousA.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		lblPreviousA.setBounds(10, 285, 261, 14);
-		cue_panel.add(lblPreviousA);
-		
 		JSeparator separator = new JSeparator();
-		separator.setBounds(10, 165, 265, 2);
+		separator.setBounds(10, 176, 265, 2);
 		cue_panel.add(separator);
 		
 		JSeparator separator_1 = new JSeparator();
-		separator_1.setBounds(10, 227, 265, 2);
+		separator_1.setBounds(10, 237, 265, 2);
 		cue_panel.add(separator_1);
+		
+		// End Cue Panel
 
 			black_out = new JButton("B.O");
 			black_out.setFocusable(false);
@@ -565,7 +542,13 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 			main_controls_panel.add(remote_btn);
 			remote_btn.setVisible(false);
 			remote_btn.setEnabled(false);
-				black_out.addActionListener(this);
+			
+			cue_ok = new JButton("OK");
+			cue_ok.setBounds(35, 366, 46, 56);
+//			main_controls_panel.add(cue_ok);
+			cue_ok.setFocusable(false);
+			cue_ok.addActionListener(this);
+			black_out.addActionListener(this);
 		menu_panel.setLayout(null);
 		
 		bank_page_up = new JButton("Page +");
@@ -611,17 +594,10 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		master_slider.addChangeListener(this);
 		master_spinner.addChangeListener(this);
 		fade_slider.addChangeListener(this);
-		execute_preset.addActionListener(this);
-		assign_current_output.addActionListener(this);
-		presets_grid.addMouseListener(this);
-		execute_on_select.addChangeListener(this);
-		preset_name.addKeyListener(this);
-		open_fw.addActionListener(this);
 		cue_Go.addActionListener(this);
 		cue_next.addActionListener(this);
 		cue_prev.addActionListener(this);
 		cue_store.addActionListener(this);
-		cue_ok.addActionListener(this);
 		bypass_go_chk.addChangeListener(this);
 		slct_fix.addActionListener(this);
 		slct_dim.addActionListener(this);
@@ -645,6 +621,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		btnFrost.addActionListener(this);
 		btnControl.addActionListener(this);
 		btnOther.addActionListener(this);
+		hold_for_chk.addActionListener(this);
 		
 		btnDimmer.setEnabled(false);
 		btnShutter.setEnabled(false);
@@ -827,27 +804,32 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 					black_out.setFont(new Font(null, Font.PLAIN, 11));
 				}
 				
-			} else if(e.getSource() == stop_cue){
-				
-				stop_cue.setEnabled(false);
-
-				for(int a=0;a<512;a++){
-					data[a] = (byte)channel_data[a+1];
-				}
-				
-				// Broadcast channel_data with new master value
-				if(artnet_node != null && !blackout_on) {
-					dmx.setSequenceID(sequenceID % 255);
-					dmx.setDMX(data, 512);
-	           		artnet.unicastPacket(dmx, artnet_node.getIPAddress());
-	           		sequenceID++;
-	            }
-				
-			} else if(e.getSource() == cue_Go){
+			} 
+//			else if(e.getSource() == stop_cue){
+//				
+//				stop_cue.setEnabled(false);
+//
+//				for(int a=0;a<512;a++){
+//					data[a] = (byte)channel_data[a+1];
+//				}
+//				
+//				// Broadcast channel_data with new master value
+//				if(artnet_node != null && !blackout_on) {
+//					dmx.setSequenceID(sequenceID % 255);
+//					dmx.setDMX(data, 512);
+//	           		artnet.unicastPacket(dmx, artnet_node.getIPAddress());
+//	           		sequenceID++;
+//	            }
+//				
+//			} 
+			else if(e.getSource() == cue_Go){
 				
 				if(cue[current_cue].data != null){
-					cue[current_cue].execute();
-					current_cue_lbl.setForeground(Color.GREEN);
+					
+					CueEngine.execute(cue[current_cue]);
+//					cue[current_cue].execute();
+//					current_cue_lbl.setForeground(Color.GREEN);
+					
 				}
 				
 			} else if(e.getSource() == cue_next){
@@ -856,8 +838,8 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 					current_cue++;
 					if(bypass_go_chk.isSelected()){
 						if(cue[current_cue].data != null){
-							cue[current_cue].execute();
-							current_cue_lbl.setForeground(Color.GREEN);
+							CueEngine.execute(cue[current_cue]);
+						//	current_cue_lbl.setForeground(Color.GREEN);
 						}
 					} else {
 						current_cue_lbl.setForeground(Color.RED);
@@ -870,6 +852,12 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 					} else {
 						no_assign_lbl.setVisible(false);
 					}
+				}
+				inTimeLbl.setForeground(Color.BLACK);
+				
+				cue[current_cue-1].name = cue_name_tf.getText();
+				if(current_cue != 1){
+					cue[current_cue-1].holdTime = CueEngine.convertStringToLong(hold_for_tf.getText());
 				}
 				
 			} else if(e.getSource() == cue_prev){
@@ -878,8 +866,8 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 					current_cue--;
 					if(bypass_go_chk.isSelected()){
 						if(cue[current_cue].data != null){
-							cue[current_cue].execute();
-							current_cue_lbl.setForeground(Color.GREEN);
+							CueEngine.execute(cue[current_cue]);
+					//		current_cue_lbl.setForeground(Color.GREEN);
 						}
 					} else {
 						current_cue_lbl.setForeground(Color.RED);
@@ -893,22 +881,28 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 						no_assign_lbl.setVisible(false);
 					}
 				}
+				inTimeLbl.setForeground(Color.BLACK);
 				
-			} else if(e.getSource() == cue_ok){
-				
-				cue[current_cue].name = cue_name_tf.getText();
+				cue[current_cue+1].name = cue_name_tf.getText();
+				cue[current_cue+1].holdTime = CueEngine.convertStringToLong(hold_for_tf.getText());
 				
 			} else if(e.getSource() == cue_store){
 				
 				int[] data = new int[512];
 				
 				for(int a=0;a<512;a++){
-					data[a] = (int)(((double)channel_data[a+1] / 255) * (Integer)master_spinner.getValue());
+					data[a] = (int)(channel_data[a+1] * ((double)(Integer)master_spinner.getValue()/100));
 				}
 				cue[current_cue].data = data;
+//				cue[current_cue].inTime = fade_slider.getValue();
 				
 				no_assign_lbl.setVisible(false);
 				data = null;
+				
+			} else if(e.getSource() == hold_for_chk){
+				
+				hold_for_tf.setEnabled(hold_for_chk.isSelected());
+				
 			} else if(e.getSource() == btnDimmer || e.getSource() == btnShutter || e.getSource() == btnIris || e.getSource() == btnFocus || e.getSource() == btnZoom){
 				
 				FixtureSelectionEngine.setSingleFader((JButton)e.getSource());
@@ -964,14 +958,6 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 			} else if(e.getSource() == fade_slider){
 				
 				fade_val.setText(""+fade_slider.getValue());
-				
-			} else if(e.getSource() == execute_on_select){
-				
-				if(execute_on_select.isSelected()){
-					execute_preset.setEnabled(false);
-				} else {
-					execute_preset.setEnabled(true);
-				}
 				
 			} else if(e.getSource() == bypass_go_chk){
 				
