@@ -5,7 +5,7 @@ Version 1.0
 ##### What's New?
 * First version, so the whole thing
 
-For the full version history please contact Alex.
+For the full version history please see CHANGELOG.md.
 
 ### Installation
 Move Truss.jar file to desired directory, double click to run.
