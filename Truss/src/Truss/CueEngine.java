@@ -17,7 +17,7 @@ public class CueEngine {
 
 			main.nextCueLbl.setText("<html><i>Next:</i> &emsp;&nbsp;&nbsp;&nbsp; &#34;" + main.cue[(cue.id+1)].name + "&#34; &emsp (#" + (cue.id+1) + ")</html>");
 			if(cue.id != 1){
-				main.prevCueLbl.setText("<html><i>Previous:</i> &emsp;&nbsp;&nbsp;&nbsp; &#34;" + main.cue[(cue.id+1)].name + "&#34; &emsp (#" + (cue.id+1) + ")</html>");
+				main.prevCueLbl.setText("<html><i>Previous:</i> &nbsp;&nbsp; &#34;" + main.cue[(cue.id-1)].name + "&#34; &emsp (#" + (cue.id-1) + ")</html>");
 			} else {
 				main.prevCueLbl.setText("<html><i>Previous:</i> &emsp; - &emsp (-)</html>");
 			}
@@ -38,6 +38,9 @@ public class CueEngine {
 						main.sequenceID++;
 					}
 					
+					main.current_cue_lbl.setForeground(Color.GREEN);
+					main.activeCue = main.current_cue;
+					
 				} else {
 					
 					inTimer = new Thread(){
@@ -52,6 +55,7 @@ public class CueEngine {
 							
 							main.current_cue_lbl.setForeground(Color.GREEN);
 							main.inTimeLbl.setForeground(Color.BLUE);
+							main.activeCue = main.current_cue;
 						}
 					};
 					
@@ -125,7 +129,42 @@ public class CueEngine {
 					broadcast.start();
 					
 				} // End inTime check if statement
-			
+
+				// If the cue has a hold time then hold and execute next cue if possible
+				if(cue.holdTime > 0){
+
+					new Thread(){
+						public void run(){
+							
+							long finishTime = System.currentTimeMillis() + cue.inTime;
+							while(System.currentTimeMillis() <= finishTime){}
+							
+							finishTime = System.currentTimeMillis() + cue.holdTime;
+							long currentTime = System.currentTimeMillis();
+							
+							while(System.currentTimeMillis() <= finishTime){
+								main.holdTimeLbl.setText(convertLongToString(System.currentTimeMillis() - currentTime));
+							}
+							
+							main.holdTimeLbl.setForeground(Color.BLUE);
+
+							if(main.cue[cue.id+1].data != null){
+								
+								resetCueDisplay();
+								main.current_cue++;
+								main.current_cue_lbl.setForeground(Color.RED);
+								main.current_cue_lbl.setText(""+main.current_cue);
+								main.cue_name_tf.setText(main.cue[main.current_cue].name);
+								execute(main.cue[cue.id+1]);
+								
+							}
+							
+						}
+						
+					}.start();
+					
+				}
+				
 		}
 	}
 	
@@ -180,6 +219,26 @@ public class CueEngine {
 		}
 		
 		return String.format("%02d", min) + ":" + String.format("%02d", sec) + ":" + String.format("%02d", milli);
+		
+	}
+	
+	/**
+	 * Resets all components of the Cue display
+	 */
+	public static void resetCueDisplay(){
+		
+		if(main.cue[main.current_cue].data == null){
+			main.no_assign_lbl.setVisible(true);
+		} else {
+			main.no_assign_lbl.setVisible(false);
+		}
+		
+		main.inTimeLbl.setForeground(Color.BLACK);
+		main.holdTimeLbl.setForeground(Color.BLACK);
+		
+		main.holdTimeLbl.setText("00:00:00");
+		main.holdTimeLbl.setText("00:00:00");
+		main.hold_for_tf.setText("00:00:00");
 		
 	}
 	

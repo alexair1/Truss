@@ -43,7 +43,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 	static Profile[] profile = new Profile[100];
 	static Group[] group = new Group[513];
 	static byte[] data = new byte[512];
-	static int channel_amt = 0, selectedFixtures_amt = 0, current_cue = 1, cueStackCounter = 0, fixture_select_btn_counter = 0, fixtureNumber = 1, dimmerNumber = 1, profileID = 0, group_counter = 1, sequenceID = 0;
+	static int channel_amt = 0, selectedFixtures_amt = 0, current_cue = 1, activeCue = 0, cueStackCounter = 0, fixture_select_btn_counter = 0, fixtureNumber = 1, dimmerNumber = 1, profileID = 0, group_counter = 1, sequenceID = 0;
 	static JPanel fixture_select, control, fixture_sel_panel, group_sel_panel;
 	static Fixture[] selectedFixtures = new Fixture[512];
 	static File currently_loaded_show;
@@ -53,13 +53,14 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 	static JButton bank_page_up, bank_page_down, slct_fix, slct_dim, slct_seq, cue_Go, cue_next, cue_prev, cue_store, cue_ok, group_btn, store_cue_btn, remote_btn, add_cue, black_out, new_cue_stack, load_show, next_cue, prev_cue, new_fixture, edit_fixture, clear_sel, save_show;
 	static JButton btnFocus, btnDimmer, btnIris, btnShutter, btnZoom, btnColourWheel, btnRgbMixing, btnCto, btnGobo_1, btnGobo_2, btnGobo_3, btnPrism, btnFrost, btnControl, btnOther;
 	JSlider  master_slider, fade_slider, intensity_fader;
-	JTextField cue_name_tf, hold_for_tf;
+	static JTextField cue_name_tf;
+	static JTextField hold_for_tf;
 	JPanel patch_and_control, contentPane, fw, presets;
 	JTable fixture_table, presets_grid, group_table, dimmer_table, sequence_table;
 	JScrollPane patch_table_pane, group_table_pane;
 	JTabbedPane fixture_sel_and_ctrl, screens;
 	JCheckBox execute_on_select, bypass_go_chk, hold_for_chk;
-	static JLabel bank_page_lbl, no_assign_lbl, cur_sel_id, cur_sel_name, cur_sel_type, error_disp, fade_val, current_cue_lbl, nextCueLbl, prevCueLbl, inTimeLbl;
+	static JLabel bank_page_lbl, no_assign_lbl, cur_sel_id, cur_sel_name, cur_sel_type, error_disp, fade_val, current_cue_lbl, nextCueLbl, prevCueLbl, inTimeLbl, holdTimeLbl;
 	JSpinner cue_counter, master_spinner, intensity_spinner;
 	static Fader single, bank_1, bank_2, bank_3, bank_4, bank_5, pan, tilt;
 	static ArtNetNode artnet_node;
@@ -88,7 +89,6 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 	
 	SAXParserFactory factory = SAXParserFactory.newInstance();
 	private JLabel lblCurrentTheFirst;
-	private JLabel lblHold;
 //	DefaultHandler handler;
 	
 	/*
@@ -99,7 +99,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		for(int a=0;a<999;a++){
 			cue[a+1] = new Cue(null, "New Cue", 0, 0, (a+1));
 		}
-		cue[1].inTime = 30000;
+
 		new Thread(){
 			public void run(){
 				while(true){
@@ -510,10 +510,10 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		inTimeLbl.setBounds(91, 211, 72, 14);
 		cue_panel.add(inTimeLbl);
 		
-		lblHold = new JLabel("00:00:00");
-		lblHold.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblHold.setBounds(181, 211, 89, 14);
-		cue_panel.add(lblHold);
+		holdTimeLbl = new JLabel("00:00:00");
+		holdTimeLbl.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		holdTimeLbl.setBounds(181, 211, 89, 14);
+		cue_panel.add(holdTimeLbl);
 		
 		JSeparator separator = new JSeparator();
 		separator.setBounds(10, 176, 265, 2);
@@ -804,87 +804,67 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 					black_out.setFont(new Font(null, Font.PLAIN, 11));
 				}
 				
-			} 
-//			else if(e.getSource() == stop_cue){
-//				
-//				stop_cue.setEnabled(false);
-//
-//				for(int a=0;a<512;a++){
-//					data[a] = (byte)channel_data[a+1];
-//				}
-//				
-//				// Broadcast channel_data with new master value
-//				if(artnet_node != null && !blackout_on) {
-//					dmx.setSequenceID(sequenceID % 255);
-//					dmx.setDMX(data, 512);
-//	           		artnet.unicastPacket(dmx, artnet_node.getIPAddress());
-//	           		sequenceID++;
-//	            }
-//				
-//			} 
-			else if(e.getSource() == cue_Go){
+			// Executes the current cue
+			} else if(e.getSource() == cue_Go){
 				
 				if(cue[current_cue].data != null){
 					
 					CueEngine.execute(cue[current_cue]);
-//					cue[current_cue].execute();
-//					current_cue_lbl.setForeground(Color.GREEN);
 					
 				}
-				
+			
+			// Goes to the next Cue
 			} else if(e.getSource() == cue_next){
 				
 				if(current_cue < 999){
 					current_cue++;
+					cue[current_cue-1].name = cue_name_tf.getText();
+					current_cue_lbl.setText(""+current_cue);
+					cue_name_tf.setText(main.cue[current_cue].name);
+					
 					if(bypass_go_chk.isSelected()){
 						if(cue[current_cue].data != null){
 							CueEngine.execute(cue[current_cue]);
-						//	current_cue_lbl.setForeground(Color.GREEN);
 						}
 					} else {
-						current_cue_lbl.setForeground(Color.RED);
+						if(Integer.parseInt(current_cue_lbl.getText()) == activeCue){
+							current_cue_lbl.setForeground(Color.GREEN);
+						} else {
+							current_cue_lbl.setForeground(Color.RED);
+						}
 					}
-					current_cue_lbl.setText(""+current_cue);
-					cue_name_tf.setText(cue[current_cue].name);
 					
-					if(cue[current_cue].data == null){
-						no_assign_lbl.setVisible(true);
-					} else {
-						no_assign_lbl.setVisible(false);
-					}
 				}
-				inTimeLbl.setForeground(Color.BLACK);
-				
-				cue[current_cue-1].name = cue_name_tf.getText();
+
 				if(current_cue != 1){
 					cue[current_cue-1].holdTime = CueEngine.convertStringToLong(hold_for_tf.getText());
 				}
-				
+				CueEngine.resetCueDisplay();
+			
+			// Goes to the previous Cue
 			} else if(e.getSource() == cue_prev){
 				
 				if(current_cue > 1){
 					current_cue--;
+					cue[current_cue+1].name = cue_name_tf.getText();
+					current_cue_lbl.setText(""+current_cue);
+					cue_name_tf.setText(main.cue[current_cue].name);
+					
 					if(bypass_go_chk.isSelected()){
 						if(cue[current_cue].data != null){
 							CueEngine.execute(cue[current_cue]);
-					//		current_cue_lbl.setForeground(Color.GREEN);
 						}
 					} else {
-						current_cue_lbl.setForeground(Color.RED);
+						if(Integer.parseInt(current_cue_lbl.getText()) == activeCue){
+							current_cue_lbl.setForeground(Color.GREEN);
+						} else {
+							current_cue_lbl.setForeground(Color.RED);
+						}
 					}
-					current_cue_lbl.setText(""+current_cue);
-					cue_name_tf.setText(cue[current_cue].name);
-					
-					if(cue[current_cue].data == null){
-						no_assign_lbl.setVisible(true);
-					} else {
-						no_assign_lbl.setVisible(false);
-					}
+
 				}
-				inTimeLbl.setForeground(Color.BLACK);
-				
-				cue[current_cue+1].name = cue_name_tf.getText();
 				cue[current_cue+1].holdTime = CueEngine.convertStringToLong(hold_for_tf.getText());
+				CueEngine.resetCueDisplay();
 				
 			} else if(e.getSource() == cue_store){
 				
@@ -894,7 +874,8 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 					data[a] = (int)(channel_data[a+1] * ((double)(Integer)master_spinner.getValue()/100));
 				}
 				cue[current_cue].data = data;
-//				cue[current_cue].inTime = fade_slider.getValue();
+				cue[current_cue].inTime = fade_slider.getValue();
+				cue[current_cue].holdTime = CueEngine.convertStringToLong(hold_for_tf.getText());
 				
 				no_assign_lbl.setVisible(false);
 				data = null;
@@ -1056,10 +1037,10 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 				artnet_node = node;
 				dmx.setUniverse(artnet_node.getSubNet(), artnet_node.getDmxOuts()[0]);
 				error_disp.setForeground(Color.BLUE);
-				error_disp.setText("Node discovered on: " + artnet_node.getIPAddress().toString().split("/")[1]);
+				error_disp.setText("Node connected on: " + artnet_node.getIPAddress().toString().split("/")[1]);
 			} else {
 				error_disp.setForeground(Color.ORANGE);
-				error_disp.setText("Multiple nodes discovered, using first found");
+				error_disp.setText("2+ nodes found, using first [Settings] to swap");
 			}
 //			settings.updateNodeList(node, Operation.NODE_DISCOVERED);
 		}
