@@ -29,6 +29,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 public class main extends JFrame implements ActionListener, ChangeListener, MouseListener, ArtNetDiscoveryListener, KeyListener, WindowListener {
 	
+	static main frame;
 //	private static final long serialVersionUID = 457254905222613447L;
 	static int[] channel_data = new int[513];
 	int[] prev_channel_data = new int[513];
@@ -41,7 +42,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 	static Dimmer[] dimmer = new  Dimmer[513];
 	static Cue[] cue = new Cue[1000];
 	static Profile[] profile = new Profile[100];
-	static Group[] group = new Group[513];
+//	static Group[] group = new Group[513];
 	static byte[] data = new byte[512];
 	static int channel_amt = 0, selectedFixtures_amt = 0, current_cue = 1, activeCue = 0, cueStackCounter = 0, fixture_select_btn_counter = 0, fixtureNumber = 1, dimmerNumber = 1, profileID = 0, group_counter = 1, sequenceID = 0;
 	static JPanel fixture_select, control, fixture_sel_panel, group_sel_panel;
@@ -90,6 +91,10 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 	SAXParserFactory factory = SAXParserFactory.newInstance();
 	private JLabel lblCurrentTheFirst;
 //	DefaultHandler handler;
+	
+	public static void main(String[] args){
+		 frame = new main();
+	}
 	
 	/*
 	 * Called after all components are initialized
@@ -654,6 +659,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		
 		addWindowListener(this);
 		
+		setVisible(true);
 		initiate();
 	}
 	

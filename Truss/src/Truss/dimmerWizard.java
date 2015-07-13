@@ -26,8 +26,8 @@ public class dimmerWizard implements ActionListener {
 	 */
 	public void actionPerformed(ActionEvent a){
 		
-		x = Loader.frame.fixture_table.getSelectedColumn();
-		y = Loader.frame.fixture_table.getSelectedRow();
+		x = main.frame.fixture_table.getSelectedColumn();
+		y = main.frame.fixture_table.getSelectedRow();
 		
 		JPanel panel = new JPanel();
 		panel.setLayout(null);
@@ -190,10 +190,10 @@ public class dimmerWizard implements ActionListener {
 		}
 	}
 	private void updatePatchTable(){
-		main.dimmer_data[Loader.frame.dimmer_table.getSelectedRow()][Loader.frame.dimmer_table.getSelectedColumn()] = "<html>&emsp;" + namefield.getText() + "<br>&emsp; " + main.dimmerNumber + "</html>";
+		main.dimmer_data[main.frame.dimmer_table.getSelectedRow()][main.frame.dimmer_table.getSelectedColumn()] = "<html>&emsp;" + namefield.getText() + "<br>&emsp; " + main.dimmerNumber + "</html>";
 	//	main.dimmer_data[main.dimmerNumber-1][1] = main.dimmer[main.dimmerNumber].getName();
 	//	main.dimmer_data[main.dimmerNumber-1][2] = main.dimmer[main.dimmerNumber].getStartChannel();
-		Loader.frame.dimmer_table.repaint();
+		main.frame.dimmer_table.repaint();
 	}
 	
 	private void checkValues(EventObject e){

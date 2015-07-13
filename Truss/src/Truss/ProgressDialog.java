@@ -25,7 +25,7 @@ public class ProgressDialog extends JFrame {
 		setTitle("Progress");
 		setVisible(true);
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(Loader.frame.getX()+((1290/2)-200), Loader.frame.getY()+((680/2)-100), 200, 90);
+		setBounds(main.frame.getX()+((1290/2)-200), main.frame.getY()+((680/2)-100), 200, 90);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
 		contentPane.setLayout(null);

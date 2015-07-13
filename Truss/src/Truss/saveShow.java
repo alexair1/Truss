@@ -31,9 +31,9 @@ public class saveShow {
 				o.writeObject(main.dimmer[a]);
 			}
 
-			o.write(Loader.frame.master_slider.getValue());
+			o.write(main.frame.master_slider.getValue());
 			
-			o.writeInt(Loader.frame.fade_slider.getValue());
+			o.writeInt(main.frame.fade_slider.getValue());
 			
 			o.close();
 		} catch(Exception e){
@@ -53,7 +53,7 @@ public class saveShow {
 
 			while(a < 513){
 				try {
-					Loader.frame.channel_data[a] = (Integer)o.readObject();
+					main.frame.channel_data[a] = (Integer)o.readObject();
 					a++;
 				} catch(Exception e){
 					e.printStackTrace();
@@ -126,7 +126,7 @@ public class saveShow {
 			prog.setProgress(60);
 			
 			try{
-				Loader.frame.master_slider.setValue(o.read());
+				main.frame.master_slider.setValue(o.read());
 				System.out.println("loaded master fader");
 				prog.setProgress(80);
 			} catch(Exception e){
@@ -134,7 +134,7 @@ public class saveShow {
 			}
 			
 			try{
-				Loader.frame.fade_slider.setValue(o.readInt());
+				main.frame.fade_slider.setValue(o.readInt());
 				System.out.println("loaded fade fader");
 				prog.setProgress(100);
 			} catch(Exception e){
@@ -147,7 +147,7 @@ public class saveShow {
 			e.printStackTrace();
 		}
 		
-		Loader.frame.createTables();
-		Loader.frame.patch_table_pane.setViewportView(Loader.frame.fixture_table);
+		main.frame.createTables();
+		main.frame.patch_table_pane.setViewportView(main.frame.fixture_table);
 	}
 } 

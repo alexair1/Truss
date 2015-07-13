@@ -22,7 +22,7 @@ public class CueEngine {
 				main.prevCueLbl.setText("<html><i>Previous:</i> &emsp; - &emsp (-)</html>");
 			}
 			
-			Loader.frame.prev_channel_data = Loader.frame.channel_data;
+			main.frame.prev_channel_data = main.frame.channel_data;
 
 				if(cue.inTime == 0){
 
@@ -61,7 +61,7 @@ public class CueEngine {
 					
 					for(int a=0;a<512;a++){
 
-						if(cue.data[a] != Loader.frame.channel_data[a+1]){
+						if(cue.data[a] != main.frame.channel_data[a+1]){
 							final int c = a;
 							
 							/* 
@@ -73,7 +73,7 @@ public class CueEngine {
 							new Thread(){
 								public void run(){
 
-									long interval = cue.inTime/(Math.abs(cue.data[c]-Loader.frame.channel_data[c+1]));
+									long interval = cue.inTime/(Math.abs(cue.data[c]-main.frame.channel_data[c+1]));
 
 									while(main.channel_data[c+1] >= 0 && main.channel_data[c+1] <= 255 && cue.data[c] != main.channel_data[c+1]){
 

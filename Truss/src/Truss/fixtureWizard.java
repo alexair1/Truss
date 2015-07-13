@@ -33,8 +33,8 @@ public class fixtureWizard implements ActionListener {
 	 */	
 	public void actionPerformed(ActionEvent a){
 		
-		x = Loader.frame.fixture_table.getSelectedColumn();
-		y = Loader.frame.fixture_table.getSelectedRow();
+		x = main.frame.fixture_table.getSelectedColumn();
+		y = main.frame.fixture_table.getSelectedRow();
 		
 		for(int b=0;b<100;b++){
 			for(int c=0;c<3;c++){
@@ -281,7 +281,7 @@ public class fixtureWizard implements ActionListener {
 		
 		private void updatePatchTable(){
 	 		main.fixture_data[y][x] = "<html>&emsp;" + main.fixture[main.fixtureNumber].getName() + "<br>&emsp; " + main.fixtureNumber + "</html>";
-			Loader.frame.fixture_table.repaint();
+			main.frame.fixture_table.repaint();
 		}
 		
 		/*

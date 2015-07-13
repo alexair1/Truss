@@ -92,12 +92,12 @@ import javax.swing.event.*;
 			
 			if(dmxChannels != null){
 				if(dmxChannels.length == 1){
-					Loader.frame.channel_data[dmxChannels[0]] = slider.getValue();
+					main.frame.channel_data[dmxChannels[0]] = slider.getValue();
 					
 					if(f != null){
 
 						if(f.fixtureType.equals("Dimmer") || (f.getStartChannel()+f.getFixtureType().channel_function[0])-1 == dmxChannels[0]){
-							main.data[dmxChannels[0]-1] = (byte)((double)main.channel_data[dmxChannels[0]] * ((Integer)Loader.frame.master_spinner.getValue()/100));
+							main.data[dmxChannels[0]-1] = (byte)((double)main.channel_data[dmxChannels[0]] * ((Integer)main.frame.master_spinner.getValue()/100));
 						} else {
 							main.data[dmxChannels[0]-1] = (byte)(double)main.channel_data[dmxChannels[0]];
 						}
@@ -110,9 +110,9 @@ import javax.swing.event.*;
 //					System.out.println(f.getFixtureType());
 //					System.out.println(f.getFixtureType().name);
 //					if(f.getFixtureType().name.equals("Dimmer")){
-//						main.data[dmxChannels[0]-1] = (byte)((double)Loader.frame.channel_data[dmxChannels[0]] / 255 * (Integer)Loader.frame.master_spinner.getValue());
+//						main.data[dmxChannels[0]-1] = (byte)((double)main.frame.channel_data[dmxChannels[0]] / 255 * (Integer)main.frame.master_spinner.getValue());
 //					} else {
-//						main.data[dmxChannels[0]-1] = (byte)((double)Loader.frame.channel_data[dmxChannels[0]] / 255 * (Integer)Loader.frame.master_spinner.getValue());
+//						main.data[dmxChannels[0]-1] = (byte)((double)main.frame.channel_data[dmxChannels[0]] / 255 * (Integer)main.frame.master_spinner.getValue());
 //					}
 					
 					// Broadcast
@@ -126,22 +126,22 @@ import javax.swing.event.*;
 				} else {
 
 					for(int a=0;a<dmxChannels.length;a++){
-						if((slider.getValue() != Loader.frame.channel_data[dmxChannels[a]])){
+						if((slider.getValue() != main.frame.channel_data[dmxChannels[a]])){
 							int new_val = 0;
 
 							if(prev_val < slider.getValue()){
-								new_val = Loader.frame.channel_data[dmxChannels[a]] + Math.abs(slider.getValue()-prev_val);
+								new_val = main.frame.channel_data[dmxChannels[a]] + Math.abs(slider.getValue()-prev_val);
 							} 
 							else {
-								new_val = Loader.frame.channel_data[dmxChannels[a]] - Math.abs(slider.getValue()-prev_val);
+								new_val = main.frame.channel_data[dmxChannels[a]] - Math.abs(slider.getValue()-prev_val);
 							}
 
 							if(new_val < 256 && new_val > -1){
-								Loader.frame.channel_data[dmxChannels[a]] = new_val;
+								main.frame.channel_data[dmxChannels[a]] = new_val;
 							} else if(new_val > 255){
-								Loader.frame.channel_data[dmxChannels[a]] = 255;
+								main.frame.channel_data[dmxChannels[a]] = 255;
 							} else if(new_val < 0){
-								Loader.frame.channel_data[dmxChannels[a]] = 0;
+								main.frame.channel_data[dmxChannels[a]] = 0;
 							}
 
 							int index = a % 7;
@@ -152,14 +152,14 @@ import javax.swing.event.*;
 							Fader[] faders = {main.bank_1, main.bank_2, main.bank_3, main.bank_4, main.bank_5, main.pan, main.tilt};
 							
 							try{
-								faders[index].slider.setValue(Loader.frame.channel_data[dmxChannels[a]]);
+								faders[index].slider.setValue(main.frame.channel_data[dmxChannels[a]]);
 							} catch(ArrayIndexOutOfBoundsException e){}
 						
 						}
 						
 						for(int b=0;b<dmxChannels.length;b++){
 
-							main.data[dmxChannels[b]-1] = (byte)(((double)Loader.frame.channel_data[dmxChannels[b]] / 255) * (Integer)Loader.frame.master_spinner.getValue());
+							main.data[dmxChannels[b]-1] = (byte)(((double)main.frame.channel_data[dmxChannels[b]] / 255) * (Integer)main.frame.master_spinner.getValue());
 						
 						}
 						
