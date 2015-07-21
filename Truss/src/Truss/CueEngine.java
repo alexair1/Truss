@@ -237,8 +237,7 @@ public class CueEngine {
 		main.holdTimeLbl.setForeground(Color.BLACK);
 		
 		main.holdTimeLbl.setText("00:00:00");
-		main.holdTimeLbl.setText("00:00:00");
-		main.hold_for_tf.setText("00:00:00");
+		main.inTimeLbl.setText("00:00:00");
 		
 	}
 	

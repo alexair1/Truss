@@ -3,6 +3,7 @@ package Truss;
 import java.awt.Color;
 import java.io.*;
 import java.util.Properties;
+import java.util.Vector;
 
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
@@ -30,6 +31,14 @@ public class saveShow {
 			for(a=1;a<513;a++){
 				o.writeObject(main.dimmer[a]);
 			}
+			
+			o.writeObject(main.selectionTableData);
+			
+//			for(a=0;a<6;a++){
+//				for(int b=0;b<6;b++){
+//					o.writeObject(main.selectionTableData[a][b]);
+//				}
+//			}
 
 			o.write(main.frame.master_slider.getValue());
 			
@@ -65,7 +74,9 @@ public class saveShow {
 			a=1;
 
 			main.fixtureNumber = 1;
-			main.fixture_data = new Object[6][7];
+			main.selectionTableData = new Object[6][6];
+			main.fixtureData = new Vector<String>();
+			main.dimmerData = new Vector<String>();
 			main.fixture = new Fixture[513];
 			
 			while(a < 513){
@@ -77,7 +88,7 @@ public class saveShow {
 
 						main.fixture[a] = (Fixture)f;
 
-						main.fixture_data[main.fixture[a].y][main.fixture[a].x] = "<html>&emsp;" + main.fixture[a].getName() + "<br>&emsp; " + a + "</html>";
+						main.fixtureData.add(main.fixtureNumber + "   " + ((Fixture)f).name);
 						main.fixtureNumber++;
 						
 					} else {
@@ -98,16 +109,16 @@ public class saveShow {
 			a=1;
 			
 			main.dimmerNumber = 1;
-			main.dimmer_data = new Object[6][7];
 			main.dimmer = new Dimmer[513];
 
 			while(a < 513){
 				try {
 					Object d = o.readObject();
 
-					if(d instanceof Fixture){
+					if(d instanceof Dimmer){
 
 						main.dimmer[a] = (Dimmer)d;
+						main.dimmerData.add(main.dimmerNumber + "   " + ((Dimmer)d).name + " (Size: " + ((Dimmer)d).getFixtures().length + ")");
 						main.dimmerNumber++;
 						
 					} else {
@@ -125,10 +136,16 @@ public class saveShow {
 			System.out.println("loaded dimmers");
 			prog.setProgress(60);
 			
+			main.frame.patchTable.setListData(main.dimmerData);
+			
+			main.selectionTableData = (Object[][])o.readObject();
+			System.out.println("loaded selectionTable");
+			prog.setProgress(80);
+			
 			try{
 				main.frame.master_slider.setValue(o.read());
 				System.out.println("loaded master fader");
-				prog.setProgress(80);
+				prog.setProgress(90);
 			} catch(Exception e){
 				e.printStackTrace();
 			}
@@ -148,6 +165,6 @@ public class saveShow {
 		}
 		
 		main.frame.createTables();
-		main.frame.patch_table_pane.setViewportView(main.frame.fixture_table);
+		main.frame.patch_table_pane.setViewportView(main.frame.selectionTable);
 	}
 } 

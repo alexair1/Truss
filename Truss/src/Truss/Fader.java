@@ -159,7 +159,7 @@ import javax.swing.event.*;
 						
 						for(int b=0;b<dmxChannels.length;b++){
 
-							main.data[dmxChannels[b]-1] = (byte)(((double)main.frame.channel_data[dmxChannels[b]] / 255) * (Integer)main.frame.master_spinner.getValue());
+							main.data[dmxChannels[b]-1] = (byte)((double)main.frame.channel_data[dmxChannels[b]] * ((Integer)main.frame.master_spinner.getValue()/100));
 						
 						}
 						

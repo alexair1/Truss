@@ -36,7 +36,7 @@ public class About extends JFrame implements ActionListener {
 		lblCreatingByAlex.setBounds(0, 316, 400, 14);
 		panel.add(lblCreatingByAlex);
 		
-		JLabel lblNewLabel = new JLabel("v Alpha 1.0.0", SwingConstants.CENTER);
+		JLabel lblNewLabel = new JLabel("v Alpha 1.1.0", SwingConstants.CENTER);
 		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		lblNewLabel.setBounds(0, 341, 400, 14);
 		panel.add(lblNewLabel);

@@ -20,6 +20,7 @@
 package artnet4j;
 
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.logging.Logger;
 
 import artnet4j.packets.ArtPollReplyPacket;
@@ -58,7 +59,12 @@ public class ArtNetNode {
 	}
 
 	public void extractConfig(ArtPollReplyPacket source) {
-		setIPAddress(source.getIPAddress());
+		try {
+			setIPAddress(InetAddress.getByName("255.255.255.255"));
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		subSwitch = source.getSubSwitch();
 		oemCode = source.getOEMCode();
 		nodeStatus = source.getNodeStatus();

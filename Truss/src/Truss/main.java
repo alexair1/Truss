@@ -12,7 +12,16 @@ import java.io.*;
 import java.text.ParseException;
 import java.util.*;
 import java.net.BindException;
+import java.net.InetAddress;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.UnknownHostException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 import artnet4j.ArtNet;
 import artnet4j.ArtNetNode;
@@ -27,7 +36,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-public class main extends JFrame implements ActionListener, ChangeListener, MouseListener, ArtNetDiscoveryListener, KeyListener, WindowListener {
+public class main extends JFrame implements ActionListener, ChangeListener, MouseListener, ArtNetDiscoveryListener, WindowListener, ListSelectionListener {
 	
 	static main frame;
 //	private static final long serialVersionUID = 457254905222613447L;
@@ -35,14 +44,15 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 	int[] prev_channel_data = new int[513];
 	byte[] blackout = new byte[512];
 	byte[] current_output = new byte[512];
-	static Object[][] fixture_data = new Object[6][7];
-	static Object[][] dimmer_data = new Object[6][7];
+	static Object[][] selectionTableData = new Object[6][6];
+	static Object[][] dimmer_data = new Object[6][6];
 	static Object[][] sequence_data = new Object[6][7];
+	static Vector<String> dimmerData = new Vector<String>();
+	static Vector<String> fixtureData = new Vector<String>();
 	static Fixture[] fixture = new Fixture[513];
 	static Dimmer[] dimmer = new  Dimmer[513];
 	static Cue[] cue = new Cue[1000];
 	static Profile[] profile = new Profile[100];
-//	static Group[] group = new Group[513];
 	static byte[] data = new byte[512];
 	static int channel_amt = 0, selectedFixtures_amt = 0, current_cue = 1, activeCue = 0, cueStackCounter = 0, fixture_select_btn_counter = 0, fixtureNumber = 1, dimmerNumber = 1, profileID = 0, group_counter = 1, sequenceID = 0;
 	static JPanel fixture_select, control, fixture_sel_panel, group_sel_panel;
@@ -51,15 +61,16 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 	static Vector<String> groupNames = new Vector<String>();
 	static Object selectedFixture = null;
 	
-	static JButton bank_page_up, bank_page_down, slct_fix, slct_dim, slct_seq, cue_Go, cue_next, cue_prev, cue_store, cue_ok, group_btn, store_cue_btn, remote_btn, add_cue, black_out, new_cue_stack, load_show, next_cue, prev_cue, new_fixture, edit_fixture, clear_sel, save_show;
-	static JButton btnFocus, btnDimmer, btnIris, btnShutter, btnZoom, btnColourWheel, btnRgbMixing, btnCto, btnGobo_1, btnGobo_2, btnGobo_3, btnPrism, btnFrost, btnControl, btnOther;
+	static JButton bank_page_up, bank_page_down, patchTable_Fixture, patchTable_Dimmer, slct_seq, cue_Go, cue_next, cue_prev, cue_store, cue_ok, group_btn, store_cue_btn, remote_btn, add_cue, black_out, new_cue_stack, load_show, next_cue, prev_cue, new_fixture, edit_fixture, clear_sel, save_show;
+	static JButton btnFocus, btnDimmer, btnIris, btnShutter, btnZoom, btnColourWheel, btnRgbMixing, btnCto, btnGobo_1, btnGobo_2, btnGobo_3, btnPrism, btnFrost, btnControl, btnOther, btnDeleteFromTable, btnAddToTable;
 	JSlider  master_slider, fade_slider, intensity_fader;
 	static JTextField cue_name_tf;
 	static JTextField hold_for_tf;
 	JPanel patch_and_control, contentPane, fw, presets;
-	JTable fixture_table, presets_grid, group_table, dimmer_table, sequence_table;
+	JTable selectionTable, presets_grid, group_table, dimmer_table, sequence_table;
 	JScrollPane patch_table_pane, group_table_pane;
 	JTabbedPane fixture_sel_and_ctrl, screens;
+	JList patchTable;
 	JCheckBox execute_on_select, bypass_go_chk, hold_for_chk;
 	static JLabel bank_page_lbl, no_assign_lbl, cur_sel_id, cur_sel_name, cur_sel_type, error_disp, fade_val, current_cue_lbl, nextCueLbl, prevCueLbl, inTimeLbl, holdTimeLbl;
 	JSpinner cue_counter, master_spinner, intensity_spinner;
@@ -68,23 +79,28 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 	static ArtNet artnet = new ArtNet();
 	static ArtDmxPacket dmx = new ArtDmxPacket();
 	
-	JPopupMenu fixture_menu, dimmer_menu, sequence_menu;
+	JPopupMenu patchMenu, sequence_menu;
 	
 	Thread clear_flash, blackout_th;
 	JToggleButton selectedFixture_btn;
 	FileOutputStream file_stream_out;
 	Properties show_settings = new Properties();
 	FileNameExtensionFilter load_show_filter;
-	Vector cueStackNames = new Vector();
 	static boolean blackout_on = false;
-	boolean artnet_con = false;
+	boolean artnet_con = false, addToggle = false, deleteToggle = false;
+	
+	enum General {
+		DIMMER, FIXTURE
+	}
+	
+	General currentPatchTableData = General.DIMMER;
 	
 	final String[] channels = {"Dimmer", "Shutter", "Iris", "Focus", "Zoom", "Pan", "Tilt", "Colour Wheel", 
 			   "Colour Wheel (Fine)", "Red", "Red (Fine)", "Green", "Green (Fine)", "Blue", "Blue (Fine)",
 			   "Cyan", "Cyan (Fine)", "Magenta", "Magenta (Fine)", "Yellow", "Yellow (Fine)", "CTO",
 			   "CTO (Fine)"};
 	
-	JMenuItem saveItem, loadItem, fixtureItem, dimmerItem, aboutItem, patch_newFixture, patch_newDimmer, patch_newSequence, settingsItem;
+	JMenuItem saveItem, loadItem, fixtureItem, dimmerItem, aboutItem, patch_newFixture, patch_newDimmer, patch_newSequence, settingsItem, addProfileItem;
 	
 //	Settings settings = new Settings();
 	
@@ -131,7 +147,6 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		            error_disp.setText("Polling");
 		            
 		        } catch(BindException be){
-		        	
 		        	error_disp.setForeground(Color.RED);
 		        	error_disp.setText("! Address already in use.");
 		        	
@@ -142,13 +157,50 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		};
 		artnet_discovery.start();  
 		
-		/*
-		 * Loads all xml profiles located in the 'xml' folder in the root directory
-		 */
-		File f = new File("xml");
-		for(int v=0;v<f.list().length;v++){
-			loadProfile(f.list()[v].substring(0, f.list()[v].length()-4));
+		// Loads all XML files from src/xml
+		try {
+			
+			File jarFile = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
+
+			if(jarFile.isFile()) { 
+
+				JarFile jar = new JarFile(jarFile);
+				Enumeration<JarEntry> entries = jar.entries(); 
+
+				while(entries.hasMoreElements()) {
+					JarEntry file = entries.nextElement();
+		        
+					if (file.getName().startsWith("Truss/xml/") && !file.isDirectory()) { 
+
+						loadProfile(file);
+		        	
+					}
+		        
+				}
+		    
+				jar.close();
+			}
+		
+		} catch(Exception e){
+			e.printStackTrace();
 		}
+		
+//		try {
+//
+//			InputStream in = main.class.getResourceAsStream("xml");
+//			BufferedReader input = new BufferedReader(new InputStreamReader(in));
+//
+//			String profileName;
+//
+//			while((profileName = input.readLine()) != null){
+//				
+//				loadProfile(profileName.substring(0, profileName.length()-4));
+//	
+//			}
+//			
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 
 		load_show_filter = new FileNameExtensionFilter("Truss Show File", "truss");
 	}  
@@ -181,6 +233,10 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 			loadItem = new JMenuItem("Load");
 			loadItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK));
 			fileMenu.add(loadItem);
+			
+			addProfileItem = new JMenuItem("Add Profiles");
+			addProfileItem.setEnabled(false);
+			fileMenu.add(addProfileItem);
 		
 		JMenu aboutMenu = new JMenu("About");
 		menuBar.add(aboutMenu);
@@ -189,7 +245,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 			aboutMenu.add(aboutItem);
 			
 		JMenu settingsMenu = new JMenu("Settings");
-		menuBar.add(settingsMenu);
+		menuBar.add(settingsMenu); 
 		
 			settingsItem = new JMenuItem("Settings");
 			settingsItem.addActionListener(new ActionListener() {
@@ -198,6 +254,21 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 				}
 			});
 			settingsMenu.add(settingsItem);
+			
+		JMenu helpMenu = new JMenu("Help");
+		menuBar.add(helpMenu);
+		
+			JMenuItem wikiItem = new JMenuItem("Wiki");
+			wikiItem.addActionListener(new ActionListener(){
+				public void actionPerformed(ActionEvent e){
+					try {
+						Desktop.getDesktop().browse(java.net.URI.create("https://github.com/alexair1/Truss/wiki"));
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+				}
+			});
+			helpMenu.add(wikiItem);
 			
 		setJMenuBar(menuBar);
 
@@ -210,7 +281,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		contentPane.add(patch_and_control);
 
 		setContentPane(contentPane);
-		setTitle("Truss, Alpha 1.0");
+		setTitle("Truss, Alpha 1.1.0");
 		setResizable(false); 
 		
 		JPanel menu_panel = new JPanel();
@@ -224,29 +295,41 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		
 		// Patch and Control Screen
 		
-		slct_seq = new JButton("Sequences");
+		slct_seq = new JButton("EXEC");
 		slct_seq.setEnabled(false);
-		slct_seq.setBounds(885, 311, 89, 23);
+		slct_seq.setBounds(1, 85, 89, 35);
 		patch_and_control.add(slct_seq);
 		
-		slct_fix = new JButton("Fixtures"); 
-		slct_fix.setFocusPainted(false);
-		slct_fix.setBounds(786, 311, 89, 23);
-		patch_and_control.add(slct_fix);
+		patchTable_Fixture = new JButton("Fixtures"); 
+		patchTable_Fixture.setFocusPainted(false);
+		patchTable_Fixture.setBounds(894, 277, 80, 23);
+		patch_and_control.add(patchTable_Fixture);
 		
-		slct_dim = new JButton("Dimmers");
-		slct_dim.setFocusPainted(false);
-		slct_dim.setBounds(687, 311, 89, 23);
-		slct_dim.setForeground(Color.BLUE);
-		patch_and_control.add(slct_dim);
+		patchTable_Dimmer = new JButton("Dimmers");
+		patchTable_Dimmer.setFocusPainted(false);
+		patchTable_Dimmer.setBounds(800, 277, 80, 23);
+		patchTable_Dimmer.setForeground(Color.BLUE);
+		patch_and_control.add(patchTable_Dimmer);
 		
-		fixture_menu = new JPopupMenu();		
-		patch_newFixture = new JMenuItem("New Fixture");
-		fixture_menu.add(patch_newFixture);
+		btnAddToTable = new JButton("ADD");
+		btnAddToTable.setEnabled(false);
+		btnAddToTable.setFocusable(false);
+		btnAddToTable.setBounds(0, 5, 90, 35);
+		patch_and_control.add(btnAddToTable);
 		
-		dimmer_menu = new JPopupMenu();		
-		patch_newDimmer = new JMenuItem("New Dimmer");
-		dimmer_menu.add(patch_newDimmer);
+		btnDeleteFromTable = new JButton("DELETE");
+		btnDeleteFromTable.setEnabled(false);
+		btnDeleteFromTable.setFocusable(false);
+		btnDeleteFromTable.setBounds(0, 45, 90, 35);
+		patch_and_control.add(btnDeleteFromTable);
+		
+		patchMenu = new JPopupMenu();
+		
+			patch_newFixture = new JMenuItem("New Fixture");
+			patchMenu.add(patch_newFixture);
+			
+			patch_newDimmer = new JMenuItem("New Dimmer");
+			patchMenu.add(patch_newDimmer);
 		
 		sequence_menu = new JPopupMenu();		
 		patch_newSequence = new JMenuItem("New Sequence");
@@ -257,11 +340,19 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		 */
 			createTables();
 		
-		patch_table_pane = new JScrollPane(dimmer_table);
+		patch_table_pane = new JScrollPane(selectionTable);
 		patch_table_pane.setColumnHeaderView(null);
 		patch_table_pane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
-		patch_table_pane.setBounds(0, 0, 975, 300);
+		patch_table_pane.setBounds(96, 0, 697, 300);
 		patch_and_control.add(patch_table_pane);
+		
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setBounds(800, 0, 174, 270);
+		patch_and_control.add(scrollPane);
+		
+		patchTable = new JList(dimmerData);
+		patchTable.setComponentPopupMenu(patchMenu);
+		scrollPane.setViewportView(patchTable);
 		
 		JButton open_console = new JButton();
 		open_console.setBounds(80, 10, 25, 25);
@@ -380,7 +471,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 			btnOther.setFocusable(false);
 			btnOther.setBounds(895, 150, 67, 39);
 			fixture_control.add(btnOther);	
-
+			
 		main_controls_panel.setLayout(null);
 		
 		clear_sel = new JButton("Clear");
@@ -409,10 +500,9 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		main_controls_panel.add(lblMaster);
 		
 		fade_slider = new JSlider(0, 10000, 0);
+		fade_slider.setSnapToTicks(true);
 		fade_slider.setFocusable(false);
 		fade_slider.setMinorTickSpacing(100);
-	//	fade_slider.setBackground(new Color(130, 130, 130));
-		fade_slider.setSnapToTicks(true);
 		fade_slider.setOrientation(SwingConstants.VERTICAL);
 		fade_slider.setBounds(139, 360, 80, 224);
 		main_controls_panel.add(fade_slider);
@@ -548,11 +638,11 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 			remote_btn.setVisible(false);
 			remote_btn.setEnabled(false);
 			
-			cue_ok = new JButton("OK");
-			cue_ok.setBounds(35, 366, 46, 56);
+//			cue_ok = new JButton("OK");
+//			cue_ok.setBounds(35, 366, 46, 56);
 //			main_controls_panel.add(cue_ok);
-			cue_ok.setFocusable(false);
-			cue_ok.addActionListener(this);
+//			cue_ok.setFocusable(false);
+//			cue_ok.addActionListener(this);
 			black_out.addActionListener(this);
 		menu_panel.setLayout(null);
 		
@@ -604,13 +694,14 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		cue_prev.addActionListener(this);
 		cue_store.addActionListener(this);
 		bypass_go_chk.addChangeListener(this);
-		slct_fix.addActionListener(this);
-		slct_dim.addActionListener(this);
+		patchTable_Fixture.addActionListener(this);
+		patchTable_Dimmer.addActionListener(this);
 		slct_seq.addActionListener(this);
 		bank_page_down.addActionListener(this);
 		bank_page_up.addActionListener(this);	
 		saveItem.addActionListener(this);
-		loadItem.addActionListener(this);	
+		loadItem.addActionListener(this);
+		addProfileItem.addActionListener(this);
 		btnDimmer.addActionListener(this);
 		btnShutter.addActionListener(this);
 		btnIris.addActionListener(this);
@@ -627,6 +718,9 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		btnControl.addActionListener(this);
 		btnOther.addActionListener(this);
 		hold_for_chk.addActionListener(this);
+		patchTable.addListSelectionListener(this);
+		btnDeleteFromTable.addActionListener(this);
+		btnAddToTable.addActionListener(this);
 		
 		btnDimmer.setEnabled(false);
 		btnShutter.setEnabled(false);
@@ -693,7 +787,8 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		}
 		return null;
 	}
-	
+		
+		// Action Performed Events
 		public void actionPerformed(ActionEvent e){
 
 			if(e.getSource() == clear_sel){
@@ -753,7 +848,26 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 					setTitle("Truss Alpha 1.0 - " + currently_loaded_show.getName());
 				}
 				
-			} 
+			} else if(e.getSource() == addProfileItem){
+				
+				JFileChooser fc = new JFileChooser();
+				fc.setAcceptAllFileFilterUsed(false);
+				fc.setFileFilter(new FileNameExtensionFilter("XML File", "xml"));
+
+				if(fc.showOpenDialog(main.this) == JFileChooser.APPROVE_OPTION){
+					
+					File source = fc.getSelectedFile();
+					try {
+						Files.move(Paths.get(source.toURI()), Paths.get(new File(System.getProperty("user.dir") + "/xml/" + source.getName()).toURI()), StandardCopyOption.REPLACE_EXISTING);
+					} catch (IOException e1) {
+						
+					}
+					
+					JOptionPane.showMessageDialog(frame, "Profiles Added Successfully \nRestart to view changes.", "Complete", JOptionPane.INFORMATION_MESSAGE);
+
+				}
+				
+			}
 
 			else if(e.getSource() == black_out){
 				
@@ -761,14 +875,6 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 
 					blackout_on = true;
 					setMaster(0);
-					
-					// Broadcast Blackout
-//					if(artnet_node != null) {
-//						dmx.setSequenceID(sequenceID % 255);
-//						dmx.setDMX(blackout, 512);
-//		           		artnet.unicastPacket(dmx, artnet_node.getIPAddress());
-//		           		sequenceID++;
-//		            }
 					
 					blackout_th = new Thread(){
 						int count = 0;
@@ -791,19 +897,6 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 
 					blackout_on = false;
 					setMaster((Integer)master_spinner.getValue());
-					
-//					for(int a=0;a<512;a++){
-//						data[a] = (byte)(((double)channel_data[a+1] / 255) * (Integer)master_spinner.getValue());
-					//	data[a] = (byte)channel_data[a+1];
-			//		}
-					
-					// Broadcast channel_data
-//					if(artnet_node != null && !blackout_on) {
-//						dmx.setSequenceID(sequenceID % 255);
-//						dmx.setDMX(data, 512);
-//		           		artnet.unicastPacket(dmx, artnet_node.getIPAddress());
-//		           		sequenceID++;
-//		            }
 					
 					blackout_th.stop();
 					black_out.setForeground(Color.BLACK);
@@ -843,8 +936,13 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 				}
 
 				if(current_cue != 1){
-					cue[current_cue-1].holdTime = CueEngine.convertStringToLong(hold_for_tf.getText());
+					if(hold_for_chk.isSelected()){
+						cue[current_cue+1].holdTime = CueEngine.convertStringToLong(hold_for_tf.getText());
+					} else {
+						cue[current_cue+1].holdTime = 0;
+					}
 				}
+				main.hold_for_tf.setText(CueEngine.convertLongToString(cue[current_cue].holdTime));
 				CueEngine.resetCueDisplay();
 			
 			// Goes to the previous Cue
@@ -869,7 +967,13 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 					}
 
 				}
-				cue[current_cue+1].holdTime = CueEngine.convertStringToLong(hold_for_tf.getText());
+				if(hold_for_chk.isSelected()){
+					cue[current_cue+1].holdTime = CueEngine.convertStringToLong(hold_for_tf.getText());
+				} else {
+					cue[current_cue+1].holdTime = 0;
+				}
+
+				main.hold_for_tf.setText(CueEngine.convertLongToString(cue[current_cue].holdTime));
 				CueEngine.resetCueDisplay();
 				
 			} else if(e.getSource() == cue_store){
@@ -881,7 +985,11 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 				}
 				cue[current_cue].data = data;
 				cue[current_cue].inTime = fade_slider.getValue();
-				cue[current_cue].holdTime = CueEngine.convertStringToLong(hold_for_tf.getText());
+				if(hold_for_chk.isSelected()){
+					cue[current_cue].holdTime = CueEngine.convertStringToLong(hold_for_tf.getText());
+				} else {
+					cue[current_cue].holdTime = 0;
+				}
 				
 				no_assign_lbl.setVisible(false);
 				data = null;
@@ -898,20 +1006,17 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 				
 				FixtureSelectionEngine.setFaderBank((JButton)e.getSource());
 				
-			} else if(e.getSource() == slct_fix || e.getSource() == slct_dim || e.getSource() == slct_seq){
+			} else if(e.getSource() == patchTable_Fixture){
+			
+				setPatchTableData(General.FIXTURE);
 				
-				slct_fix.setForeground(Color.BLACK);
-				slct_dim.setForeground(Color.BLACK);
-				slct_seq.setForeground(Color.BLACK);
-				((JButton)e.getSource()).setForeground(Color.BLUE);
-				if(e.getSource() == slct_fix){
-					patch_table_pane.setViewportView(fixture_table);
-				} else if(e.getSource() == slct_dim){
-					patch_table_pane.setViewportView(dimmer_table);
-				} else if(e.getSource() == slct_seq){
-					patch_table_pane.setViewportView(sequence_table);
-				}
-			} else if(e.getSource() == bank_page_up){
+			} else if(e.getSource() == patchTable_Dimmer){
+				
+				setPatchTableData(General.DIMMER);
+				
+			}
+
+			else if(e.getSource() == bank_page_up){
 				
 				bank_page_lbl.setText(String.valueOf(Integer.parseInt(bank_page_lbl.getText())+1));
 				FixtureSelectionEngine.setFaderBankPage(Integer.parseInt(bank_page_lbl.getText()));
@@ -923,13 +1028,51 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 					FixtureSelectionEngine.setFaderBankPage(Integer.parseInt(bank_page_lbl.getText()));
 				}
 				
+			} else if(e.getSource() == btnAddToTable){
+				
+				addToggle = !addToggle;
+				
+				if(addToggle){
+					btnAddToTable.setForeground(Color.BLUE);
+					patchTable_Fixture.setEnabled(false);
+					patchTable_Dimmer.setEnabled(false);
+				} else {
+					btnAddToTable.setForeground(Color.BLACK);
+					patchTable_Fixture.setEnabled(true);
+					patchTable_Dimmer.setEnabled(true);
+				}
+				
+				if(deleteToggle){
+					
+					deleteToggle = false;
+					btnDeleteFromTable.setForeground(Color.BLACK);
+					
+				}
+				
+			} else if(e.getSource() == btnDeleteFromTable){
+				
+				deleteToggle = !deleteToggle;
+				
+				if(deleteToggle){
+					btnDeleteFromTable.setForeground(Color.BLUE);
+				} else {
+					btnDeleteFromTable.setForeground(Color.BLACK);
+				}
+				
+				if(addToggle){
+					
+					addToggle = false;
+					btnAddToTable.setForeground(Color.BLACK);
+					
+				}
+				patchTable_Fixture.setEnabled(true);
+				patchTable_Dimmer.setEnabled(true);
+				
 			}
-		}
+			
+		} // End actionPerformed
 		
-		/*
-		 * stateChanged
-		 */
-		
+		// State Changed Events
 		public void stateChanged(ChangeEvent e){
 			
 			if(e.getSource() == master_spinner){
@@ -955,92 +1098,96 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 				}
 				
 			}
-		}
+		} // End stateChanged
 		
-		public void setMaster(int val){
-			
-			for(int a=0;a<512;a++){
-				
-				if(fixture[a+1] != null){
-					if((fixture[a+1].getStartChannel()+fixture[a+1].getFixtureType().channel_function[0])-1 == (a+1)){
-						data[a] = (byte)((double)channel_data[a+1] * (val/100));
-					} else {
-						data[a] = (byte)(double)channel_data[a+1];
-					}
-				} else {
-					data[a] = (byte)(double)channel_data[a+1];
-				}
-				if(dimmer[a+1] != null){
-					data[a] = (byte)((double)channel_data[a+1] * (val/100));
-				} else {
-					data[a] = (byte)(double)channel_data[a+1];
-				}
-
-			}
-			
-			// Broadcast channel_data with new master value
-			if(artnet_node != null && !blackout_on) {
-				dmx.setSequenceID(sequenceID % 255);
-				dmx.setDMX(data, data.length);
-           		artnet.unicastPacket(dmx, artnet_node.getIPAddress());
-           		sequenceID++;
-            }
-		}
-
+		// Mouse Pressed Events
 		public void mousePressed(MouseEvent e) {
 				
-			if(e.getSource() == fixture_table){
+			if(e.getSource() == selectionTable){
 				
-				fixture_table.setColumnSelectionInterval(e.getX()/137, e.getX()/137);
-				fixture_table.setRowSelectionInterval(e.getY()/50, e.getY()/50);
-
-					try {
+				selectionTable.setColumnSelectionInterval(e.getX()/116, e.getX()/116);
+				selectionTable.setRowSelectionInterval(e.getY()/50, e.getY()/50);
+				
+				// Add a fixture/dimmer to the selectionTable
+				if(addToggle){
+					
+					if(currentPatchTableData == General.DIMMER){
 						
-						String[] s = (fixture_table.getValueAt(fixture_table.getSelectedRow(), fixture_table.getSelectedColumn())).toString().split(" ");
-						Fixture f = fixture[Integer.parseInt(s[s.length-1].split("<")[0])];
+						Dimmer d = dimmer[Integer.parseInt(patchTable.getSelectedValue().toString().split(" ")[0])];
+						selectionTableData[selectionTable.getSelectedRow()][selectionTable.getSelectedColumn()] = "<html>&nbsp;"+d.id+" &emsp; DIM<br>&nbsp;<b>"+d.name+"<b></html>";
 						
-						FixtureSelectionEngine.selectFixture(f);
+					} else {
 						
-					} catch(NullPointerException n){
-						return;
+						Fixture f = fixture[Integer.parseInt(patchTable.getSelectedValue().toString().split(" ")[0])];
+						selectionTableData[selectionTable.getSelectedRow()][selectionTable.getSelectedColumn()] = "<html>&nbsp;"+f.id+" &emsp; FIX<br>&nbsp;<b>"+f.name+"<b></html>";
+						
 					}
-				clear_sel.setEnabled(true);
-				return;
+					addToggle = false;
+					btnAddToTable.setForeground(Color.BLACK);
+					patchTable_Fixture.setEnabled(true);
+					patchTable_Dimmer.setEnabled(true);
+				
+				// Remove a fixture/dimmer to the selectionTable
+				} else if(deleteToggle){
+					
+					selectionTableData[selectionTable.getSelectedRow()][selectionTable.getSelectedColumn()] = null;
+					selectionTable.repaint();
+					
+					deleteToggle = false;
+					btnDeleteFromTable.setForeground(Color.BLACK);
+				
+				// Selects an item from the selectionTable	
+				} else {
+					
+					try {
+
+						// If Dimmer
+						if(selectionTableData[selectionTable.getSelectedRow()][selectionTable.getSelectedColumn()].toString().split(" ")[2].startsWith("DIM")){
+						
+							FixtureSelectionEngine.selectDimmers(dimmer[Integer.parseInt(selectionTableData[selectionTable.getSelectedRow()][selectionTable.getSelectedColumn()].toString().split(" ")[0].substring(12))]);
+					
+							// If Fixture	
+						} else {
+						
+							FixtureSelectionEngine.selectFixture(fixture[Integer.parseInt(selectionTableData[selectionTable.getSelectedRow()][selectionTable.getSelectedColumn()].toString().split(" ")[0].substring(12))]);
+						
+						}
+						clear_sel.setEnabled(true);
+						
+					} catch(Exception ex){}
+					
+				}
 				
 			} 
-//			else if(e.getSource() == group_table){
-//	
-//					selectedFixture = group[group_table.getSelectedRow()+1];					
-//
-//				return;
-//				
-//			} 
-			else if(e.getSource() == dimmer_table){
-				
-				dimmer_table.setColumnSelectionInterval(e.getX()/137, e.getX()/137);
-				dimmer_table.setRowSelectionInterval(e.getY()/50, e.getY()/50);
-				
-				try {
-					String[] s = (dimmer_table.getValueAt(dimmer_table.getSelectedRow(), dimmer_table.getSelectedColumn())).toString().split(" ");
-					FixtureSelectionEngine.selectDimmers(dimmer[Integer.parseInt(s[s.length-1].split("<")[0])]);
-					
-				} catch(NullPointerException npe){
-					return;
-				}
-				clear_sel.setEnabled(true);
-				return;
-			}
-		}
+ 
+		} // End mousePressed
 		
 		public void mouseClicked(MouseEvent e) {}
 		public void mouseReleased(MouseEvent e) {}
 		public void mouseEntered(MouseEvent e) {}
 		public void mouseExited(MouseEvent e) {}
 
-		@Override
 		public void discoveredNewNode(ArtNetNode node) {
+			
+			/*
+			 * 
+			 * 
+			 * 
+			 * ADDRESS SET TO 255.255.255.255 IN ArtNetNode.java
+			 * REMEMBER TO CHANGE BEFORE RELEASE
+			 * 
+			 * 
+			 * 
+			 */
+			
 			if(artnet_node == null){
 				artnet_node = node;
+				try {
+					artnet_node.setIPAddress(InetAddress.getByName("255.255.255.255"));
+				} catch (UnknownHostException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				dmx.setUniverse(artnet_node.getSubNet(), artnet_node.getDmxOuts()[0]);
 				error_disp.setForeground(Color.BLUE);
 				error_disp.setText("Node connected on: " + artnet_node.getIPAddress().toString().split("/")[1]);
@@ -1048,40 +1195,68 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 				error_disp.setForeground(Color.ORANGE);
 				error_disp.setText("2+ nodes found, using first [Settings] to swap");
 			}
-//			settings.updateNodeList(node, Operation.NODE_DISCOVERED);
-		}
+			
+		} // End discoveredNewNode
 
-		@Override
 		public void discoveredNodeDisconnected(ArtNetNode node) {
+			
 			error_disp.setForeground(Color.RED);
 			error_disp.setText("! Node on " + node.getIPAddress().toString().split("/")[1] + " Disconnected");
 			if(artnet_node == node){
 				artnet_node = null;
 			}
-//			settings.updateNodeList(node, Operation.NODE_DISCONECCTED);
-		}
+			
+		} // End discoveredNodeDisconnected
 
-		@Override
 		public void discoveryCompleted(List<ArtNetNode> nodes) {
+			
 			if(nodes.size() == 0){
 				error_disp.setForeground(Color.RED);
 				error_disp.setText("! No ArtNet Nodes Discovered");
 			}
-		}
+			
+		} // End discoveryCompleted
 
-		@Override
 		public void discoveryFailed(Throwable t) {
+			
 			error_disp.setForeground(Color.RED);
 			error_disp.setText("! Discovery Failed");
-		}
-
-		public void keyTyped(KeyEvent e) {}
-		public void keyPressed(KeyEvent e) {}
-		public void keyReleased(KeyEvent e) {}
+			
+		} // End discoveryFailed
 		
-		public void loadProfile(String name){
+		/**
+		 * Sets if the right hand patchTable JList is displaying fixtures or dimmers.
+		 * @param n General.DIMMER or General.FIXTURE
+		 */
+		public void setPatchTableData(General n){
+
+			patchTable_Fixture.setForeground(Color.BLACK);
+			patchTable_Dimmer.setForeground(Color.BLACK);
+			currentPatchTableData = n;
+		
+			if(n == General.DIMMER){
+				
+				patchTable.setListData(dimmerData);
+				patchTable_Dimmer.setForeground(Color.BLUE);
+				
+			} else if(n == General.FIXTURE){
+				
+				patchTable.setListData(fixtureData);
+				patchTable_Fixture.setForeground(Color.BLUE);
+				
+			}
+			
+		}
+		
+		/**
+		 * Loads an xml profile from the /xml directory
+		 * @param file The JarEntry returned by the enumeration in the initiate() method
+		 */
+		public void loadProfile(JarEntry file){
+	//	public void loadProfile(String name){
 
 			channel_amt = 0;
+			String name = file.getName().substring(10, file.getName().length()-4);
 			final String fullname = name;
 			final String profile_manu = name.split("-")[0].replace("_", " ");
 			final String profile_mode = name.split("@")[1].replace("_", " ");
@@ -1090,7 +1265,8 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 			SAXParser parser;
 			try {
 				parser = factory.newSAXParser();
-				parser.parse("xml/"+name+".xml", new DefaultHandler(){
+				parser.parse(getClass().getResourceAsStream("xml/" + file.getName().substring(10)), new DefaultHandler(){
+			//	parser.parse("xml/"+name+".xml", new DefaultHandler(){
 					
 					String channel_name = null, channel_func_name = null;
 					Vector<ProfileChannel> profile_channels = new Vector<ProfileChannel>();
@@ -1136,52 +1312,90 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 				e.printStackTrace();
 			}
 			
-		}
+		} // End loadProfile
+		
+		/**
+		 * Sets the master fader to given value. Function only effects dimmer channels.
+		 * @param val Value between 0-255
+		 */
+		public void setMaster(int val){
+			
+			for(int a=0;a<512;a++){
+				
+				if(fixture[a+1] != null){
+					if((fixture[a+1].getStartChannel()+fixture[a+1].getFixtureType().channel_function[0])-1 == (a+1)){
+						data[a] = (byte)((double)channel_data[a+1] * (val/100));
+					} else {
+						data[a] = (byte)(double)channel_data[a+1];
+					}
+				} else {
+					data[a] = (byte)(double)channel_data[a+1];
+				}
+				if(dimmer[a+1] != null){
+					for(int b=0;b<dimmer[a+1].getFixtures().length;b++){
+						data[dimmer[a+1].getFixtures()[b].getStartChannel()-1] = (byte)((double)channel_data[dimmer[a+1].getFixtures()[b].getStartChannel()] * (val/100));
+					}
+				} else {
+					data[a] = (byte)(double)channel_data[a+1];
+				}
+
+			}
+			
+			// Broadcast channel_data with new master value
+			if(artnet_node != null && !blackout_on) {
+				dmx.setSequenceID(sequenceID % 255);
+				dmx.setDMX(data, data.length);
+           		artnet.unicastPacket(dmx, artnet_node.getIPAddress());
+           		sequenceID++;
+            }
+			
+		} // End setMaster
+		
+		// Value Changed Events
+		public void valueChanged(ListSelectionEvent e) {
+			
+			try {
+				
+				// Selects a dimmer from the patchTable
+				if(currentPatchTableData == General.DIMMER){
+				
+					FixtureSelectionEngine.selectDimmers(dimmer[Integer.parseInt(patchTable.getSelectedValue().toString().split(" ")[0])]);
+			
+					// Selects a fixture or fixture from the patchTable	
+				} else {
+			
+					FixtureSelectionEngine.selectFixture(fixture[Integer.parseInt(patchTable.getSelectedValue().toString().split(" ")[0])]);
+				
+				}
+				clear_sel.setEnabled(true);
+				btnAddToTable.setEnabled(true);
+				btnDeleteFromTable.setEnabled(true);
+			
+			} catch(Exception ex){
+				
+				btnAddToTable.setEnabled(false);
+				btnDeleteFromTable.setEnabled(false);
+				
+			}
+			
+		} // End valueChanged
 		
 		public void createTables(){
 			
-			fixture_table = new JTable(fixture_data, new Object[] {"","","","","","",""}){
+			selectionTable = new JTable(selectionTableData, new Object[] {"","","","","",""}){
 				public boolean isCellEditable(int row, int column) {                
 	                return false;               
 				}
 			};
-			fixture_table.setCellSelectionEnabled(true);
-			fixture_table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-			fixture_table.setRowHeight(50);
-			fixture_table.setComponentPopupMenu(fixture_menu);
-			fixture_table.setTableHeader(null);
-			fixture_table.setFocusable(false);
-			fixture_table.setSelectionBackground(Color.LIGHT_GRAY);
+			selectionTable.setCellSelectionEnabled(true);
+			selectionTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			selectionTable.setRowHeight(50);
+			selectionTable.setTableHeader(null);
+			selectionTable.setFocusable(false);
+			selectionTable.setSelectionBackground(Color.LIGHT_GRAY);
 			
-			dimmer_table = new JTable(dimmer_data, new Object[] {"","","","","","",""}){
-				public boolean isCellEditable(int row, int column) {                
-	                return false;               
-				};
-			};
-			dimmer_table.setCellSelectionEnabled(true);
-			dimmer_table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-			dimmer_table.setRowHeight(50);
-			dimmer_table.setComponentPopupMenu(dimmer_menu);
-			dimmer_table.setTableHeader(null);
-			dimmer_table.setFocusable(false);
-			dimmer_table.setSelectionBackground(Color.LIGHT_GRAY);
+			selectionTable.addMouseListener(this);
 			
-			sequence_table = new JTable(sequence_data, new Object[] {"","","","","","",""}){
-				public boolean isCellEditable(int row, int column) {                
-	                return false;               
-				}
-			};
-			sequence_table.setCellSelectionEnabled(true);
-			sequence_table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-			sequence_table.setRowHeight(50);
-			sequence_table.setComponentPopupMenu(sequence_menu);
-			sequence_table.setTableHeader(null);
-			sequence_table.setSelectionBackground(Color.LIGHT_GRAY);
-			
-			fixture_table.addMouseListener(this);
-//			group_table.addMouseListener(this);
-			dimmer_table.addMouseListener(this);
-			sequence_table.addMouseListener(this);
 		}
 		
 		// TABLE ROW COLOUR RENDERERS
@@ -1236,4 +1450,5 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 			}
 			
 		}
+
 }

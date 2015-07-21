@@ -7,6 +7,8 @@ import java.util.EventObject;
 import javax.swing.*;
 import javax.swing.event.*;
 
+import Truss.main.General;
+
 public class dimmerWizard implements ActionListener {
 	
 	JButton create, cancel, btnChooseColour;
@@ -16,8 +18,6 @@ public class dimmerWizard implements ActionListener {
 	JLabel lblAmount, lblStartChannel, exampleLbl, errorLbl;
 	JFrame frame = new JFrame();
 	
-	int x = 0, y = 0;
-	
 	Color color = new Color(238,238,238);
 	JColorChooser chooser = new JColorChooser();
 	
@@ -25,10 +25,7 @@ public class dimmerWizard implements ActionListener {
 	 * @wbp.parser.entryPoint
 	 */
 	public void actionPerformed(ActionEvent a){
-		
-		x = main.frame.fixture_table.getSelectedColumn();
-		y = main.frame.fixture_table.getSelectedRow();
-		
+
 		JPanel panel = new JPanel();
 		panel.setLayout(null);
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -79,7 +76,7 @@ public class dimmerWizard implements ActionListener {
 		
 		cancel = new JButton("Cancel");
 		cancel.setFocusable(false);
-		cancel.setBounds(96, 212, 100, 29);
+		cancel.setBounds(85, 212, 100, 29);
 		panel.add(cancel);
 		
 		incrName = new JCheckBox("Incr. Name");
@@ -93,16 +90,10 @@ public class dimmerWizard implements ActionListener {
 		exampleLbl.setBounds(16, 92, 105, 16);
 		panel.add(exampleLbl);
 		
-		errorLbl = new JLabel("Ready to Create");
+		errorLbl = new JLabel("Ready to Create", SwingConstants.RIGHT);
 		errorLbl.setBounds(6, 184, 288, 16);
 		panel.add(errorLbl);
-		
-		acg = new JCheckBox("Auto Create Group");
-		acg.setFocusable(false);
-		acg.setEnabled(false);
-		acg.setBounds(6, 120, 135, 28);
-		panel.add(acg);
-		
+
 		btnChooseColour = new JButton("Choose Colour");
 		btnChooseColour.setFocusable(false);
 		btnChooseColour.setBounds(189, 119, 105, 30);
@@ -122,6 +113,7 @@ public class dimmerWizard implements ActionListener {
 	}
 	public class event implements ActionListener, KeyListener, ChangeListener {
 		public void actionPerformed(ActionEvent e){
+			
 			if(e.getSource() == create){
 				
 				int startChannel = (Integer)startchannel.getValue();
@@ -130,34 +122,25 @@ public class dimmerWizard implements ActionListener {
 				if(incrName.isSelected()){
 
 					for(int a=0;a<(Integer)amount.getValue();a++){
-						f[a] = new Fixture(namefield.getText()+"-"+(a+1), "Dimmer", startChannel, 1, true, color, x, y);
-				//		updatePatchTable();
+						f[a] = new Fixture(namefield.getText()+"-"+(a+1), "Dimmer", startChannel, 1, true, color);
 						startChannel ++;
 					}
 					
 				} else {
 
 					for(int a=0;a<(Integer)amount.getValue();a++){ 
-						f[a] = new Fixture(namefield.getText(), "Dimmer", startChannel, 1, true, color, x, y); 
-			//			updatePatchTable();
+						f[a] = new Fixture(namefield.getText(), "Dimmer", startChannel, 1, true, color); 
 						startChannel ++;
 					}
 					
 				}
 				
-//				if(acg.isSelected()){
-//					main.group[main.group_counter] = new Group(namefield.getText(), "Dimmer");
-//					for(int b=0;b<(Integer)amount.getValue();b++){
-//						main.group[main.group_counter-1].addMember(main.dimmer[main.dimmerNumber-(Integer)amount.getValue()+b]);
-//					}
-//					main.groupNames.add(namefield.getText());
-//				}
-				main.dimmer[main.dimmerNumber] = new Dimmer(namefield.getText(), f);
+				main.dimmerData.add(main.dimmerNumber + "   " + namefield.getText() + " (Size: " + f.length + ")");
+				main.frame.setPatchTableData(General.DIMMER);
 				
-				updatePatchTable();
+				main.dimmer[main.dimmerNumber] = new Dimmer(namefield.getText(), f, main.dimmerNumber);
 				main.dimmerNumber++;
 				
-		//		main.setFaderWingPage((Integer)main.fw_page_spinner.getValue());
 				frame.dispose();
 				
 			} else if(e.getSource() == cancel){
@@ -168,7 +151,9 @@ public class dimmerWizard implements ActionListener {
 				btnChooseColour.setBackground(color);
 				
 			}
-		}
+			
+		} // End actionPerformed
+		
 		public void stateChanged(ChangeEvent e) {	
 			checkValues(e);	 
 		}
@@ -184,18 +169,26 @@ public class dimmerWizard implements ActionListener {
 					exampleLbl.setText("eg. " + namefield.getText() + "-2");
 				}
 				
+				if(namefield.getText().length() > 12){
+					errorLbl.setForeground(Color.RED);
+					errorLbl.setText("Names must be 12 or less characters");
+					create.setEnabled(false);
+				} else {
+					errorLbl.setForeground(Color.BLACK);
+					errorLbl.setText("Ready to Create");
+					create.setEnabled(true);
+				}
+				
 			} else if(e.getSource() == startchannel || e.getSource() == amount){			
 				checkValues(e);			
 			}
 		}
 	}
-	private void updatePatchTable(){
-		main.dimmer_data[main.frame.dimmer_table.getSelectedRow()][main.frame.dimmer_table.getSelectedColumn()] = "<html>&emsp;" + namefield.getText() + "<br>&emsp; " + main.dimmerNumber + "</html>";
-	//	main.dimmer_data[main.dimmerNumber-1][1] = main.dimmer[main.dimmerNumber].getName();
-	//	main.dimmer_data[main.dimmerNumber-1][2] = main.dimmer[main.dimmerNumber].getStartChannel();
-		main.frame.dimmer_table.repaint();
-	}
 	
+	/**
+	 * Checks to ensure all inputed values are valid
+	 * @param e The component who's value changed
+	 */
 	private void checkValues(EventObject e){
 		
 		if( (Integer)((JSpinner)e.getSource()).getValue() < 1 || (Integer)((JSpinner)e.getSource()).getValue() > 512 ){
@@ -206,7 +199,7 @@ public class dimmerWizard implements ActionListener {
 		
 		if((((Integer)amount.getValue() > 0) && ((Integer)amount.getValue() < 513)) && ((((Integer)startchannel.getValue() > 0) && ((Integer)startchannel.getValue() < 513)))){
 			errorLbl.setForeground(Color.BLACK);
-			errorLbl.setText("						  																			Ready to Create");
+			errorLbl.setText("Ready to Create");
 			create.setEnabled(true);
 		}
 		

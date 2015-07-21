@@ -7,18 +7,16 @@ public class Fixture extends Object implements Serializable{
 
 //	private static final long serialVersionUID = -1290584544546311538L;
 	String name, fixtureType;
-	int startChannel, channels, id, intensity = 0, x, y;
+	int startChannel, channels, id, intensity = 0;
 	boolean usingProfile;
 	Color c = null;
 	
-	public Fixture(String name, String fixtureType, int startChannel, int channels, boolean usingProfile, Color colour, int x, int y) {
+	public Fixture(String name, String fixtureType, int startChannel, int channels, boolean usingProfile, Color colour) {
 		this.name = name;
 		this.fixtureType = fixtureType;
 		this.startChannel = startChannel;
 		this.channels = channels;
 		this.usingProfile = usingProfile;
-		this.x = x;
-		this.y = y;
 		id = main.fixtureNumber;
 		c = colour;
 		saveShow.isSaved = false;
