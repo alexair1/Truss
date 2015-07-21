@@ -1,6 +1,6 @@
 # Truss
 Truss DMX Lighting Software &copy; Alex Air 2015 <br>
-Version 1.0 
+Version Alpha 1.0.0 
 
 ##### What's New?
 * First version, so the whole thing

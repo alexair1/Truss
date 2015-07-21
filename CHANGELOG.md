@@ -6,5 +6,9 @@ Example: Alpha v1.0.2
 
 <hr>
 
+##### Alpha v1.1.0 <br>
+* Added ability to install new profiles
+* Added 'Help' menu
+
 ###### Alpha v1.0.0, 9/7/15 <br>
 * First version, everything new...
