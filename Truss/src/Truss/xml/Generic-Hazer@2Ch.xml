@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!--
+	Modified 7/1/16
+	v1.1
+-->
+
+<fixture>
+
+	<channel name="Pump" func="Control 1">
+		<range low="0" high="255" name="Pump" />
+	</channel>
+
+	<channel name="Fan" func="Control 2" >
+		<range low="0" high="255" name="Fan" />
+	</channel>
+
+
+</fixture>
