@@ -13,16 +13,11 @@ import java.text.ParseException;
 import java.util.*;
 import java.net.BindException;
 import java.net.InetAddress;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-
 import artnet4j.ArtNet;
 import artnet4j.ArtNetNode;
 import artnet4j.events.ArtNetDiscoveryListener;
@@ -62,7 +57,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 	static Object selectedFixture = null;
 	
 	static JButton bank_page_up, bank_page_down, patchTable_Fixture, patchTable_Dimmer, slct_seq, cue_Go, cue_next, cue_prev, cue_store, cue_ok, group_btn, store_cue_btn, remote_btn, add_cue, black_out, new_cue_stack, load_show, next_cue, prev_cue, new_fixture, edit_fixture, clear_sel, save_show;
-	static JButton btnFocus, btnDimmer, btnIris, btnShutter, btnZoom, btnColourWheel, btnRgbMixing, btnCto, btnGobo_1, btnGobo_2, btnGobo_3, btnPrism, btnFrost, btnControl, btnOther, btnDeleteFromTable, btnAddToTable;
+	static JButton btnFocus, btnDimmer, btnIris, btnShutter, btnZoom, btnColourWheel, btnRgbMixing, btnCto, btnGobo_1, btnGobo_2, btnGobo_3, btnPrism, btnFrost, btnControl, btnOther, btnDeleteFromTable, btnAddToTable, btnEffects;
 	JSlider  master_slider, fade_slider, intensity_fader;
 	static JTextField cue_name_tf;
 	static JTextField hold_for_tf;
@@ -95,10 +90,13 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 	
 	General currentPatchTableData = General.DIMMER;
 	
-	final String[] channels = {"Dimmer", "Shutter", "Iris", "Focus", "Zoom", "Pan", "Tilt", "Colour Wheel", 
-			   "Colour Wheel (Fine)", "Red", "Red (Fine)", "Green", "Green (Fine)", "Blue", "Blue (Fine)",
+	final static String[] channels = {"Dimmer", "Shutter", "Iris", "Focus", "Zoom", "Pan", "Tilt", "Colour Wheel 1", 
+			   "Colour Wheel 2", "Red", "Red (Fine)", "Green", "Green (Fine)", "Blue", "Blue (Fine)",
 			   "Cyan", "Cyan (Fine)", "Magenta", "Magenta (Fine)", "Yellow", "Yellow (Fine)", "CTO",
-			   "CTO (Fine)"};
+			   "CTO (Fine)", "Gobo 1", "Gobo 1 Rotation", "Gobo 2", "Gobo 2 Rotation", "Gobo 3", "Gobo 3 Rotation",
+			   "Prism", "Prism Rotation", "Frost 1", "Frost 2", "Frost 3", "Control 1", "Control 2", "Control 3", "Control 4",
+			   "Control 5", "Other 1", "Other 2", "Other 3", "Other 4", "Other 5", "Dimmer (Fine)", "Iris (Fine)", "Focus (Fine)",
+			   "Zoom (Fine)", "Pan (Fine)", "Tilt (Fine)", "White", "White (Fine)"};
 	
 	JMenuItem saveItem, loadItem, fixtureItem, dimmerItem, aboutItem, patch_newFixture, patch_newDimmer, patch_newSequence, settingsItem, addProfileItem;
 	
@@ -106,7 +104,6 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 	
 	SAXParserFactory factory = SAXParserFactory.newInstance();
 	private JLabel lblCurrentTheFirst;
-//	DefaultHandler handler;
 	
 	public static void main(String[] args){
 		 frame = new main();
@@ -116,7 +113,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 	 * Called after all components are initialized
 	 */
 	public void initiate() {
-		
+
 		for(int a=0;a<999;a++){
 			cue[a+1] = new Cue(null, "New Cue", 0, 0, (a+1));
 		}
@@ -162,45 +159,34 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 			
 			File jarFile = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
 
-			if(jarFile.isFile()) { 
+			for(int i=0;i<jarFile.listFiles()[12].listFiles()[51].listFiles().length;i++)
+				loadProfile(jarFile.listFiles()[12].listFiles()[51].listFiles()[i].getName().substring(0, jarFile.listFiles()[12].listFiles()[51].listFiles()[i].getName().length()-4));
+			
 
-				JarFile jar = new JarFile(jarFile);
-				Enumeration<JarEntry> entries = jar.entries(); 
-
-				while(entries.hasMoreElements()) {
-					JarEntry file = entries.nextElement();
-		        
-					if (file.getName().startsWith("Truss/xml/") && !file.isDirectory()) { 
-
-						loadProfile(file);
-		        	
-					}
-		        
-				}
-		    
-				jar.close();
-			}
+//			System.out.println(Arrays.toString(jarFile.listFiles()[12].listFiles()[44].listFiles()));
+//			System.out.println(jarFile.listFiles()[12].listFiles()[44].listFiles()[0].getName());
+//			if(jarFile.isFile()) { 
+//
+//				JarFile jar = new JarFile(jarFile);
+//				Enumeration<JarEntry> entries = jar.entries(); 
+//				
+//				while(entries.hasMoreElements()) {
+//					JarEntry file = entries.nextElement();
+//
+//					if (file.getName().startsWith("Truss/xml/") && !file.isDirectory()) { 
+//
+//						loadProfile(file);
+//		        	
+//					}
+//		        
+//				}
+//		    
+//				jar.close();
+//			}
 		
 		} catch(Exception e){
 			e.printStackTrace();
 		}
-		
-//		try {
-//
-//			InputStream in = main.class.getResourceAsStream("xml");
-//			BufferedReader input = new BufferedReader(new InputStreamReader(in));
-//
-//			String profileName;
-//
-//			while((profileName = input.readLine()) != null){
-//				
-//				loadProfile(profileName.substring(0, profileName.length()-4));
-//	
-//			}
-//			
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
 
 		load_show_filter = new FileNameExtensionFilter("Truss Show File", "truss");
 	}  
@@ -281,7 +267,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		contentPane.add(patch_and_control);
 
 		setContentPane(contentPane);
-		setTitle("Truss, Alpha 1.1.0");
+		setTitle("Truss, Alpha 1.1.1");
 		setResizable(false); 
 		
 		JPanel menu_panel = new JPanel();
@@ -297,7 +283,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		
 		slct_seq = new JButton("EXEC");
 		slct_seq.setEnabled(false);
-		slct_seq.setBounds(1, 85, 89, 35);
+		slct_seq.setBounds(1, 100, 89, 35);
 		patch_and_control.add(slct_seq);
 		
 		patchTable_Fixture = new JButton("Fixtures"); 
@@ -322,6 +308,14 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		btnDeleteFromTable.setFocusable(false);
 		btnDeleteFromTable.setBounds(0, 45, 90, 35);
 		patch_and_control.add(btnDeleteFromTable);
+		
+		
+		btnEffects = new JButton("EFFECTS");
+		btnEffects.setEnabled(false);
+		btnEffects.setFocusable(false);
+		btnEffects.setBounds(1, 140, 89, 35);
+		patch_and_control.add(btnEffects);
+
 		
 		patchMenu = new JPopupMenu();
 		
@@ -669,6 +663,9 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		dimmerWizard b = new dimmerWizard();
 			patch_newDimmer.addActionListener(b);
 			
+		EffectWizard e = new EffectWizard();
+			btnEffects.addActionListener(e);
+			
 //		editFixture c = new editFixture();
 //			edit_fixture.addActionListener(c);
 			
@@ -811,7 +808,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 					if(fc.showSaveDialog(main.this) == JFileChooser.APPROVE_OPTION){
 						currently_loaded_show = fc.getSelectedFile();
 						saveShow.save(fc.getSelectedFile());
-						setTitle("Truss Alpha 1.0 - " + currently_loaded_show.getName());
+						setTitle("Truss Alpha 1.1.1 - " + currently_loaded_show.getName());
 					}
 					
 				} else {
@@ -845,7 +842,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 				if(fc.showOpenDialog(main.this) == JFileChooser.APPROVE_OPTION){
 					currently_loaded_show = fc.getSelectedFile();
 					saveShow.load(fc.getSelectedFile());
-					setTitle("Truss Alpha 1.0 - " + currently_loaded_show.getName());
+					setTitle("Truss Alpha 1.1.1 - " + currently_loaded_show.getName());
 				}
 				
 			} else if(e.getSource() == addProfileItem){
@@ -1112,7 +1109,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 				if(addToggle){
 					
 					if(currentPatchTableData == General.DIMMER){
-						
+				//		patchTable.getSelectedValues()
 						Dimmer d = dimmer[Integer.parseInt(patchTable.getSelectedValue().toString().split(" ")[0])];
 						selectionTableData[selectionTable.getSelectedRow()][selectionTable.getSelectedColumn()] = "<html>&nbsp;"+d.id+" &emsp; DIM<br>&nbsp;<b>"+d.name+"<b></html>";
 						
@@ -1147,9 +1144,10 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 							FixtureSelectionEngine.selectDimmers(dimmer[Integer.parseInt(selectionTableData[selectionTable.getSelectedRow()][selectionTable.getSelectedColumn()].toString().split(" ")[0].substring(12))]);
 					
 							// If Fixture	
-						} else {
-						
-							FixtureSelectionEngine.selectFixture(fixture[Integer.parseInt(selectionTableData[selectionTable.getSelectedRow()][selectionTable.getSelectedColumn()].toString().split(" ")[0].substring(12))]);
+						} else if(selectionTableData[selectionTable.getSelectedRow()][selectionTable.getSelectedColumn()].toString().split(" ")[2].startsWith("FIX")) {
+							
+							Fixture f = fixture[Integer.parseInt(selectionTableData[selectionTable.getSelectedRow()][selectionTable.getSelectedColumn()].toString().split(" ")[0].substring(12))];
+							FixtureSelectionEngine.selectFixtures(new Fixture[]{f}, f.getName(), f.getId());
 						
 						}
 						clear_sel.setEnabled(true);
@@ -1252,11 +1250,12 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 		 * Loads an xml profile from the /xml directory
 		 * @param file The JarEntry returned by the enumeration in the initiate() method
 		 */
-		public void loadProfile(JarEntry file){
-	//	public void loadProfile(String name){
+
+	//	public void loadProfile(JarEntry file){
+		public void loadProfile(String name){
 
 			channel_amt = 0;
-			String name = file.getName().substring(10, file.getName().length()-4);
+
 			final String fullname = name;
 			final String profile_manu = name.split("-")[0].replace("_", " ");
 			final String profile_mode = name.split("@")[1].replace("_", " ");
@@ -1265,22 +1264,27 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 			SAXParser parser;
 			try {
 				parser = factory.newSAXParser();
-				parser.parse(getClass().getResourceAsStream("xml/" + file.getName().substring(10)), new DefaultHandler(){
-			//	parser.parse("xml/"+name+".xml", new DefaultHandler(){
-					
+				parser.parse(getClass().getResourceAsStream("xml/" + name + ".xml"), new DefaultHandler(){
+
 					String channel_name = null, channel_func_name = null;
 					Vector<ProfileChannel> profile_channels = new Vector<ProfileChannel>();
-					int[] profile_channel_function = new int[51];
+					int[] profile_channel_function = new int[52];
 					Vector<Range> profile_channel = null;
-					ProfileChannel channel_func = null;
+					boolean initialised = false;
+			//		ProfileChannel channel_func = null;
 
 					public void startElement(String uri, String localname, String name, Attributes attributes) throws SAXException {
 
+						if(!initialised){
+							for(int i=0;i<52;i++)
+								 profile_channel_function[i] = -1;
+							initialised = true;
+						}
+						
 						if(name == "channel"){
-								
 							profile_channel = new Vector<Range>();
 							channel_name = attributes.getValue(0);
-							channel_func_name = attributes.getValue(0);
+							channel_func_name = attributes.getValue(1);
 								
 							if(Arrays.asList(channels).indexOf(attributes.getValue(1)) != -1){
 								profile_channel_function[Arrays.asList(channels).indexOf(attributes.getValue(1))] = channel_amt;
@@ -1299,8 +1303,8 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 							profileID++;
 						} else if(name == "channel"){
 							
-							channel_func = new ProfileChannel(channel_name, channel_func_name, profile_channel);
-							profile_channels.add(channel_func);
+					//		channel_func = new ProfileChannel(channel_name, channel_func_name, profile_channel);
+							profile_channels.add(new ProfileChannel(channel_name, channel_func_name, profile_channel));
 						
 						}
 						
@@ -1361,10 +1365,11 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 				
 					FixtureSelectionEngine.selectDimmers(dimmer[Integer.parseInt(patchTable.getSelectedValue().toString().split(" ")[0])]);
 			
-					// Selects a fixture or fixture from the patchTable	
+					// Selects a fixture or fixtures from the patchTable	
 				} else {
-			
-					FixtureSelectionEngine.selectFixture(fixture[Integer.parseInt(patchTable.getSelectedValue().toString().split(" ")[0])]);
+					
+					Fixture f = fixture[Integer.parseInt(patchTable.getSelectedValue().toString().split(" ")[0])];
+					FixtureSelectionEngine.selectFixtures(new Fixture[]{f}, f.getName(), f.getId());
 				
 				}
 				clear_sel.setEnabled(true);
@@ -1450,5 +1455,4 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 			}
 			
 		}
-
 }

@@ -99,7 +99,7 @@ import javax.swing.event.*;
 						if(f.fixtureType.equals("Dimmer") || (f.getStartChannel()+f.getFixtureType().channel_function[0])-1 == dmxChannels[0]){
 							main.data[dmxChannels[0]-1] = (byte)((double)main.channel_data[dmxChannels[0]] * ((Integer)main.frame.master_spinner.getValue()/100));
 						} else {
-							main.data[dmxChannels[0]-1] = (byte)(double)main.channel_data[dmxChannels[0]];
+							main.data[dmxChannels[0]] = (byte)(double)main.channel_data[dmxChannels[0]];
 						}
 						
 					} else {

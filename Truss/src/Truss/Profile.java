@@ -16,6 +16,7 @@ public class Profile {
 		this.fullname = fullname;
 		this.function = function;
 		this.channel_function = channel_function;
+		System.out.println(channel_function[40]);
 	}
 	
 	public String getName(){
