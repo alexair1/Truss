@@ -1,13 +1,15 @@
 # Truss
-Truss DMX Lighting Software &copy; Alex Air 2015 <br>
-Version Alpha 1.1.0 
+Truss DMX Lighting Software &copy; Alex Air 2017 <br>
+Version Alpha 1.2.0 
 
-##### What's New?
-* Added ‘Help’ menu
-* Improved fixture and dimmer selection and patching
-* Fixed issue where dimmer and fixture creation windows didn’t open
-* Fixed issue where fixture profiles did not load
-* General fixes
+##### What's New? (20/7/17)
+* Allowed for group selection/selection of multiple fixtures
+* Significantely improved reliability when controlling fixtures
+* Added executable presets
+* Added Console that takes command line style directions
+* Re arranged and simplified UI
+* Added ability for user to load profiles
+* Added menu bar
 
 For the full version history please see CHANGELOG.md.
 
