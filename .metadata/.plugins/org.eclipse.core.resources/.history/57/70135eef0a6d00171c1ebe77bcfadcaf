@@ -1,0 +1,5 @@
+package Truss;
+
+public class ChFn {
+	static final int SHUTTER = 0;
+}

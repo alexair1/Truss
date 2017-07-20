@@ -1,0 +1,62 @@
+package Truss;
+
+public class ChFn {
+	
+	final static String[] channels = {"Shutter", "Dimmer", "Iris", "Focus", "Zoom", "Pan", "Tilt", 
+			   "Colour Wheel 1", "Colour Wheel 2", "Colour Wheel 3", "Colour Wheel 4", "Colour Wheel 5", 
+			   "Red", "Green", "Blue", "Cyan", "Magenta", "Yellow", "CTO", 
+			   "Gobo 1 1", "Gobo 1 2", "Gobo 1 3", "Gobo 1 4", "Gobo 1 5", 
+			   "Gobo 2 1", "Gobo 2 2",  "Gobo 2 3", "Gobo 2 4", "Gobo 2 5",
+			   "Gobo 3 1", "Gobo 3 2",  "Gobo 3 3", "Gobo 3 4", "Gobo 3 5",
+			   "Control 1", "Control 2", "Control 3", "Control 4", "Control 5", 
+			   "Other 1", "Other 2", "Other 3", "Other 4", "Other 5",
+			   "Prism", "Frost"};
+	
+	static final int SHUTTER = 0;
+	static final int DIMMER = 1;
+	static final int IRIS = 2;
+	static final int FOCUS = 3;
+	static final int ZOOM = 4;
+	static final int PAN = 5;
+	static final int TILT = 6;
+	static final int CW1 = 7;
+	static final int CW2 = 8;
+	static final int CW3 = 9;
+	static final int CW4 = 10;
+	static final int CW5 = 11;
+	static final int RED = 12;
+	static final int GREEN = 13;
+	static final int BLUE = 14;
+	static final int CYAN = 15;
+	static final int MAGENTA = 16;
+	static final int YELLOW = 17;
+	static final int CTO = 18;
+	static final int GOBO11 = 19;
+	static final int GOBO12 = 20;
+	static final int GOBO13 = 21;
+	static final int GOBO14 = 22;
+	static final int GOBO15 = 23;
+	static final int GOBO21 = 24;
+	static final int GOBO22 = 25;
+	static final int GOBO23 = 26;
+	static final int GOBO24 = 27;
+	static final int GOBO25 = 28;
+	static final int GOBO31 = 29;
+	static final int GOBO32 = 30;
+	static final int GOBO33 = 31;
+	static final int GOBO34 = 32;
+	static final int GOBO35 = 33;
+	static final int CTRL1 = 34;
+	static final int CTRL2 = 35;
+	static final int CTRL3 = 36;
+	static final int CTRL4 = 37;
+	static final int CTRL5 = 38;
+	static final int OTHER1 = 39;
+	static final int OTHER2 = 40;
+	static final int OTHER3 = 41;
+	static final int OTHER4 = 42;
+	static final int OTHER5 = 43;
+	static final int PRISM = 44;
+	static final int FROST = 45;
+
+}

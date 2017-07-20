@@ -31,12 +31,12 @@ public class About extends JFrame implements ActionListener {
 		panel.setLayout(null);
 		frame.setContentPane(panel);
 		
-		JLabel lblCreatingByAlex = new JLabel("Created by Alex Air \u00a9 2015", SwingConstants.CENTER);
+		JLabel lblCreatingByAlex = new JLabel("Created by Alex Air \u00a9 2017", SwingConstants.CENTER);
 		lblCreatingByAlex.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		lblCreatingByAlex.setBounds(0, 316, 400, 14);
 		panel.add(lblCreatingByAlex);
 		
-		JLabel lblNewLabel = new JLabel("v Alpha 1.1.1", SwingConstants.CENTER);
+		JLabel lblNewLabel = new JLabel("v Alpha 1.2", SwingConstants.CENTER);
 		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		lblNewLabel.setBounds(0, 341, 400, 14);
 		panel.add(lblNewLabel);

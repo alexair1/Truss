@@ -2,29 +2,31 @@ package Truss;
 
 import java.awt.Color;
 import java.io.Serializable;
+import java.util.Vector;
 
 public class Fixture extends Object implements Serializable{
-
-//	private static final long serialVersionUID = -1290584544546311538L;
-	String name, fixtureType;
-	int startChannel, channels, id, intensity = 0;
+	private static final long serialVersionUID = -4961161340715328094L;
+	String name;
+	Profile fixtureType;
+	int startChannel, channelAmt, id, intensity = 0;
 	boolean usingProfile;
 	Color c = null;
 	
-	public Fixture(String name, String fixtureType, int startChannel, int channels, boolean usingProfile, Color colour) {
+	//Constants
+	static final int CHANNEL_NAME_IDX = 0;
+	static final int CHANNEL_FUNC_IDX = 1;
+	
+	public Fixture(String name, Profile fixtureType, int startChannel, int channels, boolean usingProfile, Color colour) {
 		this.name = name;
 		this.fixtureType = fixtureType;
 		this.startChannel = startChannel;
-		this.channels = channels;
+		channelAmt = channels;
 		this.usingProfile = usingProfile;
 		id = main.fixtureNumber;
 		c = colour;
-		saveShow.isSaved = false;
 		
-//		if(main.getProfileByName(fixtureType).built_in_dimmer){
-//			intensity = 255;
-//		}
-
+		main.isChannelDimmer[getUniversalChannelNumberByFunctionIndex(ChFn.DIMMER)-1] = true;
+		
 	}
 		public String getName() {
 			return name;
@@ -39,13 +41,13 @@ public class Fixture extends Object implements Serializable{
 			this.startChannel = startChannel;
 		}
 		public int getChannels(){
-			return channels;
+			return channelAmt;
 		}
 		public void setChannels(int channels){
-			this.channels = channels;
+			channelAmt = channels;
 		}
 		public Profile getFixtureType(){
-			return main.getProfileByName(fixtureType);
+			return fixtureType;
 		}
 		public boolean isUsingProfile(){
 			return usingProfile;
@@ -53,5 +55,19 @@ public class Fixture extends Object implements Serializable{
 		public int getId(){
 			return id;
 		}
-
+		
+		/**
+		 * Returns the name of the channel corresponding to a given function index
+		 * @param Function Index
+		 * @return Channel Name
+		 */
+		public String getChannelNameByFunctionIndex(int idx){
+			int channelNumber = getFixtureType().getLocalChannelNumberByFunctionIndex(idx);
+			return (String)getFixtureType().getChannelInfo(channelNumber)[CHANNEL_NAME_IDX];
+		}
+		
+		public int getUniversalChannelNumberByFunctionIndex(int idx){
+			int channelNumber = getFixtureType().getLocalChannelNumberByFunctionIndex(idx);
+			return startChannel + channelNumber;
+		}
 }

@@ -1,56 +1,69 @@
 package Truss;
 
+import java.io.Serializable;
 import java.util.Vector;
-
 import Truss.main.Range;
 
-public class Profile {
-	String name, mode, manu, fullname;
-	Vector<ProfileChannel> function;
-	int[] channel_function;
+public class Profile implements Serializable {
 	
-	public Profile(String name, String manu, String mode, String fullname, Vector<ProfileChannel> function, int[] channel_function){
-		this.name = name;
-		this.mode = mode;
-		this.manu = manu;
-		this.fullname = fullname;
-		this.function = function;
-		this.channel_function = channel_function;
-		System.out.println(channel_function[40]);
+	private static final long serialVersionUID = -2598829704175775443L;
+	
+	String fixtureName;
+	int id = main.profileID;
+	Vector channelInfo;
+	boolean built_in_dimmer;
+	int[] channelFuncMap;
+	
+	public Profile(String fixtureName, String mode, Vector channelInfo, boolean built_in_dimmer, int[] channelFuncMap){
+		this.fixtureName = fixtureName;          // Name
+		
+		// 2D Vector, each vector contains info about a channel in form: [name, func, *Range Descriptions*]
+		this.channelInfo = channelInfo;                
+		this.built_in_dimmer = built_in_dimmer;  // Has built in Dimmer?
+		this.channelFuncMap = channelFuncMap;    // Each index contains local channel number for channelInfo of that index, -1 if non existent
 	}
 	
 	public String getName(){
-		return name;
-	}
-	public String getMode(){
-		return mode;
-	}
-	public String getManufacturer(){
-		return manu;
-	}
-	public String getFullName(){
-		return fullname;
+		return fixtureName;
 	}
 	public int getChannels(){
-		return function.size();
+		return channelInfo.size();
 	}
+
+	/**
+	 * Returns the channel number associated with a channelInfo index for this profile
+	 * @param idx
+	 * @return channel number
+	 */
+	public int getLocalChannelNumberByFunctionIndex(int idx) {
+		return channelFuncMap[idx];
+	}
+	
+	/**
+	 * Returns an array in form [name, func, *Range Descriptions*] for a given local channel number
+	 * @param localChannelNumber
+	 * @return Array of info
+	 */
+	public Object[] getChannelInfo(int localChannelNumber) {
+		return ((Vector)channelInfo.elementAt(localChannelNumber)).toArray();	
+	}
+	
+	
+	//TODO reName
 	public void setStringValue(Fader f){
 		int channel=0;
-		try{
-			channel = (f.dmxChannels[0] - f.f.startChannel)+1;
+		try {
+			channel = f.dmxChannels[0] - f.f.startChannel;
+		} catch(Exception e){}
+
+		for(int a=0;a<((Vector)channelInfo.get(channel)).size()-2;a++){
+
+			Range rng = (Range)(Object)((Vector) channelInfo.get(channel)).get(a+2);
 			
-			for(int a=0;a<function.get(channel).func.size();a++){
-				
-				Range rng = function.get(channel).func.get(a);
-				
-				if(rng.isInRange(Math.abs(f.slider.getValue()))){
-					f.channel_val_str.setText(rng.func);
-					break;
-				}
-			}
+			if(rng.isInRange(Math.abs(f.slider.getValue())))
+				f.channel_val_str.setText(rng.func);
 			
-		} catch(Exception e){
-			f.channel_val_str.setText("-");
 		}
+		return;
 	}
 }

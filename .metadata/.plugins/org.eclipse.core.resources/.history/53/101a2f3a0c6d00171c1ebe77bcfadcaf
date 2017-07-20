@@ -1,0 +1,51 @@
+package Truss;
+
+public class ChFn {
+	static final int SHUTTER = 0;
+	static final int DIMMER = 1;
+	static final int IRIS = 2;
+	static final int FOCUS = 3;
+	static final int ZOOM = 4;
+	static final int PAN = 5;
+	static final int TILT = 6;
+	static final int CW1 = 7;
+	static final int CW2 = 8;
+	static final int CW3 = 9;
+	static final int CW4 = 10;
+	static final int CW5 = 11;
+	static final int RED = 12;
+	static final int GREEN = 13;
+	static final int BLUE = 14;
+	static final int CYAN = 15;
+	static final int MAGENTA = 16;
+	static final int YELLOW = 17;
+	static final int CTO = 18;
+	static final int GOBO11 = 19;
+	static final int GOBO12 = 20;
+	static final int GOBO13 = 21;
+	static final int GOBO14 = 22;
+	static final int GOBO15 = 23;
+	static final int GOBO21 = 24;
+	static final int GOBO22 = 25;
+	static final int GOBO23 = 26;
+	static final int GOBO24 = 27;
+	static final int GOBO25 = 28;
+	static final int GOBO31 = 29;
+	static final int GOBO32 = 30;
+	static final int GOBO33 = 31;
+	static final int GOBO34 = 32;
+	static final int GOBO35 = 33;
+	static final int CTRL1 = 34;
+	static final int CTRL2 = 35;
+	static final int CTRL3 = 36;
+	static final int CRTL4 = 37;
+	static final int CTRL5 = 38;
+	static final int OTHER1 = 39;
+	static final int OTHER2 = 40;
+	static final int OTHER3 = 41;
+	static final int OTHER4 = 42;
+	static final int OTHER5 = 43;
+	static final int PRISM = 44;
+	static final int FROST = 45;
+
+}

@@ -1,0 +1,8 @@
+package Truss;
+
+public class FunctionIndexEnum {
+
+	public enum FN {
+		
+	}
+}

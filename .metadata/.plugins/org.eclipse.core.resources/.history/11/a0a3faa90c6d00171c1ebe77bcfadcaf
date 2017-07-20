@@ -1,0 +1,78 @@
+package Truss;
+
+import java.awt.Color;
+import java.io.Serializable;
+import java.util.Vector;
+
+public class Fixture extends Object implements Serializable{
+	private static final long serialVersionUID = -4961161340715328094L;
+	String name;
+	Profile fixtureType;
+	int startChannel, channelAmt, id, intensity = 0;
+	boolean usingProfile;
+	Color c = null;
+	
+	//Constants
+	static final int CHANNEL_NAME_IDX = 0;
+	static final int CHANNEL_FUNC_IDX = 1;
+	
+	public Fixture(String name, Profile fixtureType, int startChannel, int channels, boolean usingProfile, Color colour) {
+		this.name = name;
+		this.fixtureType = fixtureType;
+		this.startChannel = startChannel;
+		channelAmt = channels;
+		this.usingProfile = usingProfile;
+		id = main.fixtureNumber;
+		c = colour;
+		
+		main.isChannelDimmer[getUniversalChannelNumberByFunctionIndex(1)-1] = true;
+		
+		//System.out.println(fixtureType);
+		if(fixtureType.built_in_dimmer){
+			intensity = 255;
+		}
+		
+	}
+		public String getName() {
+			return name;
+		}
+		public void setName(String name){
+			this.name = name;
+		}
+		public int getStartChannel(){
+			return startChannel;
+		}
+		public void setStartChannel(int startChannel){
+			this.startChannel = startChannel;
+		}
+		public int getChannels(){
+			return channelAmt;
+		}
+		public void setChannels(int channels){
+			channelAmt = channels;
+		}
+		public Profile getFixtureType(){
+			return fixtureType;
+		}
+		public boolean isUsingProfile(){
+			return usingProfile;
+		}
+		public int getId(){
+			return id;
+		}
+		
+		/**
+		 * Returns the name of the channel corresponding to a given function index
+		 * @param Function Index
+		 * @return Channel Name
+		 */
+		public String getChannelNameByFunctionIndex(int idx){
+			int channelNumber = getFixtureType().getLocalChannelNumberByFunctionIndex(idx);
+			return (String)getFixtureType().getChannelInfo(channelNumber)[CHANNEL_NAME_IDX];
+		}
+		
+		public int getUniversalChannelNumberByFunctionIndex(int idx){
+			int channelNumber = getFixtureType().getLocalChannelNumberByFunctionIndex(idx);
+			return startChannel + channelNumber;
+		}
+}

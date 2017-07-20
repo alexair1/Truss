@@ -1,48 +1,45 @@
 package Truss;
 
-import java.awt.Color;
 import java.io.*;
-import java.util.Properties;
-import java.util.Vector;
-
-import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
 
 public class saveShow {
 	
 	static boolean isSaved = false;
 	
-	/*
-	 * Save Show
-	 */
+	// Save Show
 	public static void save(File file_path){
+
 		try {
 			ObjectOutputStream o = new ObjectOutputStream(new FileOutputStream(file_path));
 			int a;
 			
-			for(a=1;a<513;a++){
-				o.writeObject(main.channel_data[a]);
-			}
+			o.writeObject(main.data);
 
-			for(a=1;a<513;a++){
+			o.writeObject(main.isChannelDimmer);
+
+			for(a=0;a<512;a++){
 				o.writeObject(main.fixture[a]);
 			}
 			
+			for(a=0;a<512;a++){
+				o.writeObject(main.patch_data[a]);
+			} 
+			
 			for(a=1;a<513;a++){
-				o.writeObject(main.dimmer[a]);
+				o.writeObject(main.group[a]);
 			}
 			
-			o.writeObject(main.selectionTableData);
+			o.write(main.groupNames.size());
 			
-//			for(a=0;a<6;a++){
-//				for(int b=0;b<6;b++){
-//					o.writeObject(main.selectionTableData[a][b]);
-//				}
-//			}
-
-			o.write(main.frame.master_slider.getValue());
+			for(a=0;a<main.groupNames.size();a++){
+				o.writeUTF(main.groupNames.get(a));
+			}
 			
-			o.writeInt(main.frame.fade_slider.getValue());
+			for(a=0;a<50;a++){
+				o.writeObject(main.preset[a]);
+			}
+			
+			o.write(Loader.frame.master_slider.getValue());
 			
 			o.close();
 		} catch(Exception e){
@@ -50,121 +47,123 @@ public class saveShow {
 		}
 		isSaved = true;
 	}
-
+	
+	// Load Show
 	public static void load(File file_path){
-		
-		ProgressDialog prog = new ProgressDialog("Saving");
-		
 		try {
 			ObjectInputStream o = new ObjectInputStream(new FileInputStream(file_path));
 			
-			int a=1;
+			int a=0;
 
-			while(a < 513){
+			main.data = (int[])o.readObject();
+			main.isChannelDimmer = (boolean[])o.readObject();
+
+			a=0;
+			
+			main.fixtureNumber = 0;
+
+			while(a < 512){
 				try {
-					main.frame.channel_data[a] = (Integer)o.readObject();
+					Object f = o.readObject();
+
+					if(f instanceof Fixture){
+						main.fixture[a] = (Fixture)f;
+						main.fixtureNumber++;
+					} else {
+						main.fixture[a] = null;
+					}
+					a++;
+				} catch(Exception e){
+					e.printStackTrace();
+				}
+			}
+
+			a=0;
+			
+			while(a < 512){
+				try {
+					main.patch_data[a] = (Object[])o.readObject();
 					a++;
 				} catch(Exception e){
 					e.printStackTrace();
 				}
 			} 
-			System.out.println("loaded channel data");
-			prog.setProgress(20);
-
+			
 			a=1;
-
-			main.fixtureNumber = 1;
-			main.selectionTableData = new Object[6][6];
-			main.fixtureData = new Vector<String>();
-			main.dimmerData = new Vector<String>();
-			main.fixture = new Fixture[513];
+			main.group_counter = 1;
 			
 			while(a < 513){
 				try {
+					
+					Object g = o.readObject();
 
-					Object f = o.readObject();
-
-					if(f instanceof Fixture){
-
-						main.fixture[a] = (Fixture)f;
-
-						main.fixtureData.add(main.fixtureNumber + "   " + ((Fixture)f).name);
-						main.fixtureNumber++;
-						
+					if(g instanceof Group){
+						main.group[a] = (Group)g;			
+						main.group_data[main.group_counter-1][0] = main.group[a].name;
+						main.group_data[main.group_counter-1][1] = main.group[a].fixtureType;
+						main.group_data[main.group_counter-1][2] = main.group[a].getMembers().length;
+						main.group_counter++;
 					} else {
-						
-						main.fixture[a] = null;
-						
+						main.group[a] = null;
 					}
-					
 					a++;
-					
 				} catch(Exception e){
-					e.printStackTrace();
-				}
-			}
-			System.out.println("loaded fixtures");
-			prog.setProgress(40);
-			
-			a=1;
-			
-			main.dimmerNumber = 1;
-			main.dimmer = new Dimmer[513];
-
-			while(a < 513){
-				try {
-					Object d = o.readObject();
-
-					if(d instanceof Dimmer){
-
-						main.dimmer[a] = (Dimmer)d;
-						main.dimmerData.add(main.dimmerNumber + "   " + ((Dimmer)d).name + " (Size: " + ((Dimmer)d).getFixtures().length + ")");
-						main.dimmerNumber++;
-						
-					} else {
-						
-						main.dimmer[a] = null;
-						
+					if(a == 1){
+						e.printStackTrace();
 					}
-					
-					a++;
-					
-				} catch(Exception e){
-					e.printStackTrace();
 				}
-			}
-			System.out.println("loaded dimmers");
-			prog.setProgress(60);
+			} 
 			
-			main.frame.patchTable.setListData(main.dimmerData);
+			boolean b = true;
+			a=0;
+			int groupNamesSize = 0;
 			
-			main.selectionTableData = (Object[][])o.readObject();
-			System.out.println("loaded selectionTable");
-			prog.setProgress(80);
-			
-			try{
-				main.frame.master_slider.setValue(o.read());
-				System.out.println("loaded master fader");
-				prog.setProgress(90);
+			try {
+				groupNamesSize = o.read();
 			} catch(Exception e){
 				e.printStackTrace();
 			}
 			
+			while(a < groupNamesSize){
+				try {
+					if(main.groupNames.size() == 0){
+						main.groupNames.add(o.readUTF());
+					} else if(a < main.groupNames.size()){
+						main.groupNames.set(a, o.readUTF());
+					} else {
+						main.groupNames.add(o.readUTF());
+					}
+					
+					a++;
+				} catch(Exception e){
+					b = false;
+					e.printStackTrace();
+				}
+			}
+			
+			for(a=0;a<50;a++){
+				try {
+					Preset p = (Preset)o.readObject();
+					if(p instanceof Preset){
+						main.preset[a] = new Preset(p.row, p.name, p.getPresetData());
+					} else {
+						main.preset[a] = null;
+					}
+						
+				} catch(Exception e){
+					e.printStackTrace();
+				}
+			}
+			
 			try{
-				main.frame.fade_slider.setValue(o.readInt());
-				System.out.println("loaded fade fader");
-				prog.setProgress(100);
+				Loader.frame.master_slider.setValue(o.read());
 			} catch(Exception e){
 				e.printStackTrace();
 			}
 			
 			o.close();
-			prog.dispose();
 		} catch(Exception e){
 			e.printStackTrace();
 		}
-		
-		main.frame.createTables();
-		main.frame.patch_table_pane.setViewportView(main.frame.selectionTable);
 	}
 } 

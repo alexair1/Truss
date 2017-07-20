@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!--
+	Modified 13/7/17
+	v1.0
+-->
+
+<fixture name="Dimmer" mode="Standard">
+
+	<channel name="Dimmer" func="Dimmer">
+		<range low="0" high="255" name="Dimmer" />
+	</channel>
+
+</fixture>

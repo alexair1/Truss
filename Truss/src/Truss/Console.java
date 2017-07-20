@@ -244,6 +244,7 @@ public class Console implements ActionListener{
 	}
 	
 	public void executeString(String string){
+		tf.setText("");
 		String[] part = string.split(" ");
 		
 		if(part[0].equals("SET")){
@@ -252,85 +253,62 @@ public class Console implements ActionListener{
 			c = Command.HIGHLIGHT;
 		} else if(part[0].equals("SOLO")){
 			c = Command.SOLO;
+		} else if(part[0].equals("CLEAR")){
+			for(a=0;a<512;a++){
+				main.data[a] = 0;
+			}
+			main.broadcast(main.data, true);
+			return;
 		} else {
 			tf.setForeground(Color.RED);
 			return;
 		}
-		int[] selection;
+		int startNum, endNum;
 		
 		if(part[1].contains("-")){
-			int startNum = Integer.parseInt(part[1].split("-")[1]);
-			int endNum = Integer.parseInt(part[1].split("-")[0]);
-			selection = new int[Math.abs(startNum - endNum)];
-			
-			for(int a=0;a < selection.length; a++){
-				selection[a] = startNum+a;
-			}
+			startNum = Integer.parseInt(part[1].split("-")[0]);
+			endNum = Integer.parseInt(part[1].split("-")[1]);
 			
 		} else {
-			selection = new int[1];
-			selection[0] = Integer.parseInt(part[1]);
+			startNum = endNum = Integer.parseInt(part[1].split("-")[0]);
 		}
 		
 		switch(c){
 			case SET:
 				
-				byte value = (byte)255;
+				int value = 255;
 				if(part[2].equals("DMX")){
-					value = (byte)Integer.parseInt(part[3]);
+					value = Integer.parseInt(part[3]);
 				} else if(part[2].equals("%")){
-					value = (byte)(2.55*Integer.parseInt(part[3]));
+					value = (int) (2.55*Integer.parseInt(part[3]));
 				}
 				
-				b=0;
-				for(a=0;a<512;a++){
-					System.out.println(selection[b] + ":::" + a);
-					if(selection[b] == (a+1)){
-						main.data[a] = value;
-						if(b < selection.length-1){
-							b++;
-						}
-					}
+				for(a=startNum; a<=endNum; a++){
+					main.data[a-1] = value;
 				}
 				
 				break;
 			case HIGHLIGHT:
 				
-				b=0;
-				for(a=0;a<512;a++){
-					if(selection[b] == (a+1)){
-						main.data[a] = (byte)255;
-						if(b < selection.length-1){
-							b++;
-						}
-					}
+				for(a=startNum; a<=endNum; a++){
+					main.data[a-1] = 255;
 				}
 				
 				break;
 			case SOLO:
-				
-				b=0;
+
 				for(a=0;a<512;a++){
-					if(selection[b] == (a+1)){
-						if(b < selection.length-1){
-							b++;
-						}
-					} else {
-						main.data[a] = (byte)0;
-					}
+					main.data[a] = 0;
+				}
+				for(a=startNum; a<=endNum; a++){
+					main.data[a-1] = 255;
 				}
 				
 				break;
 			
 		}
 		
-		if(main.artnet_node != null && !main.blackout_on) {
-			main.dmx.setSequenceID(main.sequenceID % 255);
-			main.dmx.setDMX(main.data, main.data.length);
-//				System.out.println(main.artnet_node.getIPAddress());
-       		main.artnet.unicastPacket(main.dmx, main.artnet_node.getIPAddress());
-       		main.sequenceID++;
-        }
+		main.broadcast(main.data, true);
 	}
 }
 

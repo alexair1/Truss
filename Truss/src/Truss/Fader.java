@@ -1,12 +1,12 @@
 package Truss;
 
 import java.awt.*;
-
 import javax.swing.*;
 import javax.swing.event.*;
 	
 	public class Fader {
 		int id, value=0, prev_val=0;
+		private boolean isProtected = false;
 		JSpinner val_spinner;
 		JSlider slider;
 		JLabel channel_name, channel_val_str, channel_num;
@@ -14,14 +14,13 @@ import javax.swing.event.*;
 		JCheckBox fine;
 		int[] dmxChannels = null;
 		Fixture f = null;
-		Dimmer d = null;
 		JPanel p;
 		
 		public void create(int id, JPanel panel, Color bg_colour, int x, int y){
 			this.id = id;
 			
 			p = new JPanel();
-	//		p.setBackground(new Color(130, 130, 130));
+			p.setBackground(bg_colour);
 			p.setLayout(new BoxLayout(p, BoxLayout.PAGE_AXIS));
 			p.setBounds(x, y, 80, 310);
 				
@@ -38,12 +37,11 @@ import javax.swing.event.*;
 			slider = new JSlider(0, 255, 0);
 			slider.setMinorTickSpacing(15);
 			slider.setPaintTicks(true);
-		//	slider.setBackground(new Color(130, 130, 130));
+			slider.setBackground(bg_colour);
 			slider.setOrientation(SwingConstants.VERTICAL);
 			slider.setAlignmentX(Component.CENTER_ALIGNMENT);
 			slider.setPreferredSize(new Dimension(60,220));
 			slider.setEnabled(false);
-			slider.setFocusable(false);
 			p.add(slider);
 			
 			val_spinner = new JSpinner();
@@ -55,7 +53,6 @@ import javax.swing.event.*;
 			fine = new JCheckBox("Fine");
 			fine.setAlignmentX(Component.CENTER_ALIGNMENT);
 			fine.setEnabled(false);
-			fine.setFocusPainted(false);
 			p.add(fine);
 
 			panel.add(p);
@@ -67,7 +64,7 @@ import javax.swing.event.*;
 		}
 		public class event implements ChangeListener {
 			public void stateChanged(ChangeEvent e){
-				
+
 				if(e.getSource() == val_spinner){
 					
 					slider.removeChangeListener(this);
@@ -83,156 +80,115 @@ import javax.swing.event.*;
 					val_spinner.addChangeListener(this);
 					
 				}
-				broadcast();
+				updateChannelData();
 			}
 		}
-		private void broadcast(){
-			
-			saveShow.isSaved = false;
-			
-			if(dmxChannels != null){
+		private void updateChannelData(){
+			if(dmxChannels != null && !isProtected){
 				if(dmxChannels.length == 1){
-					main.frame.channel_data[dmxChannels[0]] = slider.getValue();
-					
-					if(f != null){
 
-						if(f.fixtureType.equals("Dimmer") || (f.getStartChannel()+f.getFixtureType().channel_function[0])-1 == dmxChannels[0]){
-							main.data[dmxChannels[0]-1] = (byte)((double)main.channel_data[dmxChannels[0]] * ((Integer)main.frame.master_spinner.getValue()/100));
-						} else {
-							main.data[dmxChannels[0]] = (byte)(double)main.channel_data[dmxChannels[0]];
-						}
-						
-					} else {
-						main.data[dmxChannels[0]-1] = (byte)(double)main.channel_data[dmxChannels[0]];
-					}
-					
-//					System.out.println(f);
-//					System.out.println(f.getFixtureType());
-//					System.out.println(f.getFixtureType().name);
-//					if(f.getFixtureType().name.equals("Dimmer")){
-//						main.data[dmxChannels[0]-1] = (byte)((double)main.frame.channel_data[dmxChannels[0]] / 255 * (Integer)main.frame.master_spinner.getValue());
-//					} else {
-//						main.data[dmxChannels[0]-1] = (byte)((double)main.frame.channel_data[dmxChannels[0]] / 255 * (Integer)main.frame.master_spinner.getValue());
-//					}
-					
+					main.data[dmxChannels[0]-1] = slider.getValue();
+
 					// Broadcast
-					if(main.artnet_node != null && !main.blackout_on) {
-						main.dmx.setSequenceID(main.sequenceID % 255);
-						main.dmx.setDMX(main.data, main.data.length);
-		           		main.artnet.unicastPacket(main.dmx, main.artnet_node.getIPAddress());
-		           		main.sequenceID++;
-		            }
+					main.broadcast(main.data, false);
 					
 				} else {
 
 					for(int a=0;a<dmxChannels.length;a++){
-						if((slider.getValue() != main.frame.channel_data[dmxChannels[a]])){
-							int new_val = 0;
+						
+						if((slider.getValue() != main.data[dmxChannels[a]-1])){
+							int new_val;
 
 							if(prev_val < slider.getValue()){
-								new_val = main.frame.channel_data[dmxChannels[a]] + Math.abs(slider.getValue()-prev_val);
-							} 
-							else {
-								new_val = main.frame.channel_data[dmxChannels[a]] - Math.abs(slider.getValue()-prev_val);
+								new_val = main.data[dmxChannels[a]-1] + Math.abs(slider.getValue()-prev_val);
+							} else {
+								new_val = main.data[dmxChannels[a]-1] - Math.abs(slider.getValue()-prev_val);
 							}
-
+					
 							if(new_val < 256 && new_val > -1){
-								main.frame.channel_data[dmxChannels[a]] = new_val;
+								main.data[dmxChannels[a]-1] = new_val;
 							} else if(new_val > 255){
-								main.frame.channel_data[dmxChannels[a]] = 255;
+								main.data[dmxChannels[a]-1] = 255;
 							} else if(new_val < 0){
-								main.frame.channel_data[dmxChannels[a]] = 0;
+								main.data[dmxChannels[a]-1] = 0;
 							}
-
-							int index = a % 7;
-							if(index == 0 && a != 0){
-								index = 7;
-							}
-
-							Fader[] faders = {main.bank_1, main.bank_2, main.bank_3, main.bank_4, main.bank_5, main.pan, main.tilt};
-							
-							try{
-								faders[index].slider.setValue(main.frame.channel_data[dmxChannels[a]]);
-							} catch(ArrayIndexOutOfBoundsException e){}
 						
 						}
-						
-						for(int b=0;b<dmxChannels.length;b++){
 
-							main.data[dmxChannels[b]-1] = (byte)((double)main.frame.channel_data[dmxChannels[b]] * ((Integer)main.frame.master_spinner.getValue()/100));
-						
-						}
-						
 						// Broadcast
-						if(main.artnet_node != null && !main.blackout_on) {
-							main.dmx.setSequenceID(main.sequenceID % 255);
-							main.dmx.setDMX(main.data, main.data.length);
-			           		main.artnet.unicastPacket(main.dmx, main.artnet_node.getIPAddress());
-			           		main.sequenceID++;
-			            }
+						main.broadcast(main.data, false);
 					}
-				
-				} // End channel if statement
+				}
 				prev_val = slider.getValue();
-
-			} // End parent if statement
-			
+			}
 			if(f != null){
-				if(f.fixtureType.equals("Dimmer")){
-					this.setStrValue("Intensity");
-				} else if(f.isUsingProfile() && dmxChannels != null){
+				if(f.isUsingProfile() && dmxChannels != null){
 					f.getFixtureType().setStringValue(Fader.this);
 				}
 			} else {
 				this.setStrValue("-");
 			}
-			
-		} // End updateChannelData
-		
+		}
+//		public void setChannel(String channel){
+//			channel_num.setText(channel);
+//		}	
 		public void setName(String name){
 			channel_name.setText(name);
 		}
+		//TODO rename to setValueDescription
 		public void setStrValue(String val){
 			channel_val_str.setText(val);
 		}
 		public void setFaderVisible(boolean b){
 			p.setVisible(b);
 		}
-		public void assignChannel(int[] dmxChannels){
+		public void assignChannels(int[] dmxChannels){
+			
 			this.dmxChannels = dmxChannels;
 			val_spinner.setEnabled(true);
 			slider.setEnabled(true);
-	//		fine.setEnabled(true);
-		}
-//		public void unEnable(){
-//			val_spinner.setEnabled(false);
-//			slider.setEnabled(false);
-//			fine.setEnabled(false);
-//		}
-		public void unassign(){
-			dmxChannels = null;
-			f = null;
-			d = null;
-			this.setName("-");
-			slider.setValue(0);
-			this.setStrValue("-");
-			val_spinner.setEnabled(false);
-			slider.setEnabled(false);
-			fine.setEnabled(false);
-		}
-		public void assignFixture(Fixture f){
-			this.f = f;
-			if(f.fixtureType.equals("Dimmer")){
-				this.setStrValue("Intensity");
-			} else if(f.isUsingProfile() && dmxChannels != null){
+			fine.setEnabled(true);
+			
+			isProtected = true;
+			slider.setValue(main.data[dmxChannels[0]-1]);
+			isProtected = false;
+			
+			if(dmxChannels.length == 1){
+				slider.setMinimum(0);
+				slider.setMaximum(255);
+				isProtected = true;
+					slider.setValue(main.data[dmxChannels[0]-1]);
+				isProtected = false;
+			} else  {
+				slider.setMinimum(-255);
+				slider.setMaximum(255);
+				isProtected = true;
+					slider.setValue(0);
+				isProtected = false;
+			}
+			
+			if(f.isUsingProfile() && dmxChannels != null){
 				f.getFixtureType().setStringValue(Fader.this);
 			}
 		}
-		public void assignDimmer(Dimmer d){
-			f = d.getFixtures()[0];
-			this.d = d;
+		public void unassign(){
+			dmxChannels = null;
+			f = null;
+			channel_name.setText("-");
+			slider.setMinimum(0);
+			slider.setMaximum(255);
+			isProtected = true;
+				slider.setValue(0);
+			isProtected = false;
+			val_spinner.setEnabled(false);
+			slider.setEnabled(false);
+			fine.setEnabled(false);
+			channel_val_str.setText("-");
+		}
+		public void assignFixture(Fixture f){
+			this.f = f;
 		}
 		public void revalidate(){
-			broadcast();
+			updateChannelData();
 		}
 	}

@@ -1,0 +1,126 @@
+<synth>
+	<style id="basic">
+    	<font name="Arial" size="12"/>
+      <opaque value="TRUE" />
+   		<state>
+         <color value="BLACK" type="TEXT_FOREGROUND"/>
+         <!-- <color value="BLACK" type="FOREGROUND"/> -->
+<!--    			 <imagePainter method="buttonBackground" path="img/button.png"
+                           sourceInsets="10 10 10 10" /> -->
+    	</state>
+  	</style>
+
+
+    <!-- BUTTON STYLE -->
+    <style id="button">
+      <insets top="15" left="10" bottom="15" right="10"/>
+      <state> 
+                  <imagePainter method="buttonBackground" path="/img/button.png"
+                           sourceInsets="3 3 3 3" />
+                <font name="Helvetica" size="12"/>
+                <color type="TEXT_FOREGROUND" value="WHITE" />
+      </state>
+      <state value="PRESSED"> 
+                  <imagePainter method="buttonBackground" path="/img/button-pressed.png"
+                           sourceInsets="3 3 3 3" />
+                <font name="Helvetica" size="12"/>
+                <color type="TEXT_FOREGROUND" value="WHITE" />
+      </state>
+    </style>
+
+     <!-- SLIDER STYLE -->
+    <style id="slider">
+      <!-- <insets top="15" left="10" bottom="15" right="10"/> -->
+      <state>
+         <color value="WHITE" type="BACKGROUND"/>
+      </state>
+    </style>
+
+    <!-- SLIDER TRACK STYLE -->
+    <style id="slidertrack">
+      <insets top="15" left="10" bottom="15" right="10"/>
+      <state>
+        <color value="BLUE" type="FOREGROUND"/>
+                 <!--  <imagePainter method="sliderTrackBackground" path="/img/button.png"
+                           sourceInsets="10 10 10 10" /> -->
+                <!-- <font name="Helvetica" size="12"/> -->
+                <!-- <color type="TEXT_FOREGROUND" value="WHITE" /> -->
+      </state>
+    </style>
+
+    <!-- SCROLL BAR STYLE -->
+    <style id="scrollbar">
+      <!-- <insets top="15" left="10" bottom="15" right="10"/> -->
+      <state>
+                  <imagePainter method="scrollBarBackground" path="/img/scroll-bar-track.png"
+                           sourceInsets="10 10 10 10" />
+                <!-- <font name="Helvetica" size="12"/> -->
+                <!-- <color type="BACKGROUND" value="#888888" /> -->
+      </state>
+    </style>
+
+    <!-- SCROLL BAR TRACK STYLE -->
+    <style id="scrollbartrack">
+      <!-- <insets top="15" left="10" bottom="15" right="10"/> -->
+      <state>
+                  <imagePainter method="scrollBarTrackBackground" path="/img/scroll-bar-track.png"
+                           sourceInsets="10 10 10 10" />
+                <!-- <font name="Helvetica" size="12"/> -->
+                <!-- <color type="BACKGROUND" value="#888888" /> -->
+      </state>
+    </style>
+
+    <!-- SCROLL BAR THUMB STYLE -->
+    <style id="scrollbarthumb">
+      <!-- <insets top="15" left="10" bottom="15" right="10"/> -->
+      <state>
+                  <imagePainter method="scrollBarThumbBackground" path="/img/scroll-bar-thumb.png"
+                           sourceInsets="10 10 10 10" />
+                <!-- <font name="Helvetica" size="12"/> -->
+                <!-- <color type="BACKGROUND" value="#888888" /> -->
+      </state>
+    </style>
+
+    <!-- TABLE STYLE -->
+    <style id="table">
+      <insets top="15" left="10" bottom="15" right="10"/>
+      <state>
+                 <!--  <imagePainter method="separatorBackground" path="/img/separator.png"
+                           sourceInsets="10 10 10 10" /> -->
+                <!-- <font name="Helvetica" size="12"/> -->
+                <color type="BACKGROUND" value="#DDDDDD" />
+      </state>
+    </style>
+
+    <!-- TABLE HEADER STYLE -->
+    <style id="tableheader">
+      <insets top="15" left="10" bottom="15" right="10"/>
+      <state>
+                 <!--  <imagePainter method="separatorBackground" path="/img/separator.png"
+                           sourceInsets="10 10 10 10" /> -->
+                <!-- <font name="Helvetica" size="12"/> -->
+                <color type="BACKGROUND" value="#EEEEEE" />
+      </state>
+    </style>
+
+    <!-- SEPARATOR STYLE -->
+    <style id="separator">
+      <insets top="15" left="10" bottom="15" right="10"/>
+      <state>
+                  <imagePainter method="separatorBackground" path="/img/separator.png"
+                           sourceInsets="10 10 10 10" />
+                <!-- <font name="Helvetica" size="12"/> -->
+                <!-- <color type="TEXT_FOREGROUND" value="WHITE" /> -->
+      </state>
+    </style>
+
+	<bind style="basic" type="region" key=".*" />
+  <bind style="button" type="region" key="Button" />
+  <bind style="slider" type="region" key="Slider" />
+  <bind style="slidertrack" type="region" key="SliderTrack" />
+  <bind style="scrollbar" type="region" key="ScrollBar" />
+  <bind style="scrollbartrack" type="region" key="ScrollBarTrack" />
+  <bind style="scrollbarthumb" type="region" key="ScrollBarThumb" />
+  <bind style="table" type="region" key="Table" />
+  <bind style="tableheader" type="region" key="TableHeader" />
+</synth>

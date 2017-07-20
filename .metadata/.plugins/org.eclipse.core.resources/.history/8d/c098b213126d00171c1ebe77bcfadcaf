@@ -1,0 +1,196 @@
+package Truss;
+
+import java.awt.*;
+import java.util.Arrays;
+
+import javax.swing.*;
+import javax.swing.event.*;
+	
+	public class Fader {
+		int id, value=0, prev_val=0;
+		private boolean isProtected = false;
+		JSpinner val_spinner;
+		JSlider slider;
+		JLabel channel_name, channel_val_str, channel_num;
+		JSeparator sep;
+		JCheckBox fine;
+		int[] dmxChannels = null;
+		Fixture f = null;
+		JPanel p;
+		
+		public void create(int id, JPanel panel, Color bg_colour, int x, int y){
+			this.id = id;
+			
+			p = new JPanel();
+			p.setBackground(bg_colour);
+			p.setLayout(new BoxLayout(p, BoxLayout.PAGE_AXIS));
+			p.setBounds(x, y, 80, 310);
+				
+			channel_name = new JLabel("-", SwingConstants.CENTER);
+			channel_name.setFont(new Font("Lucida Grande", Font.BOLD, 13));
+			channel_name.setAlignmentX(Component.CENTER_ALIGNMENT);
+			p.add(channel_name);
+			
+			channel_val_str = new JLabel("-", SwingConstants.CENTER);
+			channel_val_str.setAlignmentX(Component.CENTER_ALIGNMENT);
+			channel_val_str.setPreferredSize(new Dimension(80,20));
+			p.add(channel_val_str);
+			
+			slider = new JSlider(0, 255, 0);
+			slider.setMinorTickSpacing(15);
+			slider.setPaintTicks(true);
+			slider.setBackground(bg_colour);
+			slider.setOrientation(SwingConstants.VERTICAL);
+			slider.setAlignmentX(Component.CENTER_ALIGNMENT);
+			slider.setPreferredSize(new Dimension(60,220));
+			slider.setEnabled(false);
+			p.add(slider);
+			
+			val_spinner = new JSpinner();
+			val_spinner.setAlignmentX(Component.CENTER_ALIGNMENT);
+			val_spinner.setPreferredSize(new Dimension(60,25));
+			val_spinner.setEnabled(false);
+			p.add(val_spinner);
+			
+			fine = new JCheckBox("Fine");
+			fine.setAlignmentX(Component.CENTER_ALIGNMENT);
+			fine.setEnabled(false);
+			p.add(fine);
+
+			panel.add(p);
+			
+			event e = new event();
+			val_spinner.addChangeListener(e);
+			slider.addChangeListener(e);   
+
+		}
+		public class event implements ChangeListener {
+			public void stateChanged(ChangeEvent e){
+
+				if(e.getSource() == val_spinner){
+					
+					slider.removeChangeListener(this);
+					slider.setValue((Integer)val_spinner.getValue());
+					value = (Integer)val_spinner.getValue();
+					slider.addChangeListener(this);
+					
+				} else if(e.getSource() == slider){
+					
+					val_spinner.removeChangeListener(this);
+					val_spinner.setValue(slider.getValue());
+					value = slider.getValue();
+					val_spinner.addChangeListener(this);
+					
+				}
+				updateChannelData();
+			}
+		}
+		private void updateChannelData(){
+			if(dmxChannels != null && !isProtected){
+				if(dmxChannels.length == 1){
+
+					main.data[dmxChannels[0]-1] = slider.getValue();
+
+					// Broadcast
+					main.broadcast(main.data, false);
+					
+				} else {
+
+					for(int a=0;a<dmxChannels.length;a++){
+						
+						if((slider.getValue() != main.data[dmxChannels[a]-1])){
+							int new_val;
+
+							if(prev_val < slider.getValue()){
+								new_val = main.data[dmxChannels[a]-1] + Math.abs(slider.getValue()-prev_val);
+							} else {
+								new_val = main.data[dmxChannels[a]-1] - Math.abs(slider.getValue()-prev_val);
+							}
+					
+							if(new_val < 256 && new_val > -1){
+								main.data[dmxChannels[a]-1] = new_val;
+							} else if(new_val > 255){
+								main.data[dmxChannels[a]-1] = 255;
+							} else if(new_val < 0){
+								main.data[dmxChannels[a]-1] = 0;
+							}
+						
+						}
+
+						// Broadcast
+						main.broadcast(main.data, false);
+					}
+				}
+				prev_val = slider.getValue();
+			}
+			if(f != null){
+				if(f.isUsingProfile() && dmxChannels != null){
+					f.getFixtureType().setStringValue(Fader.this);
+				}
+			} else {
+				this.setStrValue("-");
+			}
+		}
+//		public void setChannel(String channel){
+//			channel_num.setText(channel);
+//		}	
+		public void setName(String name){
+			channel_name.setText(name);
+		}
+		//TODO rename to setValueDescription
+		public void setStrValue(String val){
+			channel_val_str.setText(val);
+		}
+		public void setFaderVisible(boolean b){
+			p.setVisible(b);
+		}
+		public void assignChannels(int[] dmxChannels){
+			
+			this.dmxChannels = dmxChannels;
+			val_spinner.setEnabled(true);
+			slider.setEnabled(true);
+			fine.setEnabled(true);
+			
+			isProtected = true;
+			slider.setValue(main.data[dmxChannels[0]-1]);
+			isProtected = false;
+			
+			if(dmxChannels.length == 1){
+				slider.setMinimum(0);
+				slider.setMaximum(255);
+				isProtected = true;
+					slider.setValue(main.data[dmxChannels[0]-1]);
+				isProtected = false;
+			} else  {
+				slider.setMinimum(-255);
+				slider.setMaximum(255);
+				isProtected = true;
+					slider.setValue(0);
+				isProtected = false;
+			}
+			
+			if(f.isUsingProfile() && dmxChannels != null){
+				f.getFixtureType().setStringValue(Fader.this);
+			}
+		}
+		public void unassign(){
+			dmxChannels = null;
+			f = null;
+			channel_name.setText("-");
+			slider.setMinimum(0);
+			slider.setMaximum(255);
+			isProtected = true;
+				slider.setValue(0);
+			isProtected = false;
+			val_spinner.setEnabled(false);
+			slider.setEnabled(false);
+			fine.setEnabled(false);
+			channel_val_str.setText("-");
+		}
+		public void assignFixture(Fixture f){
+			this.f = f;
+		}
+		public void revalidate(){
+			updateChannelData();
+		}
+	}
