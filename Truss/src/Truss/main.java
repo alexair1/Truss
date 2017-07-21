@@ -2,6 +2,7 @@ package Truss;
 
 import java.awt.*;
 
+import javax.print.DocFlavor.URL;
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.filechooser.*;
@@ -9,9 +10,15 @@ import java.awt.event.*;
 import java.io.*;
 import java.util.*;
 import java.net.BindException;
+import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.security.CodeSource;
 import java.util.List;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import artnet4j.ArtNet;
 import artnet4j.ArtNetNode;
@@ -21,6 +28,7 @@ import artnet4j.packets.ArtDmxPacket;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.apache.commons.io.FileUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -38,8 +46,8 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 	
 	static Preset[] preset = new Preset[50];
 	static Profile[] profile = new Profile[100];
-	static cueStack[] cueStack = new cueStack[100];
-	static Cue[] cue = new Cue[1000];
+//	static cueStack[] cueStack = new cueStack[100];
+//	static Cue[] cue = new Cue[1000];
 	static Vector<String> groupNames = new Vector<String>();
 	
 	byte[] blackout = new byte[512];
@@ -179,18 +187,50 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 			/*
 			 * Load Profiles
 			 */
-			final File folder = new File("src/profiles");
-			
-			for (final File fileEntry : folder.listFiles()) {
-				if(fileEntry.getName().endsWith(".xml")){
+			String path = "Truss/resources/profiles";
+			java.net.URL dirURL = main.class.getClassLoader().getResource(path);
 
-					Arrays.fill(profile_channel_function, -1);
-					
-					SAXParser parser;
-					parser = factory.newSAXParser();
-					parser.parse(new File(fileEntry.getPath()), handler);
+			// Load straight from directory if not complied into jar.
+			if (dirURL.getProtocol().equals("file")) {
+
+				for (File fileEntry : new File(dirURL.toURI()).listFiles()) {
+					if(fileEntry.getName().endsWith(".xml")){
+				    	
+						Arrays.fill(profile_channel_function, -1);
+				    						
+						SAXParser parser;
+						parser = factory.newSAXParser();
+						parser.parse(new File(fileEntry.getPath()), handler);
+					}
 				}
-		    }
+				
+			// Else if running standalone, load from enumeration of jar file
+			} else if (dirURL.getProtocol().equals("jar")) {
+				String me = main.class.getName().replace(".", "/")+".class";
+				dirURL = main.class.getClassLoader().getResource(me);
+
+				/* A JAR path */
+				String jarPath = dirURL.getPath().substring(5, dirURL.getPath().indexOf("!")); //strip out only the JAR file
+				JarFile jar = new JarFile(URLDecoder.decode(jarPath, "UTF-8"));
+				Enumeration<JarEntry> entries = jar.entries(); //gives ALL entries in jar
+
+				while(entries.hasMoreElements()) {
+						
+					String name = entries.nextElement().getName();
+
+					if (name.startsWith(path)) { //filter according to the path
+						if(name.endsWith(".xml")){
+								    	
+							Arrays.fill(profile_channel_function, -1);
+						    						
+							SAXParser parser;
+							parser = factory.newSAXParser();
+							// Splitting at 6 removes Truss/
+						 	parser.parse(main.class.getResourceAsStream(name.substring(6, name.length())), handler);
+						}
+					}         
+				}
+			}
 			
 		} catch(Exception e){
 			e.printStackTrace();
@@ -245,7 +285,7 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 			fileMenu.add(loadItem);
 			
 			loadProfileItem = new JMenuItem("Load Profiles");
-			fileMenu.add(loadProfileItem);
+		//	fileMenu.add(loadProfileItem);
 			
 			aboutItem = new JMenuItem("About");
 			fileMenu.add(aboutItem);
@@ -836,24 +876,25 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 					setTitle("Truss Alpha 1.0 - " + currently_loaded_show.getName());
 				}
 				
-			} else if(e.getSource() == loadProfileItem){
-				
-				JFileChooser fc = new JFileChooser();
-				fc.setMultiSelectionEnabled(true);
-				fc.setAcceptAllFileFilterUsed(false);
-				fc.setFileFilter(new FileNameExtensionFilter("Truss Profile", "xml"));
-
-				if(fc.showOpenDialog(main.this) == JFileChooser.APPROVE_OPTION){
-					for(File f : fc.getSelectedFiles()){
-						try {
-							Files.copy(f.toPath(), new File("src/profiles/"+f.getName()).toPath(), StandardCopyOption.REPLACE_EXISTING);
-						} catch (IOException e1) {
-							e1.printStackTrace();
-						}
-					}
-					JOptionPane.showMessageDialog(this, "Profiles Added Sucessfully. Please restart Truss for new profiles to be visible.");
-				}
-			}
+			} 
+//			else if(e.getSource() == loadProfileItem){
+//				
+//				JFileChooser fc = new JFileChooser();
+//				fc.setMultiSelectionEnabled(true);
+//				fc.setAcceptAllFileFilterUsed(false);
+//				fc.setFileFilter(new FileNameExtensionFilter("Truss Profile", "xml"));
+//
+//				if(fc.showOpenDialog(main.this) == JFileChooser.APPROVE_OPTION){
+//					for(File f : fc.getSelectedFiles()){
+//						try {
+//							Files.copy(f.toPath(), new File(getClass().getResource("resources/profiles/"+f.getName()).getPath()).toPath(), StandardCopyOption.REPLACE_EXISTING);
+//						} catch (IOException e1) {
+//							e1.printStackTrace();
+//						}
+//					}
+//					JOptionPane.showMessageDialog(this, "Profiles Added Sucessfully. Please restart Truss for new profiles to be visible.");
+//				}
+//			}
 //				else if(e.getSource() == new_cue_stack){
 //				
 //				cueStackNames.add(new_cue_stack_tf.getText());
@@ -962,68 +1003,70 @@ public class main extends JFrame implements ActionListener, ChangeListener, Mous
 				// Broadcast channel_data with new master value
 				broadcast(data, false);
 				
-			} else if(e.getSource() == cue_Go){
-				
-				if(cue[current_cue].data != null){
-					cue[current_cue].execute();
-					current_cue_lbl.setForeground(Color.GREEN);
-				}
-				
-			} else if(e.getSource() == cue_next){
-				
-				if(current_cue < 999){
-					current_cue++;
-					if(bypass_go_chk.isSelected()){
-						if(cue[current_cue].data != null){
-							cue[current_cue].execute();
-							current_cue_lbl.setForeground(Color.GREEN);
-						}
-					} else {
-						current_cue_lbl.setForeground(Color.RED);
-					}
-					current_cue_lbl.setText(""+current_cue);
-					cue_name_tf.setText(cue[current_cue].name);
-					
-					if(cue[current_cue].data == null){
-						no_assign_lbl.setVisible(true);
-					} else {
-						no_assign_lbl.setVisible(false);
-					}
-				}
-				
-			} else if(e.getSource() == cue_prev){
-				
-				if(current_cue > 1){
-					current_cue--;
-					if(bypass_go_chk.isSelected()){
-						if(cue[current_cue].data != null){
-							cue[current_cue].execute();
-							current_cue_lbl.setForeground(Color.GREEN);
-						}
-					} else {
-						current_cue_lbl.setForeground(Color.RED);
-					}
-					current_cue_lbl.setText(""+current_cue);
-					cue_name_tf.setText(cue[current_cue].name);
-					
-					if(cue[current_cue].data == null){
-						no_assign_lbl.setVisible(true);
-					} else {
-						no_assign_lbl.setVisible(false);
-					}
-				}
-				
-			} else if(e.getSource() == cue_ok){
-				
-				cue[current_cue].name = cue_name_tf.getText();
-				
-			} else if(e.getSource() == cue_store){
-				
-				cue[current_cue].data = data;
-				
-				no_assign_lbl.setVisible(false);
-				data = null;
-			} else if(e.getSource() == btnDimmer || e.getSource() == btnShutter || e.getSource() == btnIris || e.getSource() == btnFocus || e.getSource() == btnZoom){
+			}
+//			else if(e.getSource() == cue_Go){
+//				
+//				if(cue[current_cue].data != null){
+//					cue[current_cue].execute();
+//					current_cue_lbl.setForeground(Color.GREEN);
+//				}
+//				
+//			} else if(e.getSource() == cue_next){
+//				
+//				if(current_cue < 999){
+//					current_cue++;
+//					if(bypass_go_chk.isSelected()){
+//						if(cue[current_cue].data != null){
+//							cue[current_cue].execute();
+//							current_cue_lbl.setForeground(Color.GREEN);
+//						}
+//					} else {
+//						current_cue_lbl.setForeground(Color.RED);
+//					}
+//					current_cue_lbl.setText(""+current_cue);
+//					cue_name_tf.setText(cue[current_cue].name);
+//					
+//					if(cue[current_cue].data == null){
+//						no_assign_lbl.setVisible(true);
+//					} else {
+//						no_assign_lbl.setVisible(false);
+//					}
+//				}
+//				
+//			} else if(e.getSource() == cue_prev){
+//				
+//				if(current_cue > 1){
+//					current_cue--;
+//					if(bypass_go_chk.isSelected()){
+//						if(cue[current_cue].data != null){
+//							cue[current_cue].execute();
+//							current_cue_lbl.setForeground(Color.GREEN);
+//						}
+//					} else {
+//						current_cue_lbl.setForeground(Color.RED);
+//					}
+//					current_cue_lbl.setText(""+current_cue);
+//					cue_name_tf.setText(cue[current_cue].name);
+//					
+//					if(cue[current_cue].data == null){
+//						no_assign_lbl.setVisible(true);
+//					} else {
+//						no_assign_lbl.setVisible(false);
+//					}
+//				}
+//				
+//			} else if(e.getSource() == cue_ok){
+//				
+//				cue[current_cue].name = cue_name_tf.getText();
+//				
+//			} else if(e.getSource() == cue_store){
+//				
+//				cue[current_cue].data = data;
+//				
+//				no_assign_lbl.setVisible(false);
+//				data = null;
+//			} 
+			else if(e.getSource() == btnDimmer || e.getSource() == btnShutter || e.getSource() == btnIris || e.getSource() == btnFocus || e.getSource() == btnZoom){
 				
 				if(e.getSource() == btnShutter){
 					setSingleFader(ChFn.SHUTTER);
